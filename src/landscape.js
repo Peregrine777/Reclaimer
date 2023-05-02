@@ -38,7 +38,7 @@ export class Landscape {
         return Land;
   }
 
-
+//Convert to FBM
 addNoise(object, scaleX, scaleY, height){
   let geometry = object.geometry
   let positionAttribute = geometry.attributes.position;
