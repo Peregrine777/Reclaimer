@@ -42,18 +42,23 @@ export class Landscape {
 addNoise(object, scaleX, scaleY, height){
   let geometry = object.geometry
   let positionAttribute = geometry.attributes.position;
+  let n = new ImprovedNoise;
+    
   for (let i = 0 ; i < positionAttribute.count ; i++) {
     //console.log(positionAttribute.getX(i));
     const x = positionAttribute.getX(i);
     const y = positionAttribute.getY(i);
     const z = positionAttribute.getZ(i);
-    
+
     let dist = new THREE.Vector2(x, y).distanceTo(new THREE.Vector2(0,0))
-    let n = new ImprovedNoise;
-    let h = n.noise(x * scaleX,y * scaleY, 1);
-    h *= height
-    //let z = positionAttribute.getZ(i);
-    positionAttribute.setZ(i, z+h);
+    if (dist > this.size/2){
+      let h = n.noise(x * scaleX,y * scaleY, 1);
+      h *= height
+      //let z = positionAttribute.getZ(i);
+      positionAttribute.setZ(i, z+h);
+    }
+   
+
     
   }
   geometry.computeVertexNormals();
