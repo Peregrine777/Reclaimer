@@ -11,6 +11,8 @@
     import {SSAOPass} from "./jsm/postprocessing/SSAOPass.js";  import { FBXLoader } from './jsm/loaders/FBXLoader.js';
     import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 
+    import { Landscape } from './src/landscape.js';
+
     //create the scene
     let scene = new THREE.Scene( );
     let ratio = window.innerWidth/window.innerHeight;
@@ -69,17 +71,7 @@
   // Objects //
   ///////////
 
-    //Land
-    let landGeom = new THREE.PlaneGeometry(20, 20, 100, 100);
-    let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
-    const Land = new THREE.Mesh(landGeom, landMaterial );
-    Land.rotation.x = -Math.PI/2;
-    //sand.castShadow = true;
-    //landMaterial.wireframe = true;
-    Land.receiveShadow = true;
-    Land.position.setY(0.2)
-    let positionAttribute = landGeom.attributes.position;
-    Land.name = "Land";
+  let Land = new Landscape(sceneVals.sceneLength, sceneVals.sceneWidth).makeLand();
 
   /////////////
   // Lights //
