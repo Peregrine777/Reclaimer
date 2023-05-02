@@ -1,11 +1,11 @@
 import * as THREE from 'three';
+import { ImprovedNoise } from '../build/math/ImprovedNoise.js';
 
 export class Landscape {
+  size = 0;
 
-  constructor(width, height) {
-    this.width = width;
-    this.height = height;
-    this.grid = new Array(width * height);
+  constructor(size) {
+    this.size = size;
   }
 
   // Path: lanscape.js
@@ -20,7 +20,7 @@ export class Landscape {
 
   makeLand(){
         //Land
-        let landGeom = new THREE.PlaneGeometry(20, 20, 100, 100);
+        let landGeom = new THREE.PlaneGeometry(this.size, this.size, 100, 100);
         let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
         const Land = new THREE.Mesh(landGeom, landMaterial );
         Land.rotation.x = -Math.PI/2;
@@ -29,6 +29,35 @@ export class Landscape {
         Land.position.setY(0.2)
         let positionAttribute = landGeom.attributes.position;
         Land.name = "Land";
+
+        this.addNoise(Land, 0.25, 5, 0.15);
+        this.addNoise(Land, 0.50, 5, 0.20);
+        this.addNoise(Land, 1.00, 10, 0.10);
+
+
         return Land;
   }
+
+
+addNoise(object, scaleX, scaleY, height){
+  let geometry = object.geometry
+  let positionAttribute = geometry.attributes.position;
+  for (let i = 0 ; i < positionAttribute.count ; i++) {
+    //console.log(positionAttribute.getX(i));
+    const x = positionAttribute.getX(i);
+    const y = positionAttribute.getY(i);
+    const z = positionAttribute.getZ(i);
+    
+    let dist = new THREE.Vector2(x, y).distanceTo(new THREE.Vector2(0,0))
+    let n = new ImprovedNoise;
+    let h = n.noise(x * scaleX,y * scaleY, 1);
+    h *= height
+    //let z = positionAttribute.getZ(i);
+    positionAttribute.setZ(i, z+h);
+    
+  }
+  geometry.computeVertexNormals();
+  positionAttribute.needsUpdate = true;
+}
+
 }
