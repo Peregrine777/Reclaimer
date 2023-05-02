@@ -42,7 +42,7 @@
 
     ///SCENEVALUES//
     //Values for the GUI
-    let sceneVals = {sceneWidth: 3, sceneLength: 4};
+    let sceneVals = {size: 20};
 
     //Skybox
 
@@ -71,7 +71,7 @@
   // Objects //
   ///////////
 
-  let Land = new Landscape(sceneVals.sceneLength, sceneVals.sceneWidth).makeLand();
+  let Land = new Landscape(sceneVals.size).makeLand();
 
   /////////////
   // Lights //
@@ -95,37 +95,12 @@
   // SceneFunctions //
   /////////////////////
 
-    function addNoise(object, scaleX, scaleY, height){
-      let geometry = object.geometry
-      let positionAttribute = geometry.attributes.position;
-      for (let i = 0 ; i < positionAttribute.count ; i++) {
-        //console.log(positionAttribute.getX(i));
-        const x = positionAttribute.getX(i);
-        const y = positionAttribute.getY(i);
-        const z = positionAttribute.getZ(i);
-        
-        let dist = new THREE.Vector2(x, y).distanceTo(new THREE.Vector2(0,0))
-        let n = new ImprovedNoise;
-        let h = n.noise(x * scaleX,y * scaleY, 1);
-        h *= height
-        //let z = positionAttribute.getZ(i);
-        positionAttribute.setZ(i, z+h);
-        
+      function CreateScene()
+      {   
+        scene.add(Land);
       }
-      geometry.computeVertexNormals();
-      positionAttribute.needsUpdate = true;
-    }
-
-    addNoise(Land, 0.25, 5, 0.15);
-    addNoise(Land, 0.5,5,0.2);
-    addNoise(Land, 1, 10, 0.1);
-
-    function CreateScene()
-    {   
-      scene.add(Land);
-    }
-  
-  CreateScene();
+      
+      CreateScene();
   
   //////////////
   // CONTROLS //
@@ -143,12 +118,13 @@
   //   GUI  //
   ////////////
   
-  gui.add(sceneVals, "sceneWidth", 1, 10, 1).onChange(redrawScene);
-  gui.add(sceneVals, "sceneLength", 1, 10, 1).onChange(redrawScene);
+  gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
 
   function redrawScene(){
 
-    Land.scale.set(sceneVals.sceneLength,sceneVals.sceneWidth, 1)
+    scene.remove(Land);
+    Land = new Landscape(sceneVals.size).makeLand();
+    scene.add(Land);
     CreateScene();
   }
 
