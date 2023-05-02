@@ -66,61 +66,13 @@
     //////////////
 
 
-    //Sand
-    let sandtx = new THREE.TextureLoader().load('./assets/Textures/StylizedSand/Stylized_Sand_001_basecolor.jpg');
-    let sandbmp = new THREE.TextureLoader().load('./assets/Textures/StylizedSand/Stylized_Sand_001_height.png');
-    let sandNormal = new THREE.TextureLoader().load('./assets/Textures/StylizedSand/Stylized_Sand_001_normal.jpg');
-    let sandRough = new THREE.TextureLoader().load("./assets/Textures/StylizedSand/Stylized_Sand_001_roughness.jpg");
-
-
-    rotateTexture(sandtx);
-    rotateTexture(sandbmp);
-    rotateTexture(sandNormal);
-    rotateTexture(sandRough);
-    //sandtx.rotation = Math.PI;
-
-    const sandMaterial = new THREE.MeshPhysicalMaterial({
-      map: sandtx,
-      bumpMap: sandbmp,
-      bumpScale: 1.2,
-      normalMap: sandNormal,
-      roughnessMap: sandRough,
-
-    });
-  
-  //Grass
-    let grassMap = new THREE.TextureLoader().load('./assets/Textures/Grass/Grass_005_BaseColor.jpg');
-    let grassBump = new THREE.TextureLoader().load('./assets/Textures/Grass/Grass_005_Height.png');
-    let grassNormal = new THREE.TextureLoader().load('./assets/Textures/Grass/Grass_005_Normal.jpg');
-    let grassRough = new THREE.TextureLoader().load('./assets/Textures/Grass/Grass_005_Roughness.jpg');
-
-    // let grassMap = new THREE.TextureLoader().load('./assets/Textures/StylizedGrass/Stylized_Grass_003_basecolor.jpg');
-    // let grassBump = new THREE.TextureLoader().load('./assets/Textures/StylizedGrass/Stylized_Grass_003_height.png');
-    // let grassNormal = new THREE.TextureLoader().load('./assets/Textures/StylizedGrass/Stylized_Grass_003_normal.jpg');
-    // let grassRough = new THREE.TextureLoader().load('./assets/Textures/StylizedGrass/Stylized_Grass_003_roughness.jpg');
-
-
-    rotateTexture(grassMap);
-    rotateTexture(grassBump);
-    rotateTexture(grassNormal);
-    rotateTexture(grassRough);
-    //sandtx.rotation = Math.PI;
-
-    const grassMaterial = new THREE.MeshPhysicalMaterial({
-      map: grassMap,
-      bumpMap: grassBump,
-      bumpScale: 1.2,
-      normalMap: grassNormal,
-      roughnessMap: grassRough,
-
-    });
-
   /////////////
   // Objects //
   ///////////
 
     //Beach
     let sandGeom = new THREE.PlaneGeometry(20, 20, 100, 100);
+    let sandMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(20,50,10), side: THREE.DoubleSide});
     const sand = new THREE.Mesh(sandGeom, sandMaterial );
     sand.rotation.x = -Math.PI/2.2;
     //sand.castShadow = true;
