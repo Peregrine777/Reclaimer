@@ -40,9 +40,10 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1
 
-    ///SCENEVALUES//
+    ///GUI VALS//
     //Values for the GUI
-    let sceneVals = {size: 20};
+    let sceneVals = {size: 100};
+    let landVals = {octaves: 2, persistence: 0.5, lacunarity: 2, scale: 0.5, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
 
     //Skybox
 
@@ -71,7 +72,7 @@
   // Objects //
   ///////////
 
-  let Land = new Landscape(sceneVals.size).makeLand();
+  let Land = new Landscape(sceneVals.size, landVals).makeLand();
   Land.material.needsUpdate = true;
   Land.castShadow = true
   Land.receiveShadow = true
@@ -126,12 +127,20 @@
   ////////////
   
   gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
+    
+  let folderLand = gui.addFolder("Landscape");
+    folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
+    folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'scale', 0.1, 1, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'height', 10, 100, 5).onChange(redrawScene);
+
 
   function redrawScene(){
 
     scene.remove(Land);
     sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
-    Land = new Landscape(sceneVals.size).makeLand();
+    Land = new Landscape(sceneVals.size, landVals).makeLand();
     scene.add(Land);
     CreateScene();
   }

@@ -6,12 +6,25 @@ export class Landscape {
   size = 0;
   cityRadius = 0;
   n = null;
+
+
+  octaves = 2;
+  persistence = 0.5;
+  lacunarity = 2;
+  scale = 0.5;
+  height = 0.2;
   
 
-  constructor(size) {
+  constructor(size, landVals) {
     this.cityRadius = size * 0.5;
     this.size = size * 10;
     this.n = new ImprovedNoise;
+
+    this.octaves = landVals.octaves;
+    this.persistence = landVals.persistence
+    this.lacunarity = landVals.lacunarity;
+    this.scale = landVals.scale;
+    this.height = landVals.height;
   }
 
   // Path: lanscape.js
@@ -26,7 +39,7 @@ export class Landscape {
 
   makeLand(){
         //Land
-        let landGeom = new THREE.PlaneGeometry(this.size, this.size, 100, 100);
+        let landGeom = new THREE.PlaneGeometry(this.size, this.size, 1000, 1000);
         let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
         const Land = new THREE.Mesh(landGeom, landMaterial );
         Land.rotation.x = -Math.PI/2;
@@ -36,50 +49,18 @@ export class Landscape {
         let positionAttribute = landGeom.attributes.position;
         Land.name = "Land";
 
-        // this.addNoise(Land, 0.25, 5, 0.10);
-        // this.addNoise(Land, 0.50, 5, 0.20);
-        // this.addNoise(Land, 5, 5, 0.2);
-
         this.fbmNoise(Land);
-
-
         return Land;
   }
 
 
-  addNoise(object, scaleX, scaleY, height){
-    let geometry = object.geometry
-    let positionAttribute = geometry.attributes.position;
-    let n = new ImprovedNoise;
-    let rand = randFloat(0, 100);
-      
-    for (let i = 0 ; i < positionAttribute.count ; i++) {
-      //console.log(positionAttribute.getX(i));
-      const x = positionAttribute.getX(i);
-      const y = positionAttribute.getY(i);
-      const z = positionAttribute.getZ(i);
-    
-
-      let dist = new THREE.Vector2(x, y).distanceTo(new THREE.Vector2(0,0))
-      if (dist > this.cityRadius){
-        let h = n.noise(x * scaleX,y * scaleY, rand);
-        h *= height*(dist/this.cityRadius);
-        //let z = positionAttribute.getZ(i);
-        positionAttribute.setZ(i, z+h);
-      }
-    
-
-      
-    }
-    geometry.computeVertexNormals();
-    positionAttribute.needsUpdate = true;
-  }
 
   fbmNoise(object){
     let geometry = object.geometry
     let positionAttribute = geometry.attributes.position;
-    let octaves = 10;
-    let persistence = 0.5;
+    let octaves = this.octaves;
+    let persistence = this.persistence;
+    let height = this.height;
 
     for (let i = 0 ; i < positionAttribute.count ; i++) {
       const u = positionAttribute.getX(i);
@@ -95,9 +76,9 @@ export class Landscape {
 
       let dist = new THREE.Vector2(u, v).distanceTo(new THREE.Vector2(0,0))
       if (dist > this.cityRadius){
-        h *= 100;
+        h = h*this.height + 10;
       }
-      else { h = -10};
+      else { h = 0};
 
       
 
