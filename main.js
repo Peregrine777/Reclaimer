@@ -72,6 +72,9 @@
   ///////////
 
   let Land = new Landscape(sceneVals.size).makeLand();
+  Land.material.needsUpdate = true;
+  Land.castShadow = true
+  Land.receiveShadow = true
 
   /////////////
   // Lights //
@@ -80,13 +83,16 @@
       //ambient Lighting
       let skyColour = new THREE.Color(1, 1,1)
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
-      scene.add(ambientLight);
+      //scene.add(ambientLight);
 
       //Sun
       let sunColour = new THREE.Color(1.0,0.98,0.8)
-      const sun = new THREE.DirectionalLight(sunColour,0.4);
+      const sun = new THREE.SpotLight(sunColour,1);
+      let sunHelper = new THREE.SpotLightHelper(sun);
+      scene.add(sunHelper);
       sun.castShadow = true;
-      sun.position.set(15,15,15);
+      sun.shadow.bias = -0.01
+      sun.position.set(105,55,-105);
       sun.lookAt(0,0,1);
 
       scene.add(sun);
