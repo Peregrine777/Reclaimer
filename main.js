@@ -1,4 +1,3 @@
-      //@ts-check
     import * as THREE from 'three';
     import { OrbitControls } from './build/controls/OrbitControls.js';
 
@@ -50,12 +49,12 @@
       //Basic Sky
       const loader = new THREE.CubeTextureLoader();
       const texture = loader.load([
-        './assets/Skyboxes/Basic/skyrender0005.bmp',
-        './assets/Skyboxes/Basic/skyrender0002.bmp',
-        './assets/Skyboxes/Basic/skyrender0003.bmp',
-        './assets/Skyboxes/Basic/skyrender0004.bmp',
-        './assets/Skyboxes/Basic/skyrender0004.bmp',
-        './assets/Skyboxes/Basic/skyrender0001.bmp',
+        './assets/Skybox/skyrender0005.bmp',
+        './assets/Skybox/skyrender0002.bmp',
+        './assets/Skybox/skyrender0003.bmp',
+        './assets/Skybox/skyrender0004.bmp',
+        './assets/Skybox/skyrender0004.bmp',
+        './assets/Skybox/skyrender0001.bmp',
       ])
 
       scene.background = texture;
