@@ -12,6 +12,7 @@
     import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 
     import { Landscape } from './src/landscape.js';
+    import { TileMap } from './src/tileMap.js';
 
     //create the scene
     let scene = new THREE.Scene( );
@@ -44,6 +45,7 @@
     //Values for the GUI
     let sceneVals = {size: 100, sunHelper: false};
     let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    let cityVals = {density: 1}
 
     //Skybox
 
@@ -76,6 +78,17 @@
   Land.material.needsUpdate = true;
   Land.castShadow = true
   Land.receiveShadow = true
+
+  let cityGenPoint = new THREE.Object3D();
+  cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
+  scene.add(cityGenPoint);
+
+  let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
+  City.addBuildings(cityGenPoint);
+
+
+
+
 
   /////////////
   // Lights //
