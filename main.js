@@ -42,8 +42,8 @@
 
     ///GUI VALS//
     //Values for the GUI
-    let sceneVals = {size: 100};
-    let landVals = {octaves: 2, persistence: 0.5, lacunarity: 2, scale: 0.5, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    let sceneVals = {size: 100, sunHelper: false};
+    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 0.5, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
 
     //Skybox
 
@@ -90,7 +90,7 @@
       let sunColour = new THREE.Color(1.0,0.98,0.8)
       const sun = new THREE.SpotLight(sunColour,1);
       let sunHelper = new THREE.SpotLightHelper(sun);
-      scene.add(sunHelper);
+      // scene.add(sunHelper);
       sun.castShadow = true;
       sun.shadow.bias = -0.01
       sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
@@ -135,6 +135,8 @@
     folderLand.add(landVals,'scale', 0.1, 1, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'height', 10, 100, 5).onChange(redrawScene);
 
+  let folderHelpers = gui.addFolder("Helpers");
+    folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
 
   function redrawScene(){
 
@@ -142,6 +144,11 @@
     sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size, landVals).makeLand();
     scene.add(Land);
+
+    if (sceneVals.sunHelper = true){
+      scene.add(sunHelper);
+    }
+    else {scene.remove(sunHelper)}
     CreateScene();
   }
 

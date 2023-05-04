@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from '../build/math/ImprovedNoise.js';
-import { randFloat, randInt } from '../src/MathUtils.js';
+import { randFloat, randInt, smoothstep } from '../src/MathUtils.js';
 
 export class Landscape {
   size = 0;
@@ -76,7 +76,8 @@ export class Landscape {
 
       let dist = new THREE.Vector2(u, v).distanceTo(new THREE.Vector2(0,0))
       if (dist > this.cityRadius){
-        h = h*this.height + 10;
+        let ramp = smoothstep(dist, this.cityRadius, this.size); // adjust the second parameter to change the falloff distance
+        h = h*this.height * (ramp*2);
       }
       else { h = 0};
 
