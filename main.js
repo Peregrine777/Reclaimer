@@ -133,7 +133,7 @@
     folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'scale', 0.1, 1, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'height', 10, 100, 5).onChange(redrawScene);
+    folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
   let folderHelpers = gui.addFolder("Helpers");
     folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
