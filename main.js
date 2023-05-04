@@ -27,7 +27,7 @@
     document.body.appendChild(renderer.domElement );
   
     //camera
-    let camera = new THREE.PerspectiveCamera(55,ratio,0.1,1000);
+    let camera = new THREE.PerspectiveCamera(55,ratio,0.1,5000);
     camera.position.set(-20,2,16);
     camera.lookAt(0,0,1);
     renderer.setSize(window.innerWidth,window.innerHeight);
@@ -92,7 +92,7 @@
       scene.add(sunHelper);
       sun.castShadow = true;
       sun.shadow.bias = -0.01
-      sun.position.set(105,55,-105);
+      sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
       sun.lookAt(0,0,1);
 
       scene.add(sun);
@@ -130,6 +130,7 @@
   function redrawScene(){
 
     scene.remove(Land);
+    sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size).makeLand();
     scene.add(Land);
     CreateScene();
