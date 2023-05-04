@@ -44,6 +44,7 @@ export class Building{
         let material = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.2,0.2)});
         let geom = new THREE.BoxGeometry(1,1,1);
         let object = new THREE.Mesh(geom,material);
+
         return object;
     }
 
