@@ -19,8 +19,9 @@ export class TileMap {
         for (let i = 0; i < size; i++) {
             this.map[i] = new Array(size);
             for (let j = 0; j < size; j++) {
-                //ToDo Placeholder for tilemap
-                this.map[i][j] = {height: 1, type: "house"};
+                //ToDo Placeholder for tilemap - just random houses and apartments
+                let rand = randInt(1,2);
+                rand == 1 ? this.map[i][j] = {height: 1, type: "house"} : this.map[i][j] = {height: 1, type: "apartment"};
             }
         }
 
@@ -31,16 +32,15 @@ export class TileMap {
     addBuildings(cityObject){
         let b = new Building();
 
-        
+        //loop through map and add buildings        
         for (let i = 0; i < this.size; i += 2) {
             for (let j = 0; j < this.size; j += 2) {
                 let tile = this.map[i][j];
-                // if (tile.height == 1) {
-                    let building = b.buildings[0].object.clone();
-                    console.log(building);
-                    building.position.set(i, 0, j);
-                    cityObject.add(building);
-                // }
+
+                //get building mesh based on tile properties {height, type}
+                let building = b.getBuilding(1, this.map[i][j].type).clone();
+                building.position.set(i, 0, j);
+                cityObject.add(building);
             }
         }
     }

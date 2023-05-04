@@ -24,11 +24,19 @@ export class Building{
     }
 
     defaults(){
-        let defBuild = this.createBuilding(1, "house");
+        let defHouse = this.createBuilding(1, "house");
+        let defApart = this.createBuilding(1, "apartment");
+        defApart.material.color = new THREE.Color(0.5,0.5,0.5);
+
         this.buildings.push({
             height: 1,
             type: "house",
-            object: defBuild
+            object: defHouse
+        });
+        this.buildings.push({
+            height: 1,
+            type: "apartment",
+            object: defApart
         });
     }
 
