@@ -43,7 +43,7 @@
     ///GUI VALS//
     //Values for the GUI
     let sceneVals = {size: 100, sunHelper: false};
-    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 0.5, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
 
     //Skybox
 
@@ -132,7 +132,7 @@
     folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
     folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'scale', 0.1, 1, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
   let folderHelpers = gui.addFolder("Helpers");

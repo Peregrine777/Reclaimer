@@ -60,29 +60,28 @@ export class Landscape {
     let positionAttribute = geometry.attributes.position;
     let octaves = this.octaves;
     let persistence = this.persistence;
-    let height = this.height;
 
     for (let i = 0 ; i < positionAttribute.count ; i++) {
       const u = positionAttribute.getX(i);
       const v = positionAttribute.getY(i);
       const z = positionAttribute.getZ(i);
 
+      //Normalize from -100->100 to 0->1
       let x = (u + 100)/200;
       let y = (v + 100)/200;
-      // console.log(u, v);
 
+      //Get FBM value
       let h = this.fbm(x, y, octaves, persistence);
-      //h *= 100;
 
+      //Smooth blend with city radius
       let dist = new THREE.Vector2(u, v).distanceTo(new THREE.Vector2(0,0))
       if (dist > this.cityRadius){
         let ramp = smoothstep(dist, this.cityRadius, this.size); // adjust the second parameter to change the falloff distance
-        h = h*this.height * (ramp*2);
+        h = h*this.height * (ramp*2*this.scale);
       }
       else { h = 0};
 
-      
-
+      //Set the new height
       positionAttribute.setZ(i, z + h);
 
     }
@@ -101,7 +100,7 @@ export class Landscape {
       maxValue += amplitude;
       
       amplitude *= persistence;
-      frequency *= 2;
+      frequency *= this.lacunarity;
     }
     
     return total/maxValue;
