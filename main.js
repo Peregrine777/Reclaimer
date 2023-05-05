@@ -25,6 +25,7 @@
     let renderer = new THREE.WebGLRenderer({ antialias: true } );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+   
     document.body.appendChild(renderer.domElement );
   
     //camera
@@ -80,7 +81,7 @@
   Land.receiveShadow = true
 
   let cityGenPoint = new THREE.Object3D();
-  cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
+  cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
   scene.add(cityGenPoint);
 
   let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
@@ -103,9 +104,11 @@
       let sunColour = new THREE.Color(1.0,0.98,0.8)
       const sun = new THREE.SpotLight(sunColour,1);
       let sunHelper = new THREE.SpotLightHelper(sun);
-      // scene.add(sunHelper);
+      sunHelper.visible = false;
+      scene.add(sunHelper);
       sun.castShadow = true;
-      sun.shadow.bias = -0.01
+      sun.shadow.mapSize = new THREE.Vector2(4096, 4096);
+      //sun.shadow.bias = 0.21
       sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
       sun.lookAt(0,0,1);
 
@@ -154,14 +157,20 @@
   function redrawScene(){
 
     scene.remove(Land);
+    cityGenPoint.clear();
+    cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
+
     sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size, landVals).makeLand();
     scene.add(Land);
 
-    if (sceneVals.sunHelper = true){
-      scene.add(sunHelper);
+    let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
+    City.addBuildings(cityGenPoint);
+
+    if (sceneVals.sunHelper == true){
+      sunHelper.visible = true;
     }
-    else {scene.remove(sunHelper)}
+    else {sunHelper.visible = false}
     CreateScene();
   }
 

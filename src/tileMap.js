@@ -39,7 +39,7 @@ export class TileMap {
 
                 //get building mesh based on tile properties {height, type}
                 let building = b.getBuilding(1, this.map[i][j].type).clone();
-                building.position.set(i, 1, j);
+                building.position.set(i, 0, j);
                 building.castShadow = true;
                 building.receiveShadow = true;
                 cityObject.add(building);
