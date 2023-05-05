@@ -1,14 +1,15 @@
     import * as THREE from 'three';
-    import { OrbitControls } from './build/controls/OrbitControls.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    import { ImprovedNoise } from './build/math/ImprovedNoise.js';
-    import dat from './build/datGUI.module.js';
+    import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+    import { GUI } from '/node_modules/dat-gui/datGUI.module.js';
     import { randFloat, randInt } from './src/MathUtils.js';
-    import {EffectComposer} from "./jsm/postprocessing/EffectComposer.js";
-    import {RenderPass} from "./jsm/postprocessing/RenderPass.js";
-    import {UnrealBloomPass} from "./jsm/postprocessing/UnrealBloomPass.js";
-    import {SSAOPass} from "./jsm/postprocessing/SSAOPass.js";  import { FBXLoader } from './jsm/loaders/FBXLoader.js';
-    import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+    import {EffectComposer} from "three/addons/postprocessing/EffectComposer.js";
+    import {RenderPass} from "three/addons/postprocessing/RenderPass.js";
+    import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
+    import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";  
+    import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
@@ -18,7 +19,7 @@
     let ratio = window.innerWidth/window.innerHeight;
     let frame = 0;
     const worldWidth = 256, worldDepth = 256;
-    let gui = new dat.GUI();
+    let gui = new GUI();
 
     //create the webgl renderer
     let renderer = new THREE.WebGLRenderer({ antialias: true } );
