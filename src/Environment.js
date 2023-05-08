@@ -81,7 +81,7 @@ export class Environment{
             scene.environment = renderTarget.texture;
         }
 
-        updateSun(sun, sky, water, renderer);
+        updateSun(scene, renderer, parameters);
         this.water = water;
         this.sky = sky;
         this.scene = scene;
@@ -89,7 +89,10 @@ export class Environment{
         this.parameters = parameters;
     }
 
-    updateSun() {
+    updateSun(scene, renderer, parameters) {
+        let sun = this.sun;
+        let sky = this.sky;
+        let water = this.water;
 
         const pmremGenerator = new THREE.PMREMGenerator( renderer );
         let renderTarget;

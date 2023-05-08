@@ -82,7 +82,6 @@
 
   let land = new THREE.Object3D();
 
-
   let environment = new Environment(scene, renderer);
   let parameters = environment.parameters;
 
@@ -103,6 +102,24 @@
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
       //scene.add(ambientLight);
 
+      //sunlight
+      let sunColour = new THREE.Color(1, 1, 1);
+      const sunLight = new THREE.DirectionalLight(sunColour, 1);
+      sunLight.castShadow = true;
+      sunLight.shadow.mapSize.width = 4048;
+      sunLight.shadow.mapSize.height = 4048;
+
+      const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+      const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+      let sunPos = new THREE.Vector3();
+
+      sunPos.setFromSphericalCoords( 1, phi, theta );
+      sunPos.set(-15,15,15);
+      scene.add(sunLight);
+      let sunHelper = new THREE.DirectionalLightHelper(sunLight, 1, 0x000000);
+      scene.add(sunHelper);
+
+
   /////////////////////
   // SceneFunctions //
   /////////////////////
@@ -111,8 +128,7 @@
       function CreateScene()
       {   
         scene.add(land);
-        let L = new Landscape(sceneVals.size, landVals);
-        L.ChunkManager(land);
+        new Landscape(sceneVals.size, landVals).ChunkManager(land);
 
       }
       
@@ -159,15 +175,7 @@
     cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
 
     //sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
-    let L = new Landscape(sceneVals.size, landVals);
-    L.ChunkManager(land);
-
-    //Test
-    // let land2 = new Landscape(sceneVals.size, landVals).makeLand2();
-
-    // //scene.add(land2);
-    // let land3 = new Landscape(sceneVals.size, landVals).makeLand3();
-    // //scene.add(land3);
+    new Landscape(sceneVals.size, landVals).ChunkManager(land);
 
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
     City.addBuildings(cityGenPoint);
