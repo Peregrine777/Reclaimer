@@ -6,6 +6,7 @@ export class Landscape {
   size = 0;
   cityRadius = 0;
   n = null;
+  
 
 
   octaves = 2;
@@ -13,6 +14,8 @@ export class Landscape {
   lacunarity = 2;
   scale = 0.5;
   height = 0.2;
+  maxResolution = 500;
+  iterations = 3;
   
 
   constructor(size, landVals) {
@@ -37,57 +40,42 @@ export class Landscape {
     return this.grid[y * this.width + x];
   }
 
-  makeLand(){
-        //Land
-        let landGeom = new THREE.PlaneGeometry(this.size, this.size, 1000, 1000);
-        let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
-        const Land = new THREE.Mesh(landGeom, landMaterial );
-        Land.rotation.x = -Math.PI/2;
-        //landMaterial.wireframe = true;
-        Land.receiveShadow = true;
-        Land.position.setY(0.2)
-        let positionAttribute = landGeom.attributes.position;
-        Land.name = "Land";
-
-        this.fbmNoise(Land);
-        return Land;
+  // Returns ring of tiles dist(iteration) from center
+  ChunkManager(parent){
+    const result = [];
+    result.push([0, 0]); // center tile
+    for (let i = 0; i <= this.iterations; i++) {
+      for (let x = -i; x <= i; x++) {
+        for (let y = -i; y <= i; y++) {
+          if (Math.abs(x) == i || Math.abs(y) == i) {
+            console.log(x, y);
+            result.push([x, y]);
+            parent.add(this.makeChunk(i + 1 * 2, x, y));
+          }
+        }
+      }
+    }
+    return result;
   }
 
-  makeLand2(){
+
+  makeChunk(ring, offsetX, offsetY){
     //Land
-    let landGeom = new THREE.PlaneGeometry(this.size, this.size, 500, 500);
+    let landGeom = new THREE.PlaneGeometry(this.size, this.size, this.maxResolution/ring, this.maxResolution/ring);
     let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
     const Land = new THREE.Mesh(landGeom, landMaterial );
     Land.rotation.x = -Math.PI/2;
     //landMaterial.wireframe = true;
     Land.receiveShadow = true;
     Land.position.setY(0.2)
-    Land.position.setX(this.size)
+    Land.position.setX(this.size*offsetX)
+    Land.position.setZ(this.size*offsetY)
     let positionAttribute = landGeom.attributes.position;
     Land.name = "Land2";
 
-    this.fbmNoise(Land, 1, 0);
+    this.fbmNoise(Land, offsetX, offsetY);
     return Land;
 }
-
-makeLand3(){
-  //Land
-  let landGeom = new THREE.PlaneGeometry(this.size, this.size, 500, 500);
-  let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
-  const Land = new THREE.Mesh(landGeom, landMaterial );
-  Land.rotation.x = -Math.PI/2;
-  //landMaterial.wireframe = true;
-  Land.receiveShadow = true;
-  Land.position.setY(0.2)
-  Land.position.setX(this.size * 2)
-  let positionAttribute = landGeom.attributes.position;
-  Land.name = "Land3";
-
-  this.fbmNoise(Land, 2, 0);
-  return Land;
-}
-
-
 
   fbmNoise(object, offsetX = 0, offsetY = 0){
     let geometry = object.geometry
@@ -98,10 +86,11 @@ makeLand3(){
     for (let i = 0 ; i < positionAttribute.count ; i++) {
       let u = positionAttribute.getX(i);
       let v = positionAttribute.getY(i);
-      const z = positionAttribute.getZ(i);
+      let z = positionAttribute.getZ(i);
 
       //offset
       u += offsetX * this.size;
+      v -= offsetY * this.size;
 
       //Normalize from -100->100 to 0->1
       let x = (u + 100)/200;

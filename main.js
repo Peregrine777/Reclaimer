@@ -80,18 +80,8 @@
   // Objects //
   ///////////
 
-  let Land = new Landscape(sceneVals.size, landVals).makeLand();
-  Land.material.needsUpdate = true;
-  Land.castShadow = true
-  Land.receiveShadow = true
-  let land2 = new Landscape(sceneVals.size, landVals).makeLand2();
-  land2.material.needsUpdate = true;
-  land2.castShadow = true
-  land2.receiveShadow = true
-  let land3 = new Landscape(sceneVals.size, landVals).makeLand3();
-  land3.material.needsUpdate = true;
-  land3.castShadow = true
-  land3.receiveShadow = true
+  let land = new THREE.Object3D();
+
 
   let environment = new Environment(scene, renderer);
   let parameters = environment.parameters;
@@ -120,9 +110,10 @@
   //Branch test
       function CreateScene()
       {   
-        scene.add(Land);
-        scene.add(land2);
-        scene.add(land3);
+        scene.add(land);
+        let L = new Landscape(sceneVals.size, landVals);
+        L.ChunkManager(land);
+
       }
       
       CreateScene();
@@ -162,18 +153,21 @@
 
   function redrawScene(){
 
-    scene.remove(Land);
+    land.clear();
+
     cityGenPoint.clear();
     cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
 
     //sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
-    Land = new Landscape(sceneVals.size, landVals).makeLand();
+    let L = new Landscape(sceneVals.size, landVals);
+    L.ChunkManager(land);
+
     //Test
-    let land2 = new Landscape(sceneVals.size, landVals).makeLand2();
-    scene.add(Land);
-    scene.add(land2);
-    let land3 = new Landscape(sceneVals.size, landVals).makeLand3();
-    scene.add(land3);
+    // let land2 = new Landscape(sceneVals.size, landVals).makeLand2();
+
+    // //scene.add(land2);
+    // let land3 = new Landscape(sceneVals.size, landVals).makeLand3();
+    // //scene.add(land3);
 
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
     City.addBuildings(cityGenPoint);
