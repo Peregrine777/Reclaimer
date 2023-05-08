@@ -7,16 +7,24 @@
     import {EffectComposer} from "three/addons/postprocessing/EffectComposer.js";
     import {RenderPass} from "three/addons/postprocessing/RenderPass.js";
     import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
-    import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";  
+    import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";   
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+    import { Water } from 'three/addons/objects/Water.js';
+    import { Sky } from 'three/addons/objects/Sky.js';
+
+
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
+    import { WaterShader } from './src/Shaders/WaterShader.js';
+
+    let water, sun, mesh;
 
     //create the scene
     let scene = new THREE.Scene( );
     let ratio = window.innerWidth/window.innerHeight;
+    let totalTime = 0.00;
     let frame = 0;
     const worldWidth = 256, worldDepth = 256;
     let gui = new GUI();
@@ -38,9 +46,9 @@
     let composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene,camera));
     composer.addPass(new SSAOPass(scene,camera,0, 0)); 
-    composer.addPass(new UnrealBloomPass({x: screen.width, y:screen.height},2.0,0.0,0.75));
+    composer.addPass(new UnrealBloomPass({x: screen.width, y:screen.height},0.70,0.0,0.85));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1
+    //renderer.toneMappingExposure = 1
 
     ///GUI VALS//
     //Values for the GUI
@@ -61,8 +69,8 @@
         './assets/Skybox/skyrender0001.bmp',
       ])
 
-      scene.background = texture;
-      scene.environment = texture;
+      //scene.background = texture;
+      //scene.environment = texture;
 
 
 
@@ -79,6 +87,47 @@
   Land.material.needsUpdate = true;
   Land.castShadow = true
   Land.receiveShadow = true
+
+  const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
+
+  water = new Water(
+    waterGeometry,
+    {
+      textureWidth: 512,
+      textureHeight: 512,
+      waterNormals: new THREE.TextureLoader().load( './assets/textures/waternormals.jpg', function ( texture ) {
+
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+
+      } ),
+      sunDirection: new THREE.Vector3(),
+      sunColor: 0xffffff,
+      waterColor: 0x001e0f,
+      distortionScale: 3.7,
+      fog: scene.fog !== undefined
+    }
+  );
+
+  water.rotation.x = - Math.PI / 2;
+
+  scene.add( water );
+
+
+  const sky = new Sky();
+  sky.scale.setScalar( 10000 );
+  scene.add( sky );
+
+  const skyUniforms = sky.material.uniforms;
+
+  skyUniforms[ 'turbidity' ].value = 10;
+  skyUniforms[ 'rayleigh' ].value = 2;
+  skyUniforms[ 'mieCoefficient' ].value = 0.005;
+  skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+
+  const parameters = {
+    elevation: 2,
+    azimuth: 180
+  };
 
   let cityGenPoint = new THREE.Object3D();
   cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
@@ -99,20 +148,32 @@
       let skyColour = new THREE.Color(1, 1,1)
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
       //scene.add(ambientLight);
+      sun = new THREE.Vector3();
 
-      //Sun
-      let sunColour = new THREE.Color(1.0,0.98,0.8)
-      const sun = new THREE.SpotLight(sunColour,1);
-      let sunHelper = new THREE.SpotLightHelper(sun);
-      sunHelper.visible = false;
-      scene.add(sunHelper);
-      sun.castShadow = true;
-      sun.shadow.mapSize = new THREE.Vector2(4096, 4096);
-      //sun.shadow.bias = 0.21
-      sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
-      sun.lookAt(0,0,1);
+      const pmremGenerator = new THREE.PMREMGenerator( renderer );
+				let renderTarget;
 
-      scene.add(sun);
+
+      function updateSun() {
+
+        const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+        const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+
+        sun.setFromSphericalCoords( 1, phi, theta );
+
+        sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
+        water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
+
+        if ( renderTarget !== undefined ) renderTarget.dispose();
+
+        renderTarget = pmremGenerator.fromScene( sky );
+
+        scene.environment = renderTarget.texture;
+
+      }
+      updateSun();
+
+      
 
   /////////////////////
   // SceneFunctions //
@@ -121,7 +182,7 @@
   //Branch test
       function CreateScene()
       {   
-        scene.add(Land);
+        //scene.add(Land);
       }
       
       CreateScene();
@@ -151,6 +212,11 @@
     folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
+  const folderSky = gui.addFolder( 'Sky' );
+    folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( updateSun );
+    folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( updateSun );
+    folderSky.open();
+
   let folderHelpers = gui.addFolder("Helpers");
     folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
 
@@ -179,6 +245,8 @@
   {
     //call the render with the scene and the camera
     frame++;
+
+    water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
     //scene.add(sea);
     composer.render();
     controls.update();
