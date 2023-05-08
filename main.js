@@ -84,6 +84,14 @@
   Land.material.needsUpdate = true;
   Land.castShadow = true
   Land.receiveShadow = true
+  let land2 = new Landscape(sceneVals.size, landVals).makeLand2();
+  land2.material.needsUpdate = true;
+  land2.castShadow = true
+  land2.receiveShadow = true
+  let land3 = new Landscape(sceneVals.size, landVals).makeLand3();
+  land3.material.needsUpdate = true;
+  land3.castShadow = true
+  land3.receiveShadow = true
 
   let environment = new Environment(scene, renderer);
   let parameters = environment.parameters;
@@ -113,6 +121,8 @@
       function CreateScene()
       {   
         scene.add(Land);
+        scene.add(land2);
+        scene.add(land3);
       }
       
       CreateScene();
@@ -158,7 +168,12 @@
 
     //sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size, landVals).makeLand();
+    //Test
+    let land2 = new Landscape(sceneVals.size, landVals).makeLand2();
     scene.add(Land);
+    scene.add(land2);
+    let land3 = new Landscape(sceneVals.size, landVals).makeLand3();
+    scene.add(land3);
 
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
     City.addBuildings(cityGenPoint);

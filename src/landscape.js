@@ -53,18 +53,55 @@ export class Landscape {
         return Land;
   }
 
+  makeLand2(){
+    //Land
+    let landGeom = new THREE.PlaneGeometry(this.size, this.size, 500, 500);
+    let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
+    const Land = new THREE.Mesh(landGeom, landMaterial );
+    Land.rotation.x = -Math.PI/2;
+    //landMaterial.wireframe = true;
+    Land.receiveShadow = true;
+    Land.position.setY(0.2)
+    Land.position.setX(this.size)
+    let positionAttribute = landGeom.attributes.position;
+    Land.name = "Land2";
+
+    this.fbmNoise(Land, 1, 0);
+    return Land;
+}
+
+makeLand3(){
+  //Land
+  let landGeom = new THREE.PlaneGeometry(this.size, this.size, 500, 500);
+  let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
+  const Land = new THREE.Mesh(landGeom, landMaterial );
+  Land.rotation.x = -Math.PI/2;
+  //landMaterial.wireframe = true;
+  Land.receiveShadow = true;
+  Land.position.setY(0.2)
+  Land.position.setX(this.size * 2)
+  let positionAttribute = landGeom.attributes.position;
+  Land.name = "Land3";
+
+  this.fbmNoise(Land, 2, 0);
+  return Land;
+}
 
 
-  fbmNoise(object){
+
+  fbmNoise(object, offsetX = 0, offsetY = 0){
     let geometry = object.geometry
     let positionAttribute = geometry.attributes.position;
     let octaves = this.octaves;
     let persistence = this.persistence;
 
     for (let i = 0 ; i < positionAttribute.count ; i++) {
-      const u = positionAttribute.getX(i);
-      const v = positionAttribute.getY(i);
+      let u = positionAttribute.getX(i);
+      let v = positionAttribute.getY(i);
       const z = positionAttribute.getZ(i);
+
+      //offset
+      u += offsetX * this.size;
 
       //Normalize from -100->100 to 0->1
       let x = (u + 100)/200;
@@ -76,8 +113,12 @@ export class Landscape {
       //Smooth blend with city radius
       let dist = new THREE.Vector2(u, v).distanceTo(new THREE.Vector2(0,0))
       if (dist > this.cityRadius){
+        let distN = (dist - this.cityRadius) / (this.size - this.cityRadius);
         let ramp = smoothstep(dist, this.cityRadius, this.size); // adjust the second parameter to change the falloff distance
         h = h*this.height * (ramp*2*this.scale);
+        if (dist > this.size){
+          h -= (dist - this.size) * 0.1;
+        }
       }
       else { h = 0};
 

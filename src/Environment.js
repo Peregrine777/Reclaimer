@@ -65,9 +65,6 @@ export class Environment{
         let renderTarget;
 
         function updateSun() {
-
-            const pmremGenerator = new THREE.PMREMGenerator( renderer );
-            let renderTarget;
     
             const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
             const theta = THREE.MathUtils.degToRad( parameters.azimuth );
@@ -92,9 +89,28 @@ export class Environment{
         this.parameters = parameters;
     }
 
+    updateSun() {
 
+        const pmremGenerator = new THREE.PMREMGenerator( renderer );
+        let renderTarget;
+
+        const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+        const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+
+        sun.setFromSphericalCoords( 1, phi, theta );
+
+        sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
+        water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
+
+        if ( renderTarget !== undefined ) renderTarget.dispose();
+
+        renderTarget = pmremGenerator.fromScene( sky );
+
+        scene.environment = renderTarget.texture;
+    }
 
     update(){
         this.water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
     }
+
 }
