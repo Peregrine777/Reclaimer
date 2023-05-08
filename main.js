@@ -14,7 +14,7 @@
 
 
 
-    import { Landscape } from './src/landscape.js';
+    import { Landscape } from './src/Landscape.js';
     import { TileMap } from './src/tileMap.js';
     import { Environment } from './src/Environment.js';
 
@@ -23,7 +23,6 @@
     let ratio = window.innerWidth/window.innerHeight;
     let totalTime = 0.00;
     let frame = 0;
-    const worldWidth = 256, worldDepth = 256;
     let gui = new GUI();
 
     //create the webgl renderer
@@ -55,7 +54,7 @@
 
     //Skybox
 
-      //Basic Sky
+      //Basic Sky (not used)
       const loader = new THREE.CubeTextureLoader();
       const texture = loader.load([
         './assets/Skybox/skyrender0005.bmp',
@@ -80,17 +79,20 @@
   // Objects //
   ///////////
 
-  let land = new THREE.Object3D();
+    let land = new THREE.Object3D();
 
-  let environment = new Environment(scene, renderer);
-  let parameters = environment.parameters;
+    let environment = new Environment(scene, renderer);
+      const parameters = {
+        elevation: 2,
+        azimuth: 180
+      };
 
-  let cityGenPoint = new THREE.Object3D();
-  cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
-  scene.add(cityGenPoint);
+    let cityGenPoint = new THREE.Object3D();
+      cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
+      scene.add(cityGenPoint);
 
-  let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
-  City.addBuildings(cityGenPoint);
+    let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
+      City.addBuildings(cityGenPoint);
 
 
   /////////////
@@ -103,28 +105,31 @@
       //scene.add(ambientLight);
 
       //sunlight
-      let sunColour = new THREE.Color(1, 1, 1);
-      const sunLight = new THREE.DirectionalLight(sunColour, 1);
-      sunLight.castShadow = true;
-      sunLight.shadow.mapSize.width = 4048;
-      sunLight.shadow.mapSize.height = 4048;
+      // let sunColour = new THREE.Color(1.0,0.98,0.8)
+      // const sunLight = new THREE.SpotLight(sunColour,1);
+      // let sunHelper = new THREE.SpotLightHelper(sunLight);
+      // sunHelper.visible = false;
+      // scene.add(sunHelper);
+      // sunLight.castShadow = true;
+      // sunLight.shadow.mapSize = new THREE.Vector2(4096, 4096);
+      // //sun.shadow.bias = 0.21
+      // sunLight.position.set(sceneVals.size*5,55,sceneVals.size*-5);
+      // sunLight.lookAt(0,0,1);
 
-      const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
-      const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-      let sunPos = new THREE.Vector3();
 
-      sunPos.setFromSphericalCoords( 1, phi, theta );
-      sunPos.set(-15,15,15);
-      scene.add(sunLight);
-      let sunHelper = new THREE.DirectionalLightHelper(sunLight, 1, 0x000000);
-      scene.add(sunHelper);
+      // const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+      // const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+      // let sunPos = new THREE.Vector3();
+
+      // sunPos.setFromSphericalCoords( sceneVals.size*5, phi, theta );
+      // sunLight.position.copy( sunPos );
+      // scene.add(sunLight);
 
 
   /////////////////////
   // SceneFunctions //
   /////////////////////
 
-  //Branch test
       function CreateScene()
       {   
         scene.add(land);
@@ -160,8 +165,8 @@
     folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
   const folderSky = gui.addFolder( 'Sky' );
-    folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( environment.updateSun );
-    folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( environment.updateSun );
+    folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( updateEnvironment() );
+    folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( updateEnvironment() );
     folderSky.open();
 
   let folderHelpers = gui.addFolder("Helpers");
@@ -170,13 +175,10 @@
   function redrawScene(){
 
     land.clear();
-
     cityGenPoint.clear();
     cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
 
-    //sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     new Landscape(sceneVals.size, landVals).ChunkManager(land);
-
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
     City.addBuildings(cityGenPoint);
 
@@ -186,6 +188,15 @@
     // else {sunHelper.visible = false}
     CreateScene();
   }
+ 
+  function updateEnvironment(){
+      
+      // const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+      // const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+      // sunPos = new THREE.Vector3();
+      // sunPos.setFromSphericalCoords( sceneVals.size*5, phi, theta );
+      // sunLight.position.set( sunPos );
+  }
 
   //final update loop
   let MyUpdateLoop = function ( )
@@ -194,7 +205,7 @@
     frame++;
 
     environment.update();
-    //scene.add(sea);
+
     composer.render();
     controls.update();
     requestAnimationFrame(MyUpdateLoop);

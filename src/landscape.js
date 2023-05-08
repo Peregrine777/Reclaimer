@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
-import { randFloat, randInt, smoothstep } from '../src/MathUtils.js';
+import { randFloat, randInt, smoothstep } from './MathUtils.js';
 
 export class Landscape {
   size = 0;
@@ -48,7 +48,7 @@ export class Landscape {
       for (let x = -i; x <= i; x++) {
         for (let y = -i; y <= i; y++) {
           if (Math.abs(x) == i || Math.abs(y) == i) {
-            console.log(x, y);
+            //console.log(x, y);
             result.push([x, y]);
             parent.add(this.makeChunk(i + 1 * 2, x, y));
           }
