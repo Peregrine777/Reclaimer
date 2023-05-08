@@ -11,15 +11,12 @@
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    import { Water } from 'three/addons/objects/Water.js';
-    import { Sky } from 'three/addons/objects/Sky.js';
+
 
 
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
-    import { WaterShader } from './src/Shaders/WaterShader.js';
-
-    let water, sun, mesh;
+    import { Environment } from './src/Environment.js';
 
     //create the scene
     let scene = new THREE.Scene( );
@@ -88,46 +85,8 @@
   Land.castShadow = true
   Land.receiveShadow = true
 
-  const waterGeometry = new THREE.PlaneGeometry( 10000, 10000 );
-
-  water = new Water(
-    waterGeometry,
-    {
-      textureWidth: 512,
-      textureHeight: 512,
-      waterNormals: new THREE.TextureLoader().load( './assets/textures/waternormals.jpg', function ( texture ) {
-
-        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-
-      } ),
-      sunDirection: new THREE.Vector3(),
-      sunColor: 0xffffff,
-      waterColor: 0x001e0f,
-      distortionScale: 3.7,
-      fog: scene.fog !== undefined
-    }
-  );
-
-  water.rotation.x = - Math.PI / 2;
-
-  scene.add( water );
-
-
-  const sky = new Sky();
-  sky.scale.setScalar( 10000 );
-  scene.add( sky );
-
-  const skyUniforms = sky.material.uniforms;
-
-  skyUniforms[ 'turbidity' ].value = 10;
-  skyUniforms[ 'rayleigh' ].value = 2;
-  skyUniforms[ 'mieCoefficient' ].value = 0.005;
-  skyUniforms[ 'mieDirectionalG' ].value = 0.8;
-
-  const parameters = {
-    elevation: 2,
-    azimuth: 180
-  };
+  let environment = new Environment(scene, renderer);
+  let parameters = environment.parameters;
 
   let cityGenPoint = new THREE.Object3D();
   cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
@@ -148,32 +107,6 @@
       let skyColour = new THREE.Color(1, 1,1)
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
       //scene.add(ambientLight);
-      sun = new THREE.Vector3();
-
-      const pmremGenerator = new THREE.PMREMGenerator( renderer );
-				let renderTarget;
-
-
-      function updateSun() {
-
-        const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
-        const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-
-        sun.setFromSphericalCoords( 1, phi, theta );
-
-        sky.material.uniforms[ 'sunPosition' ].value.copy( sun );
-        water.material.uniforms[ 'sunDirection' ].value.copy( sun ).normalize();
-
-        if ( renderTarget !== undefined ) renderTarget.dispose();
-
-        renderTarget = pmremGenerator.fromScene( sky );
-
-        scene.environment = renderTarget.texture;
-
-      }
-      updateSun();
-
-      
 
   /////////////////////
   // SceneFunctions //
@@ -213,8 +146,8 @@
     folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
   const folderSky = gui.addFolder( 'Sky' );
-    folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( updateSun );
-    folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( updateSun );
+    folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( environment.updateSun );
+    folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( environment.updateSun );
     folderSky.open();
 
   let folderHelpers = gui.addFolder("Helpers");
@@ -246,7 +179,7 @@
     //call the render with the scene and the camera
     frame++;
 
-    water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+    environment.update();
     //scene.add(sea);
     composer.render();
     controls.update();
