@@ -49,7 +49,7 @@
 
     ///GUI VALS//
     //Values for the GUI
-    let sceneVals = {size: 100, sunHelper: false};
+    let sceneVals = {size: 20, sunHelper: false};
     let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
     let cityVals = {density: 1}
 
@@ -96,9 +96,6 @@
   City.addBuildings(cityGenPoint);
 
 
-
-
-
   /////////////
   // Lights //
   ///////////
@@ -115,7 +112,7 @@
   //Branch test
       function CreateScene()
       {   
-        //scene.add(Land);
+        scene.add(Land);
       }
       
       CreateScene();
@@ -159,17 +156,17 @@
     cityGenPoint.clear();
     cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
 
-    sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
+    //sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size, landVals).makeLand();
     scene.add(Land);
 
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
     City.addBuildings(cityGenPoint);
 
-    if (sceneVals.sunHelper == true){
-      sunHelper.visible = true;
-    }
-    else {sunHelper.visible = false}
+    // if (sceneVals.sunHelper == true){
+    //   sunHelper.visible = true;
+    // }
+    // else {sunHelper.visible = false}
     CreateScene();
   }
 

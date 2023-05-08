@@ -6,6 +6,9 @@ export class Environment{
     parameters;
     water;
     sun;
+    sky;
+    scene;
+    renderer;
 
 
 
@@ -35,6 +38,7 @@ export class Environment{
         );
       
         water.rotation.x = - Math.PI / 2;
+        water.position.y = -10;
       
         scene.add( water );
       
@@ -62,6 +66,9 @@ export class Environment{
 
         function updateSun() {
 
+            const pmremGenerator = new THREE.PMREMGenerator( renderer );
+            let renderTarget;
+    
             const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
             const theta = THREE.MathUtils.degToRad( parameters.azimuth );
     
@@ -75,11 +82,17 @@ export class Environment{
             renderTarget = pmremGenerator.fromScene( sky );
     
             scene.environment = renderTarget.texture;
-    
-          }
-        updateSun();
+        }
+
+        updateSun(sun, sky, water, renderer);
         this.water = water;
+        this.sky = sky;
+        this.scene = scene;
+        this.renderer = renderer;
+        this.parameters = parameters;
     }
+
+
 
     update(){
         this.water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
