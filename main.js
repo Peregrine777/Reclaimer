@@ -49,7 +49,7 @@
     ///GUI VALS//
     //Values for the GUI
     let sceneVals = {size: 20, sunHelper: false};
-    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
     let cityVals = {density: 1}
 
     //Skybox
@@ -163,6 +163,7 @@
     folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
+    folderLand.add(landVals,'falloff', -0.5, 0.5, 0.05).onChange(redrawScene);
 
   const folderSky = gui.addFolder( 'Sky' );
     folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( updateEnvironment() );

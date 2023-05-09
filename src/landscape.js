@@ -15,7 +15,9 @@ export class Landscape {
   scale = 0.5;
   height = 0.2;
   maxResolution = 500;
+
   iterations = 3;
+  falloff = 0.1;
   
 
   constructor(size, landVals) {
@@ -28,6 +30,7 @@ export class Landscape {
     this.lacunarity = landVals.lacunarity;
     this.scale = landVals.scale;
     this.height = landVals.height;
+    this.falloff = landVals.falloff;
   }
 
   // Path: lanscape.js
@@ -74,8 +77,49 @@ export class Landscape {
     Land.name = "Land2";
 
     this.fbmNoise(Land, offsetX, offsetY);
+
+
+    // landMaterial.onBeforeCompile = function (shader) {
+    //   // Inject custom shader code into the vertex shader
+    //   shader.vertexShader = /* glsl */`
+    //     attribute float vertexHeight; // Add a custom attribute for vertex height
+    
+    //     ${shader.vertexShader} // Include the original vertex shader code
+    
+    //     void main() {
+    //       // Compute the new vertex position based on the vertex height
+    //       vec3 newPosition = position + normal * vertexHeight * 0.1; // 0.1 is a scaling factor
+    
+    //       // Pass the new position to the rest of the pipeline
+    //       gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    //     }
+    //   `;
+    
+    //   // Inject custom shader code into the fragment shader
+    //   shader.fragmentShader = /* glsl */`
+    //     uniform vec3 baseColor; // Add a uniform for the base color
+    
+    //     ${shader.fragmentShader} // Include the original fragment shader code
+    
+    //     void main() {
+    //       // Compute the final color based on the base color and the vertex height
+    //       float heightFactor = gl_FragCoord.z / gl_FragCoord.w; // Compute the depth of the fragment
+    //       vec3 finalColor = baseColor * heightFactor; // Scale the base color by the depth
+    
+    //       // Output the final color
+    //       gl_FragColor = vec4(finalColor, 1.0);
+    //     }
+    //   `;
+    //   shader.attributes.vertexHeight.value = 1.00;
+    //   shader.uniforms.baseColor = { value: new THREE.Color(landMaterial.color) };
+    // };
+    for (let i = 0; i < landGeom.attributes.position.count; i++) {
+      const height = landGeom.attributes.position.getY(i);
+      landGeom.setAttribute('vertexHeight', new THREE.BufferAttribute(new Float32Array([height]), 1));
+    }
     return Land;
-}
+  }
+
 
   fbmNoise(object, offsetX = 0, offsetY = 0){
     let geometry = object.geometry
@@ -106,7 +150,7 @@ export class Landscape {
         let ramp = smoothstep(dist, this.cityRadius, this.size); // adjust the second parameter to change the falloff distance
         h = h*this.height * (ramp*2*this.scale);
         if (dist > this.size){
-          h -= (dist - this.size) * 0.1;
+          h -= (dist - this.size) * this.falloff;
         }
       }
       else { h = 0};
