@@ -102,10 +102,10 @@
   /////////////////////////////////////////////////////////////////////////////////////
   //Example import of fractured cube
   let dynamicObjects = new THREE.Object3D();
-  dynamicObjects.position.set(5,5,5);
+  dynamicObjects.position.set(0,5,0);
 
   let objLoader = new OBJLoader();
-  objLoader.load('models/fracturedCube.obj', function ( object )
+  objLoader.load('assets/Objects/fracturedCube.obj', function ( object )
   {
   var material = new THREE.MeshPhongMaterial();
   material.color= new THREE.Color(1,0,0);
