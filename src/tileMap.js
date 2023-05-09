@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 import { randFloat, randInt, smoothstep } from '../src/MathUtils.js';
 import { Building } from './building.js';
 
@@ -9,19 +7,27 @@ export class TileMap {
     n = null;
 
 
-    constructor (size, cityVals, cityGenPoint) {
+    constructor (size, cityVals, cityoffset) {
         this.cityRadius = size * 0.5;
         this.size = size;
-        
-        //this.density = density;
+        this.buildings = [];
 
+        // create array of tilemap positions
         this.map = new Array(size);
         for (let i = 0; i < size; i++) {
             this.map[i] = new Array(size);
             for (let j = 0; j < size; j++) {
-                //ToDo Placeholder for tilemap - just random houses and apartments
-                let rand = randInt(1,2);
-                rand == 1 ? this.map[i][j] = {height: 1, type: "house"} : this.map[i][j] = {height: 1, type: "apartment"};
+                //Randomise building heights
+                let rand = randInt(1,3);
+                if(rand == 1){
+                    this.map[i][j] = {height: 1, type: "house"};
+                } 
+                else if (rand == 2){
+                    this.map[i][j] = {height: 2, type: "apartment"};
+                }
+                else if (rand == 3){
+                    this.map[i][j] = {height: 3, type: "skyscraper"};
+                }
             }
         }
 
@@ -29,20 +35,17 @@ export class TileMap {
         this.centerZ = Math.floor(size/2);
     }
 
-    addBuildings(cityObject){
-        let b = new Building();
-
-        //loop through map and add buildings        
+    addBuildings(scene, physicsworld){
+        //loop through map and add buildings   
         for (let i = 0; i < this.size; i += 2) {
             for (let j = 0; j < this.size; j += 2) {
                 let tile = this.map[i][j];
 
-                //get building mesh based on tile properties {height, type}
-                let building = b.getBuilding(1, this.map[i][j].type).clone();
-                building.position.set(i, 0, j);
-                building.castShadow = true;
-                building.receiveShadow = true;
-                cityObject.add(building);
+                let building = new Building(scene, physicsworld, tile.height);
+                this.buildings.push(building);
+                // offset buildings to the centre of the terrain
+                building.createBuilding(i -this.size/2,j -this.size/2);
+                building.updateBuilding();
             }
         }
     }

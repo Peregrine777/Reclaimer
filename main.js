@@ -10,9 +10,11 @@
     import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";  
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
+    import * as CANNON from 'cannon-es';
+    import CannonDebugger from 'cannon-es-debugger';
+
 
     //create the scene
     let scene = new THREE.Scene( );
@@ -42,9 +44,17 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1
 
+
+    // PHYSICS WORLD //
+    const physicsworld = new CANNON.World({
+      gravity: new CANNON.Vec3(0,-9.82,0),
+    });
+
+    const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
+
     ///GUI VALS//
     //Values for the GUI
-    let sceneVals = {size: 100, sunHelper: false};
+    let sceneVals = {size: 50, sunHelper: false};
     let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
     let cityVals = {density: 1}
 
@@ -77,15 +87,16 @@
 
   let Land = new Landscape(sceneVals.size, landVals).makeLand();
   Land.material.needsUpdate = true;
-  Land.castShadow = true
-  Land.receiveShadow = true
+  Land.castShadow = true;
+  Land.receiveShadow = true;
 
   let cityGenPoint = new THREE.Object3D();
-  cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
+  let cityoffset = -sceneVals.size/2;
+  //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
   scene.add(cityGenPoint);
 
-  let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
-  City.addBuildings(cityGenPoint);
+  let City = new TileMap(sceneVals.size, cityVals, cityoffset);
+  City.addBuildings(cityGenPoint, physicsworld);
 
 
 
@@ -96,7 +107,7 @@
   ///////////
 
       //ambient Lighting
-      let skyColour = new THREE.Color(1, 1,1)
+      let skyColour = new THREE.Color( 1, 1, 1 )
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
       //scene.add(ambientLight);
 
@@ -157,15 +168,22 @@
   function redrawScene(){
 
     scene.remove(Land);
+    //clear buildings
     cityGenPoint.clear();
-    cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
+    // clear physics world
+    // will need to replace plane
+    let bodies = physicsworld.bodies;
+    bodies.forEach(element => {
+      physicsworld.removeBody(element);
+      physicsworld.step();
+    })
 
     sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size, landVals).makeLand();
     scene.add(Land);
 
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
-    City.addBuildings(cityGenPoint);
+    City.addBuildings(cityGenPoint, physicsworld);
 
     if (sceneVals.sunHelper == true){
       sunHelper.visible = true;
@@ -180,6 +198,7 @@
     //call the render with the scene and the camera
     frame++;
     //scene.add(sea);
+    cannonDebugger.update();
     composer.render();
     controls.update();
     requestAnimationFrame(MyUpdateLoop);
