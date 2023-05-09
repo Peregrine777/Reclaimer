@@ -10,6 +10,7 @@
     import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";  
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
     import * as CANNON from 'cannon-es';
@@ -54,7 +55,7 @@
 
     ///GUI VALS//
     //Values for the GUI
-    let sceneVals = {size: 50, sunHelper: false};
+    let sceneVals = {size: 20, sunHelper: false};
     let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
     let cityVals = {density: 1}
 
@@ -98,8 +99,38 @@
   let City = new TileMap(sceneVals.size, cityVals, cityoffset);
   City.addBuildings(cityGenPoint, physicsworld);
 
+  /////////////////////////////////////////////////////////////////////////////////////
+  //Example import of fractured cube
+  let dynamicObjects = new THREE.Object3D();
+  dynamicObjects.position.set(5,5,5);
 
+  let objLoader = new OBJLoader();
+  objLoader.load('models/fracturedCube.obj', function ( object )
+  {
+  var material = new THREE.MeshPhongMaterial();
+  material.color= new THREE.Color(1,0,0);
+  material.wireframe=false;
+  material.shininess=100;
+  object.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+          child.material = material;
+      }
+  } );
 
+  dynamicObjects.add( object );
+  } );
+
+  // logging to show the object structure (for debugging)
+  console.log(dynamicObjects);
+
+  dynamicObjects.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+          console.log(child);
+      }
+  });
+
+  scene.add(dynamicObjects);
+  /////////////////////////////////////////////////////////////////////////////////////
 
 
   /////////////
