@@ -49,4 +49,10 @@ export class TileMap {
             }
         }
     }
+
+    updateBuildings (){
+        this.buildings.forEach(element => {
+            element.updateBuilding();
+        });
+    }
 }

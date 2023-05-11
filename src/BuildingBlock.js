@@ -29,7 +29,7 @@ export class BuildingBlock {
     createBlock(x, y, z){
         this.blockBody = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
-            mass: 0,
+            mass: 5,
             shape: new CANNON.Box(new CANNON.Vec3(0.4,0.4,0.4)),
           });
         this.blockBody.position.set(x, y + 0.4, z);

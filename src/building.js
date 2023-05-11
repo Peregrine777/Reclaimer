@@ -9,7 +9,7 @@ export class Building{
     }
 
     createBuilding(x,y){
-        var posY = 0;
+        var posY = 0.2;
         for(var i = 0; i < this.height; i++){
             var block = new BuildingBlock(this.scene, this.physicsworld, this.height);
             block.createBlock(x,posY,y);

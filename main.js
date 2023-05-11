@@ -51,6 +51,19 @@
       gravity: new CANNON.Vec3(0,-9.82,0),
     });
 
+    function createGroundBody(){
+      const groundBody = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        shape: new CANNON.Plane(),
+      });
+      groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+      groundBody.position.set(0,0.2,0);
+      return groundBody;
+    }
+
+    physicsworld.addBody(createGroundBody());
+
+
     const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
     ///GUI VALS//
@@ -199,15 +212,17 @@
   function redrawScene(){
 
     scene.remove(Land);
-    //clear buildings
+    //clear building meshes
     cityGenPoint.clear();
+
     // clear physics world
-    // will need to replace plane
     let bodies = physicsworld.bodies;
     bodies.forEach(element => {
       physicsworld.removeBody(element);
       physicsworld.step();
     })
+    // replace physics plane
+    physicsworld.addBody(createGroundBody());
 
     sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size, landVals).makeLand();
@@ -223,11 +238,22 @@
     CreateScene();
   }
 
+  //set to true to simulate physics
+  let isSimulating = false; 
+
   //final update loop
   let MyUpdateLoop = function ( )
   {
     //call the render with the scene and the camera
     frame++;
+
+    if(isSimulating){
+      City.updateBuildings();
+      physicsworld.fixedStep();
+    }
+    
+
+
     //scene.add(sea);
     cannonDebugger.update();
     composer.render();
