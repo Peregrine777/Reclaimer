@@ -5,13 +5,13 @@ export const LandShader = {
 
 
     uniforms: {
-        lightPosition: {value: new Vector3(1.0, 1.0, 1.0)},
+        lightDirection: {value: new Vector3(1.0, 1.0, 1.0)},
         gradientMap: {value: null},
         hmax: {value: null},
         hmin: {value: null},
     },
     vertexShader: /* glsl */`
-    uniform vec3 lightPosition;
+    uniform vec3 lightDirection;
 
     out vec3 vNormal;
     out vec3 vPosition;
@@ -23,8 +23,8 @@ export const LandShader = {
 
     void main() {
         vec4 view_position = modelViewMatrix * vec4(position, 1.0);
-        vec4 viewLightPos = viewMatrix * vec4(lightPosition, 1.0);
-        lightVec          = normalize(viewLightPos.xyz - view_position.xyz);
+        vec4 viewLightPos = viewMatrix * vec4(lightDirection, 1.0);
+        lightVec          = normalize(viewMatrix * vec4(lightDirection, 0.0)).xyz;
         gl_Position = projectionMatrix * view_position;
 
         vNormal = normalMatrix * normal;
@@ -46,7 +46,7 @@ export const LandShader = {
 
     void main() {
         float hmax = 35.21;
-        float hmin = -10.0;
+        float hmin = -27.0;
         //Height based colour
         float hValue = (vPosition.y - hmin) / (hmax - hmin);   
         vec3 col = texture2D(gradientMap, vec2(0, hValue)).rgb;

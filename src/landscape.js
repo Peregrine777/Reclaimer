@@ -4,11 +4,12 @@ import { randFloat, randInt, smoothstep } from './MathUtils.js';
 import { LandShader } from './Shaders/LandscapeMaterial.js';
 
 export class Landscape {
-  size = 0;
+  size = 0.0;
   cityRadius = 0;
   n = null;
-  
 
+  
+  sun = new THREE.Vector3(0, 0, 0);
 
   octaves = 2;
   persistence = 0.5;
@@ -31,14 +32,13 @@ export class Landscape {
     this.lacunarity = landVals.lacunarity;
     this.scale = landVals.scale;
     this.height = landVals.height;
-    this.falloff = landVals.falloff;
+    this.falloff = landVals.falloff; 
+
+    this.hmax = -100;
+    this.hmin = 100;
 
     this.sun = sunDirection;
-
-    let max = 2;
-    let min = -2;
-    this.max = max;
-    this.min = min;
+    console.log(this.sun);
 
 
       
@@ -104,7 +104,7 @@ export class Landscape {
     landMaterial.uniforms = LandShader.uniforms
     landMaterial.vertexShader = LandShader.vertexShader;
     landMaterial.fragmentShader = LandShader.fragmentShader;
-    landMaterial.uniforms.lightPosition.value = new THREE.Vector3(0.0,65.0,1.0);
+    landMaterial.uniforms.lightDirection.value = this.sun;
     landMaterial.uniforms.gradientMap.value = this.gradientMap;
 
 
@@ -119,30 +119,25 @@ export class Landscape {
     let positionAttribute = landGeom.attributes.position;
     Land.name = "Land2";
 
-    
-
-
-    
-
-
-
     this.fbmNoise(Land, offsetX, offsetY);
 
-    getHeightRange(Land.geometry, this.max, this.min);
+    // getHeightRange(Land.geometry);
 
-    function getHeightRange(geom, max, min){
-      let pos = geom.attributes.position;
+    // function getHeightRange(geom){
+    //   let tMax = this.hmax;
+    //   let tMin = this.hmin;
+    //   let pos = geom.attributes.position;
 
       
-      for (let i = 0; i < pos.count; i++){
-        let z = pos.getZ(i);
-        if (z > max) max = z;
-        if (z < min) min = z;
-      }
-      max = max;
-      min = min;
-      console.log(max, min);
-    }
+    //   for (let i = 0; i < pos.count; i++){
+    //     let z = pos.getZ(i);
+    //     if (z > tMax) tMax = z;
+    //     if (z < tMin) tMin = z;
+    //   }
+    //   if (tMax > this.hmax) this.hmax = tMax
+    //   if (tMin < this.hmin) this.hmin = tMin
+      //console.log(max, min);
+    // }
 
 
     for (let i = 0; i < landGeom.attributes.position.count; i++) {
