@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 import { randFloat, randInt, smoothstep } from './MathUtils.js';
+import { LandShader } from './Shaders/LandscapeMaterial.js';
 
 export class Landscape {
   size = 0;
@@ -20,7 +21,7 @@ export class Landscape {
   falloff = 0.1;
   
 
-  constructor(size, landVals) {
+  constructor(size, landVals, sunDirection) {
     this.cityRadius = size * 0.5;
     this.size = size * 10;
     this.n = new ImprovedNoise;
@@ -31,6 +32,40 @@ export class Landscape {
     this.scale = landVals.scale;
     this.height = landVals.height;
     this.falloff = landVals.falloff;
+
+    this.sun = sunDirection;
+
+    let max = 2;
+    let min = -2;
+    this.max = max;
+    this.min = min;
+
+
+      
+    var canvasG = document.getElementById("heightgrd");
+    canvasG.addEventListener("click", ()=>{
+      createGradMap();
+    }, false);
+    var gradientMap = new THREE.CanvasTexture(canvasG);
+    var ctxG = canvasG.getContext("2d");
+
+    createGradMap();
+    function createGradMap() {
+      console.log("grad");
+      let grd = ctxG.createLinearGradient(0,255, 0, 0);
+      var colorAmount = 3;
+      var colorStep = 1. / colorAmount; 
+        grd.addColorStop(0.0,'rgb(' + 245 + ',' + 245 + ',' + 150 +')');
+        grd.addColorStop(0.32,'rgb(' + 245 + ',' + 245 + ',' + 150 +')');
+        grd.addColorStop(0.33,'rgb(' + 1 + ',' + 255 + ',' + 15 +')');
+        grd.addColorStop(0.93,'rgb(' + 1 + ',' + 255 + ',' + 15 +')');
+        grd.addColorStop(0.94,'rgb(' + 200 + ',' + 200 + ',' + 200 +')');
+
+      ctxG.fillStyle = grd;
+      ctxG.fillRect(0, 0, 64, 256)
+      gradientMap.needsUpdate = true;
+    }
+    this.gradientMap = gradientMap;
   }
 
   // Path: lanscape.js
@@ -65,54 +100,51 @@ export class Landscape {
   makeChunk(ring, offsetX, offsetY){
     //Land
     let landGeom = new THREE.PlaneGeometry(this.size, this.size, this.maxResolution/ring, this.maxResolution/ring);
-    let landMaterial = new THREE.MeshPhysicalMaterial({color: new THREE.Color(0.2,0.5,0.1), side: THREE.DoubleSide});
+    let landMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide});
+    landMaterial.uniforms = LandShader.uniforms
+    landMaterial.vertexShader = LandShader.vertexShader;
+    landMaterial.fragmentShader = LandShader.fragmentShader;
+    landMaterial.uniforms.lightPosition.value = new THREE.Vector3(0.0,65.0,1.0);
+    landMaterial.uniforms.gradientMap.value = this.gradientMap;
+
+
+
     const Land = new THREE.Mesh(landGeom, landMaterial );
     Land.rotation.x = -Math.PI/2;
     //landMaterial.wireframe = true;
-    Land.receiveShadow = true;
+    //Land.receiveShadow = true;
     Land.position.setY(0.2)
     Land.position.setX(this.size*offsetX)
     Land.position.setZ(this.size*offsetY)
     let positionAttribute = landGeom.attributes.position;
     Land.name = "Land2";
 
+    
+
+
+    
+
+
+
     this.fbmNoise(Land, offsetX, offsetY);
 
+    getHeightRange(Land.geometry, this.max, this.min);
 
-    // landMaterial.onBeforeCompile = function (shader) {
-    //   // Inject custom shader code into the vertex shader
-    //   shader.vertexShader = /* glsl */`
-    //     attribute float vertexHeight; // Add a custom attribute for vertex height
-    
-    //     ${shader.vertexShader} // Include the original vertex shader code
-    
-    //     void main() {
-    //       // Compute the new vertex position based on the vertex height
-    //       vec3 newPosition = position + normal * vertexHeight * 0.1; // 0.1 is a scaling factor
-    
-    //       // Pass the new position to the rest of the pipeline
-    //       gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-    //     }
-    //   `;
-    
-    //   // Inject custom shader code into the fragment shader
-    //   shader.fragmentShader = /* glsl */`
-    //     uniform vec3 baseColor; // Add a uniform for the base color
-    
-    //     ${shader.fragmentShader} // Include the original fragment shader code
-    
-    //     void main() {
-    //       // Compute the final color based on the base color and the vertex height
-    //       float heightFactor = gl_FragCoord.z / gl_FragCoord.w; // Compute the depth of the fragment
-    //       vec3 finalColor = baseColor * heightFactor; // Scale the base color by the depth
-    
-    //       // Output the final color
-    //       gl_FragColor = vec4(finalColor, 1.0);
-    //     }
-    //   `;
-    //   shader.attributes.vertexHeight.value = 1.00;
-    //   shader.uniforms.baseColor = { value: new THREE.Color(landMaterial.color) };
-    // };
+    function getHeightRange(geom, max, min){
+      let pos = geom.attributes.position;
+
+      
+      for (let i = 0; i < pos.count; i++){
+        let z = pos.getZ(i);
+        if (z > max) max = z;
+        if (z < min) min = z;
+      }
+      max = max;
+      min = min;
+      console.log(max, min);
+    }
+
+
     for (let i = 0; i < landGeom.attributes.position.count; i++) {
       const height = landGeom.attributes.position.getY(i);
       landGeom.setAttribute('vertexHeight', new THREE.BufferAttribute(new Float32Array([height]), 1));

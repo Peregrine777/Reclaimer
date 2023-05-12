@@ -5,9 +5,6 @@ export const LandShader = {
 
 
     uniforms: {
-        grassColour: {value:null},
-        sandColour: {value:null},
-        rockColour: {value:null},
         lightPosition: {value: new Vector3(1.0, 1.0, 1.0)},
         gradientMap: {value: null},
         hmax: {value: null},
@@ -39,17 +36,17 @@ export const LandShader = {
     
     `,
     fragmentShader: /* glsl */`
-    uniform vec3 colour;
     uniform vec3 lightColor;
     uniform sampler2D gradientMap;
-    uniform float hmax;
-    uniform float hmin;
+
 
     in vec3 vNormal;
     in vec3 vPosition;
     in vec3 lightVec;
 
     void main() {
+        float hmax = 35.21;
+        float hmin = -10.0;
         //Height based colour
         float hValue = (vPosition.y - hmin) / (hmax - hmin);   
         vec3 col = texture2D(gradientMap, vec2(0, hValue)).rgb;

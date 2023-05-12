@@ -86,6 +86,7 @@
     let land = new THREE.Object3D();
 
     let environment = new Environment(scene, renderer);
+    let sunDirection = environment.sun;
 
 
     let cityGenPoint = new THREE.Object3D();
@@ -134,7 +135,7 @@
       function CreateScene()
       {   
         scene.add(land);
-        new Landscape(sceneVals.size, landVals).ChunkManager(land);
+        new Landscape(sceneVals.size, landVals, sunDirection).ChunkManager(land);
 
       }
       
@@ -192,8 +193,6 @@
   }
  
   function updateEnvironment(){
-    console.log("update")
-    console.log("params: " + envVals.elevation + " " + envVals.azimuth )
     environment.updateSun(scene, renderer, envVals);
     // environment.update();
   }
