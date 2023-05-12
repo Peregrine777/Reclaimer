@@ -1,39 +1,68 @@
 import * as THREE from 'three';
+import { Vector3 } from "three";
 
 export const LandShader = {
+
+
     uniforms: {
-        colour: {value:null},
+        grassColour: {value:null},
+        sandColour: {value:null},
+        rockColour: {value:null},
+        lightPosition: {value: new Vector3(1.0, 1.0, 1.0)},
+        gradientMap: {value: null},
+        hmax: {value: null},
+        hmin: {value: null},
     },
     vertexShader: /* glsl */`
+    uniform vec3 lightPosition;
 
+    out vec3 vNormal;
+    out vec3 vPosition;
+    out vec2 vUV;
 
-    // Perlin noise function
-    float noise(vec2 x) {
-      vec2 p = floor(x);
-      vec2 f = fract(x);
-      f = f * f * (3.0 - 2.0 * f);
-      float n = p.x + p.y * 57.0;
-      return mix(mix(fract(sin(n) * 753.5453123), fract(sin(n + 1.0) * 753.5453123), f.x),
-                 mix(fract(sin(n + 57.0) * 753.5453123), fract(sin(n + 58.0) * 753.5453123), f.x), f.y);
+    out vec3 lightVec;
+
+ 
+
+    void main() {
+        vec4 view_position = modelViewMatrix * vec4(position, 1.0);
+        vec4 viewLightPos = viewMatrix * vec4(lightPosition, 1.0);
+        lightVec          = normalize(viewLightPos.xyz - view_position.xyz);
+        gl_Position = projectionMatrix * view_position;
+
+        vNormal = normalMatrix * normal;
+        vUV = uv;
+        vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+        
     }
     
-    void main() {
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-
-    }
+    
     `,
     fragmentShader: /* glsl */`
+    uniform vec3 colour;
+    uniform vec3 lightColor;
+    uniform sampler2D gradientMap;
+    uniform float hmax;
+    uniform float hmin;
+
+    in vec3 vNormal;
+    in vec3 vPosition;
+    in vec3 lightVec;
+
     void main() {
-      // Add noise to the water surface
-      // float n = noise(vUv * noiseScale + vec2(time * 0.1, time * 0.1));
-      // vec3 color = vec3(0.0, 0.3, 0.5) + vec3(n * noiseStrength);
-      
-      // // Add reflections based on light position
-      // vec3 lightDir = normalize(lightPosition - vec3(vUv, 0.0));
-      // float reflection = pow(max(dot(lightDir, vec3(0.0, 0.0, 1.0)), 0.0), 10.0);
-      // color += vec3(1.0, 1.0, 1.0) * reflection;
-      
-      gl_FragColor = vec4(vNormal, 1.0);
+        //Height based colour
+        float hValue = (vPosition.y - hmin) / (hmax - hmin);   
+        vec3 col = texture2D(gradientMap, vec2(0, hValue)).rgb;
+        vec3 baseColor = vec3(col);
+ 
+        vec3 ambientColor = vec3(0.5, 0.5, 0.5);
+        vec3 ambientStrength = ambientColor * baseColor;
+
+
+        float dProd = dot( vNormal, lightVec );
+        dProd=clamp(dProd,0.0,1.0);
+        vec3 c = mix(baseColor * dProd, ambientColor, ambientStrength);
+        gl_FragColor = vec4( c, 1.0 );
     }
-  `
-  }
+    `
+}

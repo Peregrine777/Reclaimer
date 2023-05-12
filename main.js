@@ -44,13 +44,17 @@
     composer.addPass(new SSAOPass(scene,camera,0, 0)); 
     composer.addPass(new UnrealBloomPass({x: screen.width, y:screen.height},0.70,0.0,0.85));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    //renderer.toneMappingExposure = 1
+    renderer.toneMappingExposure = 1
 
     ///GUI VALS//
     //Values for the GUI
     let sceneVals = {size: 20, sunHelper: false};
     let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
     let cityVals = {density: 1}
+    let envVals = {
+      elevation: 2,
+      azimuth: 180
+    };
 
     //Skybox
 
@@ -82,10 +86,7 @@
     let land = new THREE.Object3D();
 
     let environment = new Environment(scene, renderer);
-      const parameters = {
-        elevation: 2,
-        azimuth: 180
-      };
+
 
     let cityGenPoint = new THREE.Object3D();
       cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
@@ -166,8 +167,8 @@
     folderLand.add(landVals,'falloff', -0.5, 0.5, 0.05).onChange(redrawScene);
 
   const folderSky = gui.addFolder( 'Sky' );
-    folderSky.add( parameters, 'elevation', 0, 90, 0.1 ).onChange( updateEnvironment() );
-    folderSky.add( parameters, 'azimuth', - 180, 180, 0.1 ).onChange( updateEnvironment() );
+    folderSky.add( envVals, 'elevation', 0, 90, 0.1 ).onChange( updateEnvironment );
+    folderSky.add( envVals, 'azimuth', - 180, 180, 0.1 ).onChange( updateEnvironment );
     folderSky.open();
 
   let folderHelpers = gui.addFolder("Helpers");
@@ -191,12 +192,10 @@
   }
  
   function updateEnvironment(){
-      
-      // const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
-      // const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-      // sunPos = new THREE.Vector3();
-      // sunPos.setFromSphericalCoords( sceneVals.size*5, phi, theta );
-      // sunLight.position.set( sunPos );
+    console.log("update")
+    console.log("params: " + envVals.elevation + " " + envVals.azimuth )
+    environment.updateSun(scene, renderer, envVals);
+    // environment.update();
   }
 
   //final update loop
