@@ -52,7 +52,7 @@ export const LandShader = {
         vec3 col = texture2D(gradientMap, vec2(0, hValue)).rgb;
         vec3 baseColor = vec3(col);
  
-        vec3 ambientColor = vec3(0.5, 0.5, 0.5);
+        vec3 ambientColor = vec3(0.25, 0.25, 0.254);
         vec3 ambientStrength = ambientColor * baseColor;
 
 
