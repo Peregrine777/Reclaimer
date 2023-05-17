@@ -61,8 +61,8 @@ export class BuildingBlock {
             //console.log("COLLIDE");
             
             // check if colliding with blocks from a different building
-            console.log(e.body.buildingID);
-            console.log(e.target.buildingID);
+            // console.log(e.body.buildingID);
+            // console.log(e.target.buildingID);
 
             //if( e.body.buildingID != e.target.buildingID){
                 e.body.collided = true;
@@ -155,7 +155,7 @@ export class BuildingBlock {
         if(this.fragments.length == 0){
             if(this.blockBody.collided && !this.isShattered){
                 this.isShattered = true;
-                this.shatterBlock();
+                //this.shatterBlock();
             }
             this.blockMesh.position.copy(this.blockBody.position);
             this.blockMesh.quaternion.copy(this.blockBody.quaternion);
