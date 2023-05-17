@@ -119,33 +119,33 @@
 
   /////////////////////////////////////////////////////////////////////////////////////
   //Example import of fractured cube
-  let dynamicObjects = new THREE.Object3D();
-  dynamicObjects.position.set(0,5,0);
+  // let dynamicObjects = new THREE.Object3D();
+  // dynamicObjects.position.set(0,5,0);
 
-  let objLoader = new OBJLoader();
-  objLoader.load('assets/Objects/fracturedCube.obj', function ( object )
-  {
-  var material = new THREE.MeshPhongMaterial();
-  material.color= new THREE.Color(1,0,0);
-  material.wireframe=false;
-  material.shininess=100;
-  object.traverse( function ( child ) {
-      if ( child instanceof THREE.Mesh ) {
-          child.material = material;
-      }
-  } );
+  // let objLoader = new OBJLoader();
+  // objLoader.load('assets/Objects/fracturedCube-cubes.obj', function ( object )
+  // {
+  // var material = new THREE.MeshLambertMaterial();
+  // material.color= new THREE.Color(1,0,1);
+  // //material.wireframe=true;
+  // material.shininess=100;
+  // object.traverse( function ( child ) {
+  //     if ( child instanceof THREE.Mesh ) {
+  //         child.material = material;
+  //     }
+  // } );
 
-  dynamicObjects.add( object );
-  } );
+  // dynamicObjects.add( object );
+  // } );
 
-  // logging to show the object structure (for debugging)
-  //console.log(dynamicObjects);
+  // // logging to show the object structure (for debugging)
+  // //console.log(dynamicObjects);
 
-  dynamicObjects.traverse( function ( child ) {
-      if ( child instanceof THREE.Mesh ) {
-          //console.log(child);
-      }
-  });
+  // dynamicObjects.traverse( function ( child ) {
+  //     if ( child instanceof THREE.Mesh ) {
+  //         //console.log(child);
+  //     }
+  // });
 
   //scene.add(dynamicObjects);
 
