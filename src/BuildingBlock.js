@@ -1,17 +1,27 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+import { Fragment } from './Fragment.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 
 export class BuildingBlock {
       
-    constructor(scene, physicsworld, type){
+    constructor(scene, physicsworld, height, id){
         this.scene = scene;
         this.physicsworld = physicsworld;
-        this.type = type;
+        this.height = height;
         this.mass = 0; 
+        this.id = id;
         this.blockBody;
         this.blockMesh;
+        this.isShattered = false;
+        this.position = new THREE.Vector3();
         this.materials = [];
+        this.fragments = [];
+        this.defaults();
+    }
+
+    defaults(){
         var material_white = new THREE.MeshPhysicalMaterial();
         var material_red = new THREE.MeshPhysicalMaterial();
         var material_blue = new THREE.MeshPhysicalMaterial();
@@ -36,23 +46,124 @@ export class BuildingBlock {
 
 
     createBlock(x, y, z){
+        this.position.set(x, y, z);
         this.blockBody = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
-            mass: 5,
-            shape: new CANNON.Box(new CANNON.Vec3(0.4,0.4,0.4)),
+            mass: 0,
+            shape: new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5)),
+            collided: false,
           });
-        this.blockBody.position.set(x, y + 0.4, z);
+        this.blockBody.position.set(x, y + 0.5, z);
         this.physicsworld.addBody(this.blockBody);
 
-        const box_geo = new THREE.BoxGeometry(0.8,0.8,0.8);
-        this.blockMesh = new THREE.Mesh(box_geo, this.materials[this.type]);
+        // ON COLLISION
+        this.blockBody.addEventListener('collide', function(e){
+            //console.log("COLLIDE");
+            
+            // check if colliding with blocks from a different building
+            // console.log(e.body.buildingID);
+            // console.log(e.target.buildingID);
+
+            //if( e.body.buildingID != e.target.buildingID){
+                e.body.collided = true;
+            //}
+        });
+
+        const box_geo = new THREE.BoxGeometry(1,1,1);
+        this.blockMesh = new THREE.Mesh(box_geo, this.materials[this.height]);
         this.blockMesh.castShadow = true;
         this.blockMesh.recieveShadow = true;
         this.scene.add(this.blockMesh);
     }
 
+    shatterBlock(){
+        this.physicsworld.removeBody(this.blockBody);
+        this.scene.remove(this.blockMesh);
+        //console.log("Shatter");
+        // load fractured cube 
+        //console.log(this.position);
+        this.fragments = this.createCube(this.position.x,this.position.y + 0.5,this.position.z);
+    }
+
+    createCube(x, y, z){
+        //console.log("Create Cube");
+
+        let dynamicObjects = new THREE.Object3D();
+        dynamicObjects.position.set(x,y,z);
+        let physicsworld = this.physicsworld;
+        let materials = this.materials;
+        let height = this.height;
+
+        let fragments = this.fragments;
+        //let meshes = [];
+        let objLoader = new OBJLoader();
+        
+        objLoader.load('assets/Objects/fracturedCube-cubes2.obj', function ( object ){
+          object.traverse( function ( child ) {
+              if ( child instanceof THREE.Mesh ) {
+                child.material = materials[height];
+                //meshes.push(child);
+                var position = new THREE.Vector3();
+
+                // get coordinates
+                child.geometry.computeBoundingBox();
+                var boundingBox = child.geometry.boundingBox;
+
+                position.subVectors( boundingBox.max, boundingBox.min);
+                position.multiplyScalar(0.5);
+                position.add( boundingBox.min );
+                position.add( dynamicObjects.position );
+
+                //console.log(position);
+                let fragment = new Fragment(physicsworld , child, position);
+                fragments.push(fragment);
+                fragment.updateMesh();
+              }
+          } );
+          dynamicObjects.add( object );
+        } );
+        this.scene.add(dynamicObjects);
+        return fragments;
+    }
+
+    unfreezeBlock(){
+        if(this.fragments.length == 0){
+            this.blockBody.mass = 5; 
+            this.blockBody.updateMassProperties();
+        } 
+        else {
+            this.fragments.forEach(element => {
+                element.unfreezeMesh();
+            });
+        }
+        
+    }
+
+    freezeBlock(){
+        if(this.fragments.length == 0){
+            this.blockBody.mass = 0; 
+            this.blockBody.updateMassProperties();
+        } 
+        else {
+            this.fragments.forEach(element => {
+                element.freezeMesh();
+            });
+        }
+    }
+
     updateBlock(){
-        this.blockMesh.position.copy(this.blockBody.position);
-        this.blockMesh.quaternion.copy(this.blockBody.quaternion);
+        if(this.fragments.length == 0){
+            if(this.blockBody.collided && !this.isShattered){
+                this.isShattered = true;
+                //this.shatterBlock();
+            }
+            this.blockMesh.position.copy(this.blockBody.position);
+            this.blockMesh.quaternion.copy(this.blockBody.quaternion);
+        } else {
+            this.fragments.forEach(element => {
+                element.updateMesh();
+            });
+        }
+        
     }
 }
