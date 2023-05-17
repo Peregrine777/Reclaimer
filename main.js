@@ -17,6 +17,7 @@
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
     import { Environment } from './src/Environment.js';
+    import { Vine } from './src/Vine.js';
     import * as CANNON from 'cannon-es';
     import CannonDebugger from 'cannon-es-debugger';
 
@@ -177,7 +178,16 @@
       }
   });
 
-  scene.add(dynamicObjects);
+  //scene.add(dynamicObjects);
+
+  /////////////////
+  // Vines Debug //
+  /////////////////
+
+  let vine = new Vine();
+  scene.add(vine);
+  vine.translateY(1);
+  //console.log(vine);
   /////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -220,7 +230,6 @@
       {   
         scene.add(land);
         new Landscape(sceneVals.size, landVals, sunDirection).ChunkManager(land);
-
       }
       
       CreateScene();
