@@ -20,6 +20,8 @@
     import * as CANNON from 'cannon-es';
     import CannonDebugger from 'cannon-es-debugger';
 
+    document.getElementById("button").addEventListener("click", startReclamation, false); 
+
 
     //create the scene
     let scene = new THREE.Scene( );
@@ -215,6 +217,10 @@
   /////////////////////
   // SceneFunctions //
   /////////////////////
+
+      function startReclamation(){
+        cityGenPoint.clear();
+      }
 
       function CreateScene()
       {   
