@@ -134,7 +134,7 @@
   let cityGenPoint = new THREE.Object3D();
   let cityoffset = -sceneVals.size/2;
   //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
-  scene.add(cityGenPoint);
+  //scene.add(cityGenPoint);
 
   let City = new TileMap(sceneVals.size, cityVals, cityoffset);
   City.addBuildings(cityGenPoint, physicsworld);
