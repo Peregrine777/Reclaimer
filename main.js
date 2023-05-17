@@ -7,12 +7,16 @@
     import {EffectComposer} from "three/addons/postprocessing/EffectComposer.js";
     import {RenderPass} from "three/addons/postprocessing/RenderPass.js";
     import {UnrealBloomPass} from "three/addons/postprocessing/UnrealBloomPass.js";
-    import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";  
+    import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";   
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+
+
+
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
+    import { Environment } from './src/Environment.js';
     import * as CANNON from 'cannon-es';
     import CannonDebugger from 'cannon-es-debugger';
 
@@ -20,8 +24,8 @@
     //create the scene
     let scene = new THREE.Scene( );
     let ratio = window.innerWidth/window.innerHeight;
+    let totalTime = 0.00;
     let frame = 0;
-    const worldWidth = 256, worldDepth = 256;
     let gui = new GUI();
 
     //create the webgl renderer
@@ -41,7 +45,7 @@
     let composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene,camera));
     composer.addPass(new SSAOPass(scene,camera,0, 0)); 
-    composer.addPass(new UnrealBloomPass({x: screen.width, y:screen.height},2.0,0.0,0.75));
+    composer.addPass(new UnrealBloomPass({x: screen.width, y:screen.height},0.70,0.0,0.85));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1
 
@@ -68,7 +72,7 @@
 
     //Skybox
 
-      //Basic Sky
+      //Basic Sky (not used)
       const loader = new THREE.CubeTextureLoader();
       const texture = loader.load([
         './assets/Skybox/skyrender0005.bmp',
@@ -79,8 +83,8 @@
         './assets/Skybox/skyrender0001.bmp',
       ])
 
-      scene.background = texture;
-      scene.environment = texture;
+      //scene.background = texture;
+      //scene.environment = texture;
 
 
   ////////////
@@ -91,6 +95,10 @@
     let sceneVals = {size: 20, sunHelper: false};
     let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
     let cityVals = {density: 1, isSimulating: false};
+    let envVals = {
+      elevation: 2,
+      azimuth: 180
+    };
   
   
   gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
@@ -120,10 +128,6 @@
   // Objects //
   ///////////
 
-  let Land = new Landscape(sceneVals.size, landVals).makeLand();
-  Land.material.needsUpdate = true;
-  Land.castShadow = true;
-  Land.receiveShadow = true;
 
   let cityGenPoint = new THREE.Object3D();
   let cityoffset = -sceneVals.size/2;
@@ -135,6 +139,10 @@
   let debugBuilding = City.getBuilding(2,2);
   //console.log(debugBuilding);
   debugBuilding.colourDebug();
+
+  let land = new THREE.Object3D();
+  let environment = new Environment(scene, renderer);
+  let sunDirection = environment.sun;
 
   City.getBuildingsSurrounding(2,2);
 
@@ -181,28 +189,37 @@
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
       //scene.add(ambientLight);
 
-      //Sun
-      let sunColour = new THREE.Color(1.0,0.98,0.8)
-      const sun = new THREE.SpotLight(sunColour,1);
-      let sunHelper = new THREE.SpotLightHelper(sun);
-      sunHelper.visible = false;
-      scene.add(sunHelper);
-      sun.castShadow = true;
-      sun.shadow.mapSize = new THREE.Vector2(4096, 4096);
-      //sun.shadow.bias = 0.21
-      sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
-      sun.lookAt(0,0,1);
+      //sunlight
+      // let sunColour = new THREE.Color(1.0,0.98,0.8)
+      // const sunLight = new THREE.SpotLight(sunColour,1);
+      // let sunHelper = new THREE.SpotLightHelper(sunLight);
+      // sunHelper.visible = false;
+      // scene.add(sunHelper);
+      // sunLight.castShadow = true;
+      // sunLight.shadow.mapSize = new THREE.Vector2(4096, 4096);
+      // //sun.shadow.bias = 0.21
+      // sunLight.position.set(sceneVals.size*5,55,sceneVals.size*-5);
+      // sunLight.lookAt(0,0,1);
 
-      scene.add(sun);
+
+      // const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
+      // const theta = THREE.MathUtils.degToRad( parameters.azimuth );
+      // let sunPos = new THREE.Vector3();
+
+      // sunPos.setFromSphericalCoords( sceneVals.size*5, phi, theta );
+      // sunLight.position.copy( sunPos );
+      // scene.add(sunLight);
+
 
   /////////////////////
   // SceneFunctions //
   /////////////////////
 
-  //Branch test
       function CreateScene()
       {   
-        scene.add(Land);
+        scene.add(land);
+        new Landscape(sceneVals.size, landVals, sunDirection).ChunkManager(land);
+
       }
       
       CreateScene();
@@ -219,12 +236,9 @@
   let controls = new OrbitControls( camera, renderer.domElement );
   //let controls = new FirstPersonControls(camera, renderer.domElement);
 
-
-
   function redrawScene(){
 
-    scene.remove(Land);
-    //clear building meshes
+    land.clear();
     cityGenPoint.clear();
 
     // clear physics world
@@ -236,18 +250,20 @@
     // replace physics plane
     physicsworld.addBody(createGroundBody());
 
-    sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
-    Land = new Landscape(sceneVals.size, landVals).makeLand();
-    scene.add(Land);
-
+    new Landscape(sceneVals.size, landVals).ChunkManager(land);
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
     City.addBuildings(cityGenPoint, physicsworld);
 
-    if (sceneVals.sunHelper == true){
-      sunHelper.visible = true;
-    }
-    else {sunHelper.visible = false}
+    // if (sceneVals.sunHelper == true){
+    //   sunHelper.visible = true;
+    // }
+    // else {sunHelper.visible = false}
     CreateScene();
+  }
+ 
+  function updateEnvironment(){
+    environment.updateSun(scene, renderer, envVals);
+    // environment.update();
   }
 
   //set to true to simulate physics
@@ -263,10 +279,10 @@
       physicsworld.fixedStep();
     }
     
-
-
     //scene.add(sea);
     cannonDebugger.update();
+    environment.update();
+
     composer.render();
     controls.update();
     requestAnimationFrame(MyUpdateLoop);
