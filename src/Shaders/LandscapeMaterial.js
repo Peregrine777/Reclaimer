@@ -17,20 +17,25 @@ export const LandShader = {
     out vec3 vNormal;
     out vec3 vPosition;
     out vec2 vUV;
-    out vec3 vNorm;
-
     out vec3 lightVec;
+    out vec3 upVec;
+    out vec3 vNorm;
+    out vec3 vViewDirection;
+    out vec3 vViewNormal;
 
- 
 
     void main() {
         vec4 view_position = modelViewMatrix * vec4(position, 1.0);
         vec4 viewLightPos = viewMatrix * vec4(lightDirection, 1.0);
-        lightVec          = normalize(viewMatrix * vec4(lightDirection, 0.0)).xyz;
+        lightVec = normalize(viewMatrix * vec4(lightDirection, 0.0)).xyz;
+        upVec    = normalize(viewMatrix * vec4(0., 1., 0.0, 0.0)).xyz;
         gl_Position = projectionMatrix * view_position;
 
-        vNormal = normalMatrix * normal;
+        vNormal = normalize(normalMatrix * normal);
         vNorm = ((normal) * -1.0);
+        vec3 view = viewMatrix[3].xyz;
+        vViewDirection = normalize(-(modelViewMatrix * vec4(position, 1.0))).xyz;
+
         vUV = uv;
         vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
         
@@ -48,6 +53,10 @@ export const LandShader = {
     in vec3 vPosition;
     in vec3 lightVec;
     in vec3 vNorm;
+    in vec3 vViewNormal;
+    in vec3 vViewDirection;
+    in vec3 upVec;
+    
 
     float rand (vec2 st) {
         return fract(sin(dot(st.xy,
@@ -79,9 +88,10 @@ export const LandShader = {
     void main() {
         float hmax = 35.21;
         float hmin = -27.0;
+
         vec3 cliffColor = vec3(0.3, 0.3, 0.3);
         vec3 flatColor = vec3(0.7, 0.75, 0.0);
-
+        vec3 skyColor = vec3(0.6, 0.62, 0.85);
 
         //Height based colour
         float hValue = (vPosition.y - hmin) / (hmax - hmin);   
@@ -95,21 +105,45 @@ export const LandShader = {
         float slopes = pow(clamp(( (abs(vNorm.x) + abs(vNorm.y) + abs(vNorm.z)) *1. - 1.0),0.,1.),5.0);
         vec3 slopeC = cliffColor * slopes;
 
-        baseColor = (baseColor + flatC) * (1.- slopeC);
-        // baseColor = mix(baseColor, slopeC, 1.);
+        vec3 landColor = (baseColor + flatC) * (1.- slopeC);
 
         //Ambient Lighting
-        vec3 ambientColor = vec3(0.25, 0.25, 0.254);
+        vec3 ambientColor = vec3(0.25, 0.25, 0.254) * 0.75;
         vec3 ambientStrength = ambientColor * baseColor;
 
         //Diffuse Lighting
-        float dProd = dot( vNormal, lightVec );
-        
-        dProd=(step(-0.4,dProd)*0.5 - 0.1 ) + step(0.6, dProd);
-        dProd=clamp(dProd,0.,1.0);
+            //direct
+            float dProd = dot( vNormal, lightVec );
+            dProd=(step(-0.4,dProd)*0.5 - 0.1 ) + step(0.6, dProd);
+            dProd=clamp(dProd,0.,1.0);
+
+            //sky
+            float aLight = dot( vNormal, upVec );
+            aLight=(step(-0.0,aLight)*0.5 - 0.1 ) + step(0.81, aLight);
+            aLight=clamp(aLight,0.,1.0);
+
+        //final lights
         vec3 directLightColor = lightColor * dProd;
-        vec3 c = mix(baseColor * directLightColor * dProd, ambientColor, ambientStrength);
-        gl_FragColor = vec4( c, 1.0 );
+        vec3 skyLightColor = skyColor * aLight;
+
+        //pseudo fresnel
+        float fresnel =  dot(vNormal, vViewDirection);
+        fresnel = clamp(pow(1.0 - fresnel, 7.), 0.0, 1.0);
+        vec3 fresnelLight = fresnel * skyLightColor;
+
+        //final colour
+        vec3 directLight = landColor * directLightColor;
+        vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
+
+        vec3 skyLight = landColor * skyLightColor;
+        vec3 ambient = landColor* baseColor;
+
+        vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
+
+
+        
+        vec3 c = mix(finalLighting, ambientColor, ambientStrength);
+        gl_FragColor = vec4(c, 1.0 );
     }
     `
 }
