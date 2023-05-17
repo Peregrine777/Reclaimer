@@ -54,8 +54,23 @@ export class TileMap {
 
     getBuilding(i, j){ 
         let b = this.map[i][j].building;
-        b.name = "debug";
+        console.log(b);
+        //b.name = "debug";
         return b;
+    }
+
+    getBuildingsSurrounding(i, j){
+        let surrounds = [
+            this.getBuilding(i, j + 2),
+            this.getBuilding(i + 2, j),
+            this.getBuilding(i, j - 2),
+            this.getBuilding(i - 2, j)
+        ];
+        surrounds.forEach(element =>{
+            console.log(element);
+            element.colourDebug();
+        });
+        return surrounds;
     }
 
     updateBuildings (){

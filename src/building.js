@@ -29,5 +29,4 @@ export class Building{
             element.updateBlock();
         });
     }
-
 }
