@@ -132,6 +132,9 @@
 
   let City = new TileMap(sceneVals.size, cityVals, cityoffset);
   City.addBuildings(cityGenPoint, physicsworld);
+  let debugBuilding = City.getBuilding(0,0);
+  //console.log(debugBuilding);
+  //debugBuilding.colourDebug();
 
   /////////////////////////////////////////////////////////////////////////////////////
   //Example import of fractured cube

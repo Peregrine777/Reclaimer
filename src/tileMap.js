@@ -18,15 +18,17 @@ export class TileMap {
             this.map[i] = new Array(size);
             for (let j = 0; j < size; j++) {
                 //Randomise building heights
-                let rand = randInt(1,3);
-                if(rand == 1){
-                    this.map[i][j] = {height: 1, type: "house"};
+                let randomHeight = randInt(1,3);
+                this.map[i][j] = {height : randomHeight, type: "", building : null};
+
+                if(randomHeight == 1){
+                    this.map[i][j].type = "house";
                 } 
-                else if (rand == 2){
-                    this.map[i][j] = {height: 2, type: "apartment"};
+                else if (randomHeight == 2){
+                    this.map[i][j].type = "apartment";
                 }
-                else if (rand == 3){
-                    this.map[i][j] = {height: 3, type: "skyscraper"};
+                else {
+                    this.map[i][j].type = "skyscraper";
                 }
             }
         }
@@ -39,15 +41,21 @@ export class TileMap {
         //loop through map and add buildings   
         for (let i = 0; i < this.size; i += 2) {
             for (let j = 0; j < this.size; j += 2) {
-                let tile = this.map[i][j];
-
-                let building = new Building(scene, physicsworld, tile.height);
+                //console.log(tile);
+                let building = new Building(scene, physicsworld, this.map[i][j].height);
+                this.map[i][j].building = building;
                 this.buildings.push(building);
                 // offset buildings to the centre of the terrain
                 building.createBuilding(i -this.size/2,j -this.size/2);
                 building.updateBuilding();
             }
         }
+    }
+
+    getBuilding(i, j){ 
+        let b = this.map[i][j].building;
+        b.name = "debug";
+        return b;
     }
 
     updateBuildings (){

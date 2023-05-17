@@ -5,7 +5,13 @@ export class Building{
         this.scene = scene;
         this.physicsworld = physicsworld;
         this.height = height;
-        this.building = [];
+        this.buildingBlocks = [];
+    }
+
+    colourDebug(){
+        this.buildingBlocks.forEach(element => {
+            element.colourDebug();
+        });
     }
 
     createBuilding(x,y){
@@ -13,13 +19,13 @@ export class Building{
         for(var i = 0; i < this.height; i++){
             var block = new BuildingBlock(this.scene, this.physicsworld, this.height);
             block.createBlock(x,posY,y);
-            this.building.push(block);
+            this.buildingBlocks.push(block);
             posY += 0.8;
         }
     }
 
     updateBuilding (){
-        this.building.forEach(element => {
+        this.buildingBlocks.forEach(element => {
             element.updateBlock();
         });
     }

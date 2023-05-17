@@ -15,14 +15,23 @@ export class BuildingBlock {
         var material_white = new THREE.MeshLambertMaterial();
         var material_red = new THREE.MeshLambertMaterial();
         var material_blue = new THREE.MeshLambertMaterial();
+        var material_debug = new THREE.MeshLambertMaterial();
         material_white.color =  new THREE.Color(0.9,0.9,0.9);
         material_red.color =  new THREE.Color(1,0,0);
         material_blue.color =  new THREE.Color(0,0,1);
+        material_debug.color = new THREE.Color(1.0, 1.0, 0);
         // use null value in first element to offset indexes by 1
         this.materials.push(null);
         this.materials.push(material_white);
         this.materials.push(material_red);
         this.materials.push(material_blue);
+        this.materials.push(material_debug);
+    }
+
+    //debug function
+    colourDebug(){
+        //console.log("colour block debug");
+        this.blockMesh.material = this.materials[4];
     }
 
 
