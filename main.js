@@ -301,6 +301,7 @@
     let width = window.innerWidth;
     let height = window.innerHeight;
     renderer.setSize(width,height);
+    composer.setSize(width,height);
     camera.aspect = width/height;
     camera.updateProjectionMatrix();
     composer.render();
