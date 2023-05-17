@@ -30,20 +30,23 @@ export class Vine extends THREE.Object3D{
         this.mesh = new THREE.Mesh(tube, material);
         this.setScaleUniform(this.initialScale);
         this.add(this.mesh);
-        this.scaleVertical(0.1);
+        this.setScaleVertical(0.1);
     }
 
     setScaleUniform(scale){
         this.mesh.scale.set(scale, scale, scale);
     }
 
-    scaleVertical(scale){
+    setScaleVertical(scale){
+        scale *= this.initialScale;
+        console.log(scale);
         let matrix = new THREE.Matrix4().makeScale(1, scale, 1);
         this.applyMatrix4(matrix);
     }
 
     scaleHorizontal(scale){
-        let matrix = new THREE.Matrix4().makeScale(scale, 1, 1);
+        scale *= this.initialScale;
+        let matrix = new THREE.Matrix4().makeScale(scale, 1, scale );
         this.applyMatrix4(matrix);
     }
 }
