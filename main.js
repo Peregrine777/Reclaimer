@@ -10,9 +10,12 @@
     import {SSAOPass} from "three/addons/postprocessing/SSAOPass.js";  
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
+    import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
+    import * as CANNON from 'cannon-es';
+    import CannonDebugger from 'cannon-es-debugger';
+
 
     //create the scene
     let scene = new THREE.Scene( );
@@ -42,11 +45,26 @@
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1
 
-    ///GUI VALS//
-    //Values for the GUI
-    let sceneVals = {size: 100, sunHelper: false};
-    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
-    let cityVals = {density: 1}
+
+    // PHYSICS WORLD //
+    const physicsworld = new CANNON.World({
+      gravity: new CANNON.Vec3(0,-9.82,0),
+    });
+
+    function createGroundBody(){
+      const groundBody = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        shape: new CANNON.Plane(),
+      });
+      groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+      groundBody.position.set(0,0.2,0);
+      return groundBody;
+    }
+
+    physicsworld.addBody(createGroundBody());
+
+
+    const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
     //Skybox
 
@@ -65,6 +83,33 @@
       scene.environment = texture;
 
 
+  ////////////
+  //   GUI  //
+  ////////////
+
+   //Values for the GUI
+    let sceneVals = {size: 20, sunHelper: false};
+    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    let cityVals = {density: 1, isSimulating: false};
+  
+  
+  gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
+    
+  let folderLand = gui.addFolder("Landscape");
+    folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
+    folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
+
+  let folderHelpers = gui.addFolder("Helpers");
+    folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
+
+  let folderCity = gui.addFolder("City");
+  folderCity.add(cityVals, 'isSimulating', false, true);
+
+
+
 
   //////////////
   // Materials //
@@ -77,18 +122,54 @@
 
   let Land = new Landscape(sceneVals.size, landVals).makeLand();
   Land.material.needsUpdate = true;
-  Land.castShadow = true
-  Land.receiveShadow = true
+  Land.castShadow = true;
+  Land.receiveShadow = true;
 
   let cityGenPoint = new THREE.Object3D();
-  cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
+  let cityoffset = -sceneVals.size/2;
+  //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
   scene.add(cityGenPoint);
 
-  let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
-  City.addBuildings(cityGenPoint);
+  let City = new TileMap(sceneVals.size, cityVals, cityoffset);
+  City.addBuildings(cityGenPoint, physicsworld);
+  let debugBuilding = City.getBuilding(2,2);
+  //console.log(debugBuilding);
+  debugBuilding.colourDebug();
 
+  City.getBuildingsSurrounding(2,2);
 
+  /////////////////////////////////////////////////////////////////////////////////////
+  //Example import of fractured cube
+  let dynamicObjects = new THREE.Object3D();
+  dynamicObjects.position.set(0,5,0);
 
+  let objLoader = new OBJLoader();
+  objLoader.load('assets/Objects/fracturedCube.obj', function ( object )
+  {
+  var material = new THREE.MeshPhongMaterial();
+  material.color= new THREE.Color(1,0,0);
+  material.wireframe=false;
+  material.shininess=100;
+  object.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+          child.material = material;
+      }
+  } );
+
+  dynamicObjects.add( object );
+  } );
+
+  // logging to show the object structure (for debugging)
+  console.log(dynamicObjects);
+
+  dynamicObjects.traverse( function ( child ) {
+      if ( child instanceof THREE.Mesh ) {
+          console.log(child);
+      }
+  });
+
+  scene.add(dynamicObjects);
+  /////////////////////////////////////////////////////////////////////////////////////
 
 
   /////////////
@@ -96,7 +177,7 @@
   ///////////
 
       //ambient Lighting
-      let skyColour = new THREE.Color(1, 1,1)
+      let skyColour = new THREE.Color( 1, 1, 1 )
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
       //scene.add(ambientLight);
 
@@ -138,34 +219,29 @@
   let controls = new OrbitControls( camera, renderer.domElement );
   //let controls = new FirstPersonControls(camera, renderer.domElement);
 
-  ////////////
-  //   GUI  //
-  ////////////
-  
-  gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
-    
-  let folderLand = gui.addFolder("Landscape");
-    folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
-    folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
-  let folderHelpers = gui.addFolder("Helpers");
-    folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
 
   function redrawScene(){
 
     scene.remove(Land);
+    //clear building meshes
     cityGenPoint.clear();
-    cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2)
+
+    // clear physics world
+    let bodies = physicsworld.bodies;
+    bodies.forEach(element => {
+      physicsworld.removeBody(element);
+      physicsworld.step();
+    })
+    // replace physics plane
+    physicsworld.addBody(createGroundBody());
 
     sun.position.set(sceneVals.size*5,55,sceneVals.size*-5);
     Land = new Landscape(sceneVals.size, landVals).makeLand();
     scene.add(Land);
 
     let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
-    City.addBuildings(cityGenPoint);
+    City.addBuildings(cityGenPoint, physicsworld);
 
     if (sceneVals.sunHelper == true){
       sunHelper.visible = true;
@@ -174,12 +250,23 @@
     CreateScene();
   }
 
+  //set to true to simulate physics
+
   //final update loop
   let MyUpdateLoop = function ( )
   {
     //call the render with the scene and the camera
     frame++;
+
+    if(cityVals.isSimulating){
+      City.updateBuildings();
+      physicsworld.fixedStep();
+    }
+    
+
+
     //scene.add(sea);
+    cannonDebugger.update();
     composer.render();
     controls.update();
     requestAnimationFrame(MyUpdateLoop);
