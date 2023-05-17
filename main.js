@@ -1,7 +1,6 @@
     import * as THREE from 'three';
     import * as TWEEN from '/node_modules/@tweenjs/tween.js/dist/tween.esm.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
     import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
     import { GUI } from '/node_modules/dat-gui/datGUI.module.js';
     import { randFloat, randInt } from './src/MathUtils.js';
@@ -12,9 +11,6 @@
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-
-
-
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
     import { Environment } from './src/Environment.js';
@@ -23,7 +19,6 @@
     import CannonDebugger from 'cannon-es-debugger';
 
     document.getElementById("button").addEventListener("click", startReclamation, false); 
-
 
     //create the scene
     let scene = new THREE.Scene( );
@@ -74,22 +69,6 @@
 
     const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
-    //Skybox
-
-      //Basic Sky (not used)
-      const loader = new THREE.CubeTextureLoader();
-      const texture = loader.load([
-        './assets/Skybox/skyrender0005.bmp',
-        './assets/Skybox/skyrender0002.bmp',
-        './assets/Skybox/skyrender0003.bmp',
-        './assets/Skybox/skyrender0004.bmp',
-        './assets/Skybox/skyrender0004.bmp',
-        './assets/Skybox/skyrender0001.bmp',
-      ])
-
-      //scene.background = texture;
-      //scene.environment = texture;
-
 
   ////////////
   //   GUI  //
@@ -99,7 +78,7 @@
     let sceneVals = {size: 20, sunHelper: false};
     let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1,
       height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
-    let cityVals = {density: 1, isSimulating: false};
+    let cityVals = {density: 1, isSimulating: true};
     let envVals = {
       elevation: 2,
       azimuth: 180
@@ -115,23 +94,13 @@
     folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
     folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
-  let folderHelpers = gui.addFolder("Helpers");
-    folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
-
   let folderCity = gui.addFolder("City");
-  folderCity.add(cityVals, 'isSimulating', false, true);
-
-
-
-
-  //////////////
-  // Materials //
-  //////////////
+  folderCity.add(cityVals, 'isSimulating', true, false);
 
 
   /////////////
   // Objects //
-  ///////////
+  ////////////
 
 
   let cityGenPoint = new THREE.Object3D();
@@ -141,15 +110,12 @@
 
   let City = new TileMap(sceneVals.size, cityVals, cityoffset);
   City.addBuildings(cityGenPoint, physicsworld);
-  let debugBuilding = City.getBuilding(2,2);
-  //console.log(debugBuilding);
-  debugBuilding.colourDebug();
 
   let land = new THREE.Object3D();
   let environment = new Environment(scene, renderer);
   let sunDirection = environment.sun;
 
-  City.getBuildingsSurrounding(2,2);
+  //City.getBuildingsSurrounding(2,2);
 
   /////////////////////////////////////////////////////////////////////////////////////
   //Example import of fractured cube
@@ -183,28 +149,38 @@
 
   //scene.add(dynamicObjects);
 
-  /////////////////
-  // Vines Debug //
-  /////////////////
+  ////////////
+  // Vines //
+  ///////////
 
   let vine = new Vine();
   scene.add(vine);
 
-//  function tweenVine(maxHeight, vine){
-//     let time = 5000;
-//     const vineTween = new TWEEN.Tween({ y : 0})
-//     .to({ y : maxHeight}, time)
-//     .onUpdate((scale) => {
-//       console.log(scale);
-//       vine.scaleVertical(scale.y)
-//     });
+  function verticalVineGrow(vine, height){
+    const tween = new TWEEN.Tween({ y: 0.1 })
+    .to({y : (1 / 2) * randInt(1, height)}, 2000)
+    .onUpdate((scale) => {
+      //vine.position.y = scale.y;
+      vine.scale.y = vine.initialScale * scale.y;
+    });
 
-//     vineTween.start();
-//   }
+    tween.start();
+  }
 
+  function horizontalVineGrow(vine){
+    const tween = new TWEEN.Tween({ x: 1 })
+    .to({y : 0.7}, 5000)
+    .onUpdate((scale) => {
+      //vine.position.y = scale.y;
+      vine.scale.x = vine.initialScale * scale.x;
+      vine.scale.z = vine.initialScale * scale.x;
+    });
 
-  //console.log(vine);
+    tween.start();
+  }
 
+  //horizontalVineGrow(vine);
+  verticalVineGrow(vine, 2);
 
   /////////////////////////////////////////////////////////////////////////////////////
 
@@ -218,34 +194,31 @@
       const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
       //scene.add(ambientLight);
 
-      //sunlight
-      // let sunColour = new THREE.Color(1.0,0.98,0.8)
-      // const sunLight = new THREE.SpotLight(sunColour,1);
-      // let sunHelper = new THREE.SpotLightHelper(sunLight);
-      // sunHelper.visible = false;
-      // scene.add(sunHelper);
-      // sunLight.castShadow = true;
-      // sunLight.shadow.mapSize = new THREE.Vector2(4096, 4096);
-      // //sun.shadow.bias = 0.21
-      // sunLight.position.set(sceneVals.size*5,55,sceneVals.size*-5);
-      // sunLight.lookAt(0,0,1);
-
-
-      // const phi = THREE.MathUtils.degToRad( 90 - parameters.elevation );
-      // const theta = THREE.MathUtils.degToRad( parameters.azimuth );
-      // let sunPos = new THREE.Vector3();
-
-      // sunPos.setFromSphericalCoords( sceneVals.size*5, phi, theta );
-      // sunLight.position.copy( sunPos );
-      // scene.add(sunLight);
-
-
   /////////////////////
   // SceneFunctions //
   /////////////////////
 
       function startReclamation(){
-        cityGenPoint.clear();
+        let buildingTargets = pickRandomBuildings(3);
+
+        buildingTargets.forEach(building => {
+          //console.log(building);
+          building.colourDebug();
+        });
+      }
+
+      function pickRandomBuildings(numberOfBuildings){
+        let buildings = [];
+        let i = 0;
+        while(i < numberOfBuildings){
+          let x = randInt(2, City.cityRadius) * 2 - 2;
+          let y = randInt(2, City.cityRadius) * 2 - 2;
+          buildings.push(
+            City.getBuilding(x, y)
+          );
+          i++;
+        }
+        return buildings;
       }
 
       function CreateScene()
@@ -298,8 +271,6 @@
     // environment.update();
   }
 
-  //set to true to simulate physics
-
   //final update loop
   let MyUpdateLoop = (t) =>
   {
@@ -323,34 +294,6 @@
   };
   
   requestAnimationFrame(MyUpdateLoop);
-
-  function verticalVineGrow(vine, height){
-    const tween = new TWEEN.Tween({ y: 0.1 })
-    .to({y : (1 / 2) * randInt(1, height)}, 2000)
-    .onUpdate((scale) => {
-      //vine.position.y = scale.y;
-      vine.scale.y = vine.initialScale * scale.y;
-    });
-
-    tween.start();
-  }
-
-  function horizontalVineGrow(vine){
-    const tween = new TWEEN.Tween({ x: 1 })
-    .to({y : 0.7}, 5000)
-    .onUpdate((scale) => {
-      //vine.position.y = scale.y;
-      vine.scale.x = vine.initialScale * scale.x;
-      vine.scale.z = vine.initialScale * scale.x;
-    });
-
-    tween.start();
-  }
-
-  //horizontalVineGrow(vine);
-  verticalVineGrow(vine, 2);
-
-  //tweenVine(vine, 5);
   
   //this function is called when the window is resized
   let MyResize = function ( )
