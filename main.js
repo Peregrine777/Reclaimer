@@ -66,12 +66,6 @@
 
     const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
-    ///GUI VALS//
-    //Values for the GUI
-    let sceneVals = {size: 20, sunHelper: false};
-    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
-    let cityVals = {density: 1}
-
     //Skybox
 
       //Basic Sky
@@ -87,6 +81,33 @@
 
       scene.background = texture;
       scene.environment = texture;
+
+
+  ////////////
+  //   GUI  //
+  ////////////
+
+   //Values for the GUI
+    let sceneVals = {size: 20, sunHelper: false};
+    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    let cityVals = {density: 1, isSimulating: false};
+  
+  
+  gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
+    
+  let folderLand = gui.addFolder("Landscape");
+    folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
+    folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
+    folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
+
+  let folderHelpers = gui.addFolder("Helpers");
+    folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
+
+  let folderCity = gui.addFolder("City");
+  folderCity.add(cityVals, 'isSimulating', false, true);
+
 
 
 
@@ -193,21 +214,7 @@
   let controls = new OrbitControls( camera, renderer.domElement );
   //let controls = new FirstPersonControls(camera, renderer.domElement);
 
-  ////////////
-  //   GUI  //
-  ////////////
-  
-  gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
-    
-  let folderLand = gui.addFolder("Landscape");
-    folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
-    folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
-  let folderHelpers = gui.addFolder("Helpers");
-    folderHelpers.add(sceneVals, 'sunHelper', false, true).onChange(redrawScene);
 
   function redrawScene(){
 
@@ -239,7 +246,6 @@
   }
 
   //set to true to simulate physics
-  let isSimulating = false; 
 
   //final update loop
   let MyUpdateLoop = function ( )
@@ -247,7 +253,7 @@
     //call the render with the scene and the camera
     frame++;
 
-    if(isSimulating){
+    if(cityVals.isSimulating){
       City.updateBuildings();
       physicsworld.fixedStep();
     }
