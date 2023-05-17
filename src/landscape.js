@@ -53,14 +53,12 @@ export class Landscape {
     function createGradMap() {
       console.log("grad");
       let grd = ctxG.createLinearGradient(0,255, 0, 0);
-      var colorAmount = 3;
-      var colorStep = 1. / colorAmount; 
         //sand
         grd.addColorStop(0.0,'rgb(' + 245 + ',' + 245 + ',' + 150 +')');
-        grd.addColorStop(0.32,'rgb(' + 245 + ',' + 245 + ',' + 150 +')');
+        grd.addColorStop(0.33,'rgb(' + 245 + ',' + 245 + ',' + 150 +')');
         //grass
-        grd.addColorStop(0.33,'rgb(' + 55 + ',' + 172 + ',' + 15 +')');
-        grd.addColorStop(0.93,'rgb(' + 55 + ',' + 172 + ',' + 15 +')');
+        grd.addColorStop(0.34,'rgb(' + 85 + ',' + 172 + ',' + 65 +')');
+        grd.addColorStop(0.93,'rgb(' + 85 + ',' + 172 + ',' + 65 +')');
         //snow
         grd.addColorStop(0.94,'rgb(' + 200 + ',' + 200 + ',' + 200 +')');
 
