@@ -138,6 +138,8 @@
   let City = new TileMap(sceneVals.size, cityVals, cityoffset);
   City.addBuildings(cityGenPoint, physicsworld);
   let debugBuilding = City.getBuilding(2,2);
+  debugBuilding.getBlock(0).shatterBlock();
+
   //console.log(debugBuilding);
   debugBuilding.colourDebug();
 
@@ -149,35 +151,35 @@
 
   /////////////////////////////////////////////////////////////////////////////////////
   //Example import of fractured cube
-  let dynamicObjects = new THREE.Object3D();
-  dynamicObjects.position.set(0,5,0);
+  // let dynamicObjects = new THREE.Object3D();
+  // dynamicObjects.position.set(0,5,0);
 
-  let objLoader = new OBJLoader();
-  objLoader.load('assets/Objects/fracturedCube-cubes.obj', function ( object )
-  {
-  var material = new THREE.MeshLambertMaterial();
-  material.color= new THREE.Color(1,0,1);
-  //material.wireframe=true;
-  material.shininess=100;
-  object.traverse( function ( child ) {
-      if ( child instanceof THREE.Mesh ) {
-          child.material = material;
-      }
-  } );
+  // let objLoader = new OBJLoader();
+  // objLoader.load('assets/Objects/fracturedCube-cubes.obj', function ( object )
+  // {
+  // var material = new THREE.MeshLambertMaterial();
+  // material.color= new THREE.Color(1,0,1);
+  // //material.wireframe=true;
+  // material.shininess=100;
+  // object.traverse( function ( child ) {
+  //     if ( child instanceof THREE.Mesh ) {
+  //         child.material = material;
+  //     }
+  // } );
 
-  dynamicObjects.add( object );
-  } );
+  // dynamicObjects.add( object );
+  // } );
 
-  // logging to show the object structure (for debugging)
-  //console.log(dynamicObjects);
+  // // logging to show the object structure (for debugging)
+  // //console.log(dynamicObjects);
 
-  dynamicObjects.traverse( function ( child ) {
-      if ( child instanceof THREE.Mesh ) {
-          //console.log(child);
-      }
-  });
+  // dynamicObjects.traverse( function ( child ) {
+  //     if ( child instanceof THREE.Mesh ) {
+  //         //console.log(child);
+  //     }
+  // });
 
-  scene.add(dynamicObjects);
+  // scene.add(dynamicObjects);
   /////////////////////////////////////////////////////////////////////////////////////
 
 
