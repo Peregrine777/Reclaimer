@@ -138,6 +138,7 @@
   let City = new TileMap(sceneVals.size, cityVals, cityoffset);
   City.addBuildings(cityGenPoint, physicsworld);
   let debugBuilding = City.getBuilding(2,2);
+  debugBuilding.unfreezeBuilding();
   debugBuilding.getBlock(0).shatterBlock();
 
   //console.log(debugBuilding);

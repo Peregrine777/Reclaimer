@@ -29,8 +29,12 @@ export class Building{
         this.position.setX(x);
         this.position.setY(y);
 
+        //create unique id for each building based on its location
+        this.id = x * 1000 + y;
+
         for(var i = 0.2; i < this.height; i++){
-            var block = new BuildingBlock(this.scene, this.physicsworld, this.height);
+
+            var block = new BuildingBlock(this.scene, this.physicsworld, this.height, this.id);
             block.createBlock(x -size/2,i,y -size/2);
             this.buildingBlocks.push(block);
         }
@@ -51,7 +55,12 @@ export class Building{
 
     // get a block at height 
     getBlock(height){
-        return this.buildingBlocks[height];
+        if(height <= this.height){
+            return this.buildingBlocks[height];
+        }
+        else{
+            return null;
+        }
     }
 
     freezeBuilding(){
