@@ -54,7 +54,7 @@ export class TileMap {
 
     getBuilding(i, j){ 
         let b = this.map[i][j].building;
-        console.log(b);
+        //console.log(b);
         //b.name = "debug";
         return b;
     }
@@ -67,7 +67,7 @@ export class TileMap {
             this.getBuilding(i - 2, j)
         ];
         surrounds.forEach(element =>{
-            console.log(element);
+            //console.log(element);
             element.colourDebug();
         });
         return surrounds;

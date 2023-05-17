@@ -1,4 +1,5 @@
     import * as THREE from 'three';
+    import * as TWEEN from '/node_modules/@tweenjs/tween.js/dist/tween.esm.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
     import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
@@ -17,6 +18,7 @@
     import { Landscape } from './src/landscape.js';
     import { TileMap } from './src/tileMap.js';
     import { Environment } from './src/Environment.js';
+    import { Vine } from './src/Vine.js';
     import * as CANNON from 'cannon-es';
     import CannonDebugger from 'cannon-es-debugger';
 
@@ -179,7 +181,31 @@
       }
   });
 
-  scene.add(dynamicObjects);
+  //scene.add(dynamicObjects);
+
+  /////////////////
+  // Vines Debug //
+  /////////////////
+
+  let vine = new Vine();
+  scene.add(vine);
+
+//  function tweenVine(maxHeight, vine){
+//     let time = 5000;
+//     const vineTween = new TWEEN.Tween({ y : 0})
+//     .to({ y : maxHeight}, time)
+//     .onUpdate((scale) => {
+//       console.log(scale);
+//       vine.scaleVertical(scale.y)
+//     });
+
+//     vineTween.start();
+//   }
+
+
+  //console.log(vine);
+
+
   /////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -226,7 +252,6 @@
       {   
         scene.add(land);
         new Landscape(sceneVals.size, landVals, sunDirection).ChunkManager(land);
-
       }
       
       CreateScene();
@@ -276,10 +301,12 @@
   //set to true to simulate physics
 
   //final update loop
-  let MyUpdateLoop = function ( )
+  let MyUpdateLoop = (t) =>
   {
     //call the render with the scene and the camera
     frame++;
+
+    TWEEN.update(t);
 
     if(cityVals.isSimulating){
       City.updateBuildings();
@@ -296,6 +323,34 @@
   };
   
   requestAnimationFrame(MyUpdateLoop);
+
+  function verticalVineGrow(vine, height){
+    const tween = new TWEEN.Tween({ y: 0.1 })
+    .to({y : (1 / 2) * randInt(1, height)}, 2000)
+    .onUpdate((scale) => {
+      //vine.position.y = scale.y;
+      vine.scale.y = vine.initialScale * scale.y;
+    });
+
+    tween.start();
+  }
+
+  function horizontalVineGrow(vine){
+    const tween = new TWEEN.Tween({ x: 1 })
+    .to({y : 0.7}, 5000)
+    .onUpdate((scale) => {
+      //vine.position.y = scale.y;
+      vine.scale.x = vine.initialScale * scale.x;
+      vine.scale.z = vine.initialScale * scale.x;
+    });
+
+    tween.start();
+  }
+
+  //horizontalVineGrow(vine);
+  verticalVineGrow(vine, 2);
+
+  //tweenVine(vine, 5);
   
   //this function is called when the window is resized
   let MyResize = function ( )
