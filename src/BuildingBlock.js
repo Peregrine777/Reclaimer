@@ -12,10 +12,10 @@ export class BuildingBlock {
         this.blockBody;
         this.blockMesh;
         this.materials = [];
-        var material_white = new THREE.MeshLambertMaterial();
-        var material_red = new THREE.MeshLambertMaterial();
-        var material_blue = new THREE.MeshLambertMaterial();
-        var material_debug = new THREE.MeshLambertMaterial();
+        var material_white = new THREE.MeshPhysicalMaterial();
+        var material_red = new THREE.MeshPhysicalMaterial();
+        var material_blue = new THREE.MeshPhysicalMaterial();
+        var material_debug = new THREE.MeshPhysicalMaterial();
         material_white.color =  new THREE.Color(0.9,0.9,0.9);
         material_red.color =  new THREE.Color(1,0,0);
         material_blue.color =  new THREE.Color(0,0,1);

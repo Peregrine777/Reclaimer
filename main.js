@@ -168,11 +168,11 @@
   } );
 
   // logging to show the object structure (for debugging)
-  console.log(dynamicObjects);
+  //console.log(dynamicObjects);
 
   dynamicObjects.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {
-          console.log(child);
+          //console.log(child);
       }
   });
 
