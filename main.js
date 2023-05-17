@@ -153,11 +153,11 @@
   dynamicObjects.position.set(0,5,0);
 
   let objLoader = new OBJLoader();
-  objLoader.load('assets/Objects/fracturedCube.obj', function ( object )
+  objLoader.load('assets/Objects/fracturedCube-cubes.obj', function ( object )
   {
-  var material = new THREE.MeshPhongMaterial();
-  material.color= new THREE.Color(1,0,0);
-  material.wireframe=false;
+  var material = new THREE.MeshLambertMaterial();
+  material.color= new THREE.Color(1,0,1);
+  //material.wireframe=true;
   material.shininess=100;
   object.traverse( function ( child ) {
       if ( child instanceof THREE.Mesh ) {

@@ -39,16 +39,26 @@ export class BuildingBlock {
         this.blockBody = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
             mass: 5,
-            shape: new CANNON.Box(new CANNON.Vec3(0.4,0.4,0.4)),
+            shape: new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5)),
           });
-        this.blockBody.position.set(x, y + 0.4, z);
+        this.blockBody.position.set(x, y + 0.5, z);
         this.physicsworld.addBody(this.blockBody);
 
-        const box_geo = new THREE.BoxGeometry(0.8,0.8,0.8);
+        const box_geo = new THREE.BoxGeometry(1,1,1);
         this.blockMesh = new THREE.Mesh(box_geo, this.materials[this.type]);
         this.blockMesh.castShadow = true;
         this.blockMesh.recieveShadow = true;
         this.scene.add(this.blockMesh);
+    }
+
+    unfreezeBlock(){
+        this.blockBody.mass = 5; 
+        this.blockBody.updateMassProperties();
+    }
+
+    freezeBlock(){
+        this.blockBody.mass = 0; 
+        this.blockBody.updateMassProperties();
     }
 
     updateBlock(){

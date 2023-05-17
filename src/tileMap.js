@@ -7,7 +7,7 @@ export class TileMap {
     n = null;
 
 
-    constructor (size, cityVals, cityoffset) {
+    constructor (size) {
         this.cityRadius = size * 0.5;
         this.size = size;
         this.buildings = [];
@@ -19,17 +19,9 @@ export class TileMap {
             for (let j = 0; j < size; j++) {
                 //Randomise building heights
                 let randomHeight = randInt(1,3);
-                this.map[i][j] = {height : randomHeight, type: "", building : null};
+                this.map[i][j] = {height : randomHeight, building : null};
 
-                if(randomHeight == 1){
-                    this.map[i][j].type = "house";
-                } 
-                else if (randomHeight == 2){
-                    this.map[i][j].type = "apartment";
-                }
-                else {
-                    this.map[i][j].type = "skyscraper";
-                }
+                
             }
         }
 
@@ -46,7 +38,7 @@ export class TileMap {
                 this.map[i][j].building = building;
                 this.buildings.push(building);
                 // offset buildings to the centre of the terrain
-                building.createBuilding(i -this.size/2,j -this.size/2);
+                building.createBuilding(i,j, this.size);
                 building.updateBuilding();
             }
         }
