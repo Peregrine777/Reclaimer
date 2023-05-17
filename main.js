@@ -93,7 +93,8 @@
 
    //Values for the GUI
     let sceneVals = {size: 20, sunHelper: false};
-    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1, height: 100, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1,
+      height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
     let cityVals = {density: 1, isSimulating: false};
     let envVals = {
       elevation: 2,
