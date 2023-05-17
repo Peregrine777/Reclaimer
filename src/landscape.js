@@ -38,7 +38,7 @@ export class Landscape {
     this.hmin = 100;
 
     this.sun = sunDirection;
-    console.log(this.sun);
+
 
 
       
@@ -51,7 +51,6 @@ export class Landscape {
 
     createGradMap();
     function createGradMap() {
-      console.log("grad");
       let grd = ctxG.createLinearGradient(0,255, 0, 0);
         //sand
         grd.addColorStop(0.0,'rgb(' + 245 + ',' + 245 + ',' + 150 +')');
@@ -87,7 +86,6 @@ export class Landscape {
       for (let x = -i; x <= i; x++) {
         for (let y = -i; y <= i; y++) {
           if (Math.abs(x) == i || Math.abs(y) == i) {
-            //console.log(x, y);
             result.push([x, y]);
             parent.add(this.makeChunk(i + 1 * 2, x, y));
           }
@@ -121,25 +119,6 @@ export class Landscape {
     Land.name = "Land2";
 
     this.fbmNoise(Land, offsetX, offsetY);
-
-    // getHeightRange(Land.geometry);
-
-    // function getHeightRange(geom){
-    //   let tMax = this.hmax;
-    //   let tMin = this.hmin;
-    //   let pos = geom.attributes.position;
-
-      
-    //   for (let i = 0; i < pos.count; i++){
-    //     let z = pos.getZ(i);
-    //     if (z > tMax) tMax = z;
-    //     if (z < tMin) tMin = z;
-    //   }
-    //   if (tMax > this.hmax) this.hmax = tMax
-    //   if (tMin < this.hmin) this.hmin = tMin
-      //console.log(max, min);
-    // }
-
 
     for (let i = 0; i < landGeom.attributes.position.count; i++) {
       const height = landGeom.attributes.position.getY(i);

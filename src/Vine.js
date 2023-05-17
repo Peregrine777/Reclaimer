@@ -39,7 +39,7 @@ export class Vine extends THREE.Object3D{
 
     setScaleVertical(scale){
         scale *= this.initialScale;
-        console.log(scale);
+        //console.log(scale);
         let matrix = new THREE.Matrix4().makeScale(1, scale, 1);
         this.applyMatrix4(matrix);
     }
