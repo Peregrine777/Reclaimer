@@ -12,10 +12,10 @@ export class Fragment {
     initMesh() {
         this.body = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
-            mass: 0,
+            mass: 5,
             shape: new CANNON.Box(new CANNON.Vec3(0.25,0.25,0.25)),
         });
-        this.body.position = new CANNON.Vec3(this.position.x, this.position.y , this.position.z);
+        this.body.position = new CANNON.Vec3(this.position.x, this.position.y + 1 , this.position.z);
         this.obj.addBody(this.body);
     }
 

@@ -86,7 +86,7 @@ export class BuildingBlock {
         console.log("shatter block");
         this.physicsworld.removeBody(this.blockBody);
         this.scene.remove(this.blockMesh);
-        //console.log("Shatter");
+        console.log("Shatter");
         // load fractured cube 
         //console.log(this.position);
         this.shatterArray = this.createCube(this.position.x,this.position.y + 0.5,this.position.z);
@@ -99,6 +99,7 @@ export class BuildingBlock {
         let dynamicObjects = new THREE.Object3D();
         dynamicObjects.position.set(x,y,z);
         let physicsworld = this.physicsworld;
+        let material = this.material;
 
         let fragments = [];
 
@@ -109,7 +110,7 @@ export class BuildingBlock {
           object.traverse( function ( child ) {
               if ( child instanceof THREE.Mesh ) {
                 //console.log(child);
-                child.material = this.material;
+                child.material = material;
                 //meshes.push(child);
                 var position = new THREE.Vector3();
 
