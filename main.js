@@ -153,34 +153,38 @@
   // Vines //
   ///////////
 
-  //let vine = new Vine();
-  //scene.add(vine);
+  function growVine(vine, targetHeight, block){
 
-  function verticalVineGrow(vine, height){
-    const tween = new TWEEN.Tween({ y: 0.1 })
-    .to({y : (1 / 2) * height}, 3000)
+    const verticalGrow = new TWEEN.Tween({ y: 0.1 })
+    .to({y : targetHeight / 2}, 4000)
     .onUpdate((scale) => {
-      //vine.position.y = scale.y;
       vine.scale.y = vine.initialScale * scale.y;
-    });
-
-    tween.start();
-  }
-
-  function horizontalVineGrow(vine){
-    const tween = new TWEEN.Tween({ x: 1 })
-    .to({y : 0.7}, 5000)
+    })
+    .easing(TWEEN.Easing.Elastic.InOut);
+  
+    const horizontalShrink = new TWEEN.Tween({ x: 1 })
+    .to({y : 0.5}, 5000)
     .onUpdate((scale) => {
-      //vine.position.y = scale.y;
       vine.scale.x = vine.initialScale * scale.x;
       vine.scale.z = vine.initialScale * scale.x;
-    });
+    })
+    .delay(500)
+    .easing(TWEEN.Easing.Cubic.InOut)
+    .onComplete(block.shatterBlock());
 
-    tween.start();
+    const verticalShrink = new TWEEN.Tween({y : targetHeight / 2})
+    .to({y : 0.5}, 3000)
+    .onUpdate((scale) => {
+      vine.scale.y = vine.initialScale * scale.y;
+    })
+    .delay(500)
+    .easing(TWEEN.Easing.Cubic.InOut);
+
+    verticalGrow.chain(horizontalShrink);
+    //horizontalShrink.chain(verticalShrink);
+
+    verticalGrow.start();
   }
-
-  //horizontalVineGrow(vine);
-  //verticalVineGrow(vine, 2);
 
   /////////////////////////////////////////////////////////////////////////////////////
 
@@ -202,8 +206,8 @@
 
       function startReclamation(){
         let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
-        let blockTargets = [];
-        let vines = [];
+        //let blockTargets = [];
+        //let vines = [];
 
         buildingTargets.forEach(building => {
           //console.log(building);
@@ -211,7 +215,7 @@
           building.unfreezeBuilding();
 
           let block = pickRandomBlock(building);
-          block.shatterBlock();
+          //block.shatterBlock();
           //blockTargets.push(block);
 
           let vine = new Vine();
@@ -219,12 +223,9 @@
           let position = building.getPosition();
           position.x -= sceneVals.size / 2;
           position.z -= sceneVals.size / 2;
-          console.log(position);
           vine.setPosition(position);
-          console.log(vine);
-          verticalVineGrow(vine, block.height);
+          growVine(vine, block.height / 2, block);
           //vines.push(vine);
-
         });
       }
 
@@ -232,11 +233,11 @@
         let buildings = [];
         let i = 0;
         while(i < numberOfBuildings){
-          let x = randInt(2, City.cityRadius) * 2 - 2;
-          let y = randInt(2, City.cityRadius) * 2 - 2;
-          buildings.push(
-            City.getBuilding(x, y)
-          );
+          let building = City.getRandomTallBuilding(City.cityRadius);
+          // while(buildings.includes(building) && buildings.size != sceneVals.size * sceneVals.size){
+          //   building = City.getRandomTallBuilding(City.cityRadius);
+          // }
+          buildings.push(building);
           i++;
         }
         return buildings;

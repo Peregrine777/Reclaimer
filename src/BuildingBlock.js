@@ -83,6 +83,7 @@ export class BuildingBlock {
     }
 
     shatterBlock(){
+        console.log("shatter block");
         this.physicsworld.removeBody(this.blockBody);
         this.scene.remove(this.blockMesh);
         console.log("Shatter");

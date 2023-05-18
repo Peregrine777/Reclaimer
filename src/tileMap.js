@@ -45,9 +45,17 @@ export class TileMap {
     }
 
     getBuilding(i, j){ 
-        let b = this.map[i][j].building;
-        //console.log(b);
-        //b.name = "debug";
+        return this.map[i][j].building;
+    }
+
+    getRandomTallBuilding(radius){
+        let x = randInt(2, radius) * 2 - 2;
+        let y = randInt(2, radius) * 2 - 2;
+        let b = this.getBuilding(x, y)
+        while(b.height < 2){
+            b = this.map[x][y].building;
+        }
+
         return b;
     }
 
