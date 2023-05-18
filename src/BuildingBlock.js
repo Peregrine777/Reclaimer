@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
+
 import { Fragment } from './Fragment.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import {  BuildingShader } from './Shaders/BuildingMaterial.js';
 
 
 export class BuildingBlock {
@@ -27,7 +29,12 @@ export class BuildingBlock {
 
     defaults(){
         var material_white = new THREE.MeshPhysicalMaterial();
-        var material_red = new THREE.MeshPhysicalMaterial();
+        var material_red = new THREE.ShaderMaterial();
+        material_red.uniforms = BuildingShader.uniforms;
+        material_red.vertexShader = BuildingShader.vertexShader;
+        material_red.fragmentShader = BuildingShader.fragmentShader;
+        material_red.uniforms.lightDirection.value = this.scene;
+
         var material_blue = new THREE.MeshPhysicalMaterial();
         var material_debug = new THREE.MeshPhysicalMaterial();
         material_white.color =  new THREE.Color(0.9,0.9,0.9);
