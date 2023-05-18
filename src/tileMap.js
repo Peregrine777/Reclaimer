@@ -29,12 +29,13 @@ export class TileMap {
         this.centerZ = Math.floor(size/2);
     }
 
-    addBuildings(scene, physicsworld){
+    addBuildings(parent, physicsworld, scene){
         //loop through map and add buildings   
         for (let i = 0; i < this.size; i += 2) {
             for (let j = 0; j < this.size; j += 2) {
                 //console.log(tile);
-                let building = new Building(scene, physicsworld, this.map[i][j].height);
+
+                let building = new Building(parent, physicsworld, this.map[i][j].height, scene);
                 this.map[i][j].building = building;
                 this.buildings.push(building);
                 // offset buildings to the centre of the terrain

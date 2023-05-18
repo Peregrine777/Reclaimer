@@ -67,7 +67,7 @@
     physicsworld.addBody(createGroundBody());
 
 
-    //const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
+    const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
 
   ////////////
@@ -108,12 +108,16 @@
   //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
   scene.add(cityGenPoint);
 
-  let City = new TileMap(sceneVals.size, cityVals, cityoffset);
-  City.addBuildings(cityGenPoint, physicsworld);
-
   let land = new THREE.Object3D();
   let environment = new Environment(scene, renderer);
   let sunDirection = environment.sun;
+  scene.add(environment);
+
+    console.log(scene.environment);
+  let City = new TileMap(sceneVals.size, cityVals, cityoffset);
+  City.addBuildings(cityGenPoint, physicsworld, scene);
+
+
 
   //City.getBuildingsSurrounding(2,2);
 
@@ -153,12 +157,12 @@
   // Vines //
   ///////////
 
-  //let vine = new Vine();
-  //scene.add(vine);
+  let vine = new Vine();
+  scene.add(vine);
 
   function verticalVineGrow(vine, height){
     const tween = new TWEEN.Tween({ y: 0.1 })
-    .to({y : (1 / 2) * height}, 3000)
+    .to({y : (1 / 2) * randInt(1, height)}, 2000)
     .onUpdate((scale) => {
       //vine.position.y = scale.y;
       vine.scale.y = vine.initialScale * scale.y;
@@ -180,7 +184,7 @@
   }
 
   //horizontalVineGrow(vine);
-  //verticalVineGrow(vine, 2);
+  verticalVineGrow(vine, 2);
 
   /////////////////////////////////////////////////////////////////////////////////////
 
@@ -198,33 +202,12 @@
   // SceneFunctions //
   /////////////////////
 
-    let numberOfBuildingTargets = 3;
-
       function startReclamation(){
-        let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
-        let blockTargets = [];
-        let vines = [];
+        let buildingTargets = pickRandomBuildings(3);
 
         buildingTargets.forEach(building => {
           //console.log(building);
           building.colourDebug();
-          building.unfreezeBuilding();
-
-          let block = pickRandomBlock(building);
-          block.shatterBlock();
-          //blockTargets.push(block);
-
-          let vine = new Vine();
-          scene.add(vine);
-          let position = building.getPosition();
-          position.x -= sceneVals.size / 2;
-          position.z -= sceneVals.size / 2;
-          console.log(position);
-          vine.setPosition(position);
-          console.log(vine);
-          verticalVineGrow(vine, block.height);
-          //vines.push(vine);
-
         });
       }
 
@@ -240,11 +223,6 @@
           i++;
         }
         return buildings;
-      }
-
-      function pickRandomBlock(building){
-        let block = building.getBlock(randInt(0, building.getHeight() - 1));
-        return block;
       }
 
       function CreateScene()
@@ -311,7 +289,7 @@
     }
     
     //scene.add(sea);
-    //cannonDebugger.update();
+    cannonDebugger.update();
     environment.update();
 
     composer.render();

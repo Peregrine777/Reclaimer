@@ -10,13 +10,22 @@ export class BuildingBlock {
 
     shatterArray;
     materialsArray;
+    sunDirection = new THREE.Vector3();
       
-    constructor(scene, physicsworld, height, id){
-        this.scene = scene;
+    constructor(parent, physicsworld, height, id, scene){
+        this.parent = parent;
         this.physicsworld = physicsworld;
         this.height = height;
         this.mass = 0; 
         this.id = id;
+        this.scene = scene;
+        let sun = this.scene.traverse(function(child){
+            console.log(child)
+        });
+
+        console.log(sun);
+
+        // this.sunDirection = sunDirection;
         this.blockBody;
         this.blockMesh;
         this.isShattered = false;
@@ -24,6 +33,7 @@ export class BuildingBlock {
         this.materialsArray = [];
         this.material;
         this.shatterArray = [];
+
         this.defaults();
     }
 
@@ -33,7 +43,8 @@ export class BuildingBlock {
         material_red.uniforms = BuildingShader.uniforms;
         material_red.vertexShader = BuildingShader.vertexShader;
         material_red.fragmentShader = BuildingShader.fragmentShader;
-        material_red.uniforms.lightDirection.value = this.scene;
+        //console.log(this.sunDirection);
+        material_red.uniforms.lightDirection.value = this.sunDirection;
 
         var material_blue = new THREE.MeshPhysicalMaterial();
         var material_debug = new THREE.MeshPhysicalMaterial();
@@ -86,12 +97,12 @@ export class BuildingBlock {
         this.blockMesh = new THREE.Mesh(box_geo, this.material);
         this.blockMesh.castShadow = true;
         this.blockMesh.recieveShadow = true;
-        this.scene.add(this.blockMesh);
+        this.parent.add(this.blockMesh);
     }
 
     shatterBlock(){
         this.physicsworld.removeBody(this.blockBody);
-        this.scene.remove(this.blockMesh);
+        this.parent.remove(this.blockMesh);
         //console.log("Shatter");
         // load fractured cube 
         //console.log(this.position);
@@ -136,7 +147,7 @@ export class BuildingBlock {
           } );
           dynamicObjects.add( object );
         } );
-        this.scene.add(dynamicObjects);
+        this.parent.add(dynamicObjects);
         return fragments;
     }
 
