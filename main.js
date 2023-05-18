@@ -67,7 +67,7 @@
     physicsworld.addBody(createGroundBody());
 
 
-    const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
+    //const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
 
   ////////////
@@ -311,7 +311,7 @@
     }
     
     //scene.add(sea);
-    cannonDebugger.update();
+    //cannonDebugger.update();
     environment.update();
 
     composer.render();
