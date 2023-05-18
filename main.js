@@ -97,6 +97,13 @@
   let folderCity = gui.addFolder("City");
   folderCity.add(cityVals, 'isSimulating', true, false);
 
+  const folderSky = gui.addFolder( 'Sky' );
+  folderSky.add( envVals, 'elevation', 0, 90, 0.1 ).onChange( updateEnvironment );
+  folderSky.add( envVals, 'azimuth', - 180, 180, 0.1 ).onChange( updateEnvironment );
+  folderSky.open();
+
+
+
 
   /////////////
   // Objects //
