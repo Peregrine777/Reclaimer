@@ -6,7 +6,7 @@ export class Vine extends THREE.Object3D{
     tubularSegments = 10;
     radialSegments = 10;
     closed = false;
-    initialScale = 0.6;
+    initialScale = 0.7;
     radius = 0.2;
 
     constructor(){
@@ -31,6 +31,7 @@ export class Vine extends THREE.Object3D{
         this.setScaleUniform(this.initialScale);
         this.add(this.mesh);
         this.setScaleVertical(0.1);
+        //this.setScaleHorizontal()
     }
 
     setScaleUniform(scale){
@@ -44,7 +45,7 @@ export class Vine extends THREE.Object3D{
         this.applyMatrix4(matrix);
     }
 
-    scaleHorizontal(scale){
+    setHcaleHorizontal(scale){
         scale *= this.initialScale;
         let matrix = new THREE.Matrix4().makeScale(scale, 1, scale );
         this.applyMatrix4(matrix);
