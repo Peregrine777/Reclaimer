@@ -153,12 +153,12 @@
   // Vines //
   ///////////
 
-  let vine = new Vine();
-  scene.add(vine);
+  //let vine = new Vine();
+  //scene.add(vine);
 
   function verticalVineGrow(vine, height){
     const tween = new TWEEN.Tween({ y: 0.1 })
-    .to({y : (1 / 2) * randInt(1, height)}, 2000)
+    .to({y : (1 / 2) * height}, 3000)
     .onUpdate((scale) => {
       //vine.position.y = scale.y;
       vine.scale.y = vine.initialScale * scale.y;
@@ -180,7 +180,7 @@
   }
 
   //horizontalVineGrow(vine);
-  verticalVineGrow(vine, 2);
+  //verticalVineGrow(vine, 2);
 
   /////////////////////////////////////////////////////////////////////////////////////
 
@@ -198,12 +198,33 @@
   // SceneFunctions //
   /////////////////////
 
+    let numberOfBuildingTargets = 3;
+
       function startReclamation(){
-        let buildingTargets = pickRandomBuildings(3);
+        let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
+        let blockTargets = [];
+        let vines = [];
 
         buildingTargets.forEach(building => {
           //console.log(building);
           building.colourDebug();
+          building.unfreezeBuilding();
+
+          let block = pickRandomBlock(building);
+          block.shatterBlock();
+          //blockTargets.push(block);
+
+          let vine = new Vine();
+          scene.add(vine);
+          let position = building.getPosition();
+          position.x -= sceneVals.size / 2;
+          position.z -= sceneVals.size / 2;
+          console.log(position);
+          vine.setPosition(position);
+          console.log(vine);
+          verticalVineGrow(vine, block.height);
+          //vines.push(vine);
+
         });
       }
 
@@ -219,6 +240,11 @@
           i++;
         }
         return buildings;
+      }
+
+      function pickRandomBlock(building){
+        let block = building.getBlock(randInt(0, building.getHeight() - 1));
+        return block;
       }
 
       function CreateScene()

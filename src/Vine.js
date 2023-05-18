@@ -49,4 +49,10 @@ export class Vine extends THREE.Object3D{
         let matrix = new THREE.Matrix4().makeScale(scale, 1, scale );
         this.applyMatrix4(matrix);
     }
+
+    setPosition(position = new THREE.Vector3(0,0,0)){
+        this.position.setX(position.x);
+        this.position.setY(0);
+        this.position.setZ(position.z);
+    }
 }

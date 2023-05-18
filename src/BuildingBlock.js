@@ -5,6 +5,9 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 
 export class BuildingBlock {
+
+    shatterArray;
+    materialsArray;
       
     constructor(scene, physicsworld, height, id){
         this.scene = scene;
@@ -16,8 +19,9 @@ export class BuildingBlock {
         this.blockMesh;
         this.isShattered = false;
         this.position = new THREE.Vector3();
-        this.materials = [];
-        this.fragments = [];
+        this.materialsArray = [];
+        this.material;
+        this.shatterArray = [];
         this.defaults();
     }
 
@@ -29,19 +33,20 @@ export class BuildingBlock {
         material_white.color =  new THREE.Color(0.9,0.9,0.9);
         material_red.color =  new THREE.Color(1,0,0);
         material_blue.color =  new THREE.Color(0,0,1);
-        material_debug.color = new THREE.Color(1.0, 1.0, 0);
+        material_debug.color = new THREE.Color(1, 1, 0);
         // use null value in first element to offset indexes by 1
-        this.materials.push(null);
-        this.materials.push(material_white);
-        this.materials.push(material_red);
-        this.materials.push(material_blue);
-        this.materials.push(material_debug);
+        this.materialsArray.push(null);
+        this.materialsArray.push(material_white);
+        this.materialsArray.push(material_red);
+        this.materialsArray.push(material_blue);
+        this.materialsArray.push(material_debug);
     }
 
     //debug function
     colourDebug(){
         //console.log("colour block debug");
-        this.blockMesh.material = this.materials[4];
+        this.material = this.materialsArray[4];
+        this.blockMesh.material = this.material;
     }
 
 
@@ -70,7 +75,8 @@ export class BuildingBlock {
         });
 
         const box_geo = new THREE.BoxGeometry(1,1,1);
-        this.blockMesh = new THREE.Mesh(box_geo, this.materials[this.height]);
+        this.material = this.materialsArray[this.height];
+        this.blockMesh = new THREE.Mesh(box_geo, this.material);
         this.blockMesh.castShadow = true;
         this.blockMesh.recieveShadow = true;
         this.scene.add(this.blockMesh);
@@ -82,7 +88,8 @@ export class BuildingBlock {
         //console.log("Shatter");
         // load fractured cube 
         //console.log(this.position);
-        this.fragments = this.createCube(this.position.x,this.position.y + 0.5,this.position.z);
+        this.shatterArray = this.createCube(this.position.x,this.position.y + 0.5,this.position.z);
+        //console.log(this.shatterArray);
     }
 
     createCube(x, y, z){
@@ -91,17 +98,17 @@ export class BuildingBlock {
         let dynamicObjects = new THREE.Object3D();
         dynamicObjects.position.set(x,y,z);
         let physicsworld = this.physicsworld;
-        let materials = this.materials;
-        let height = this.height;
 
-        let fragments = this.fragments;
+        let fragments = [];
+
         //let meshes = [];
         let objLoader = new OBJLoader();
         
         objLoader.load('assets/Objects/fracturedCube-cubes2.obj', function ( object ){
           object.traverse( function ( child ) {
               if ( child instanceof THREE.Mesh ) {
-                child.material = materials[height];
+                //console.log(child);
+                child.material = this.material;
                 //meshes.push(child);
                 var position = new THREE.Vector3();
 
@@ -127,12 +134,12 @@ export class BuildingBlock {
     }
 
     unfreezeBlock(){
-        if(this.fragments.length == 0){
+        if(this.shatterArray.length == 0){
             this.blockBody.mass = 5; 
             this.blockBody.updateMassProperties();
         } 
         else {
-            this.fragments.forEach(element => {
+            this.shatterArray.forEach(element => {
                 element.unfreezeMesh();
             });
         }
@@ -140,19 +147,19 @@ export class BuildingBlock {
     }
 
     freezeBlock(){
-        if(this.fragments.length == 0){
+        if(this.shatterArray.length == 0){
             this.blockBody.mass = 0; 
             this.blockBody.updateMassProperties();
         } 
         else {
-            this.fragments.forEach(element => {
+            this.shatterArray.forEach(element => {
                 element.freezeMesh();
             });
         }
     }
 
     updateBlock(){
-        if(this.fragments.length == 0){
+        if(this.shatterArray.length == 0){
             if(this.blockBody.collided && !this.isShattered){
                 this.isShattered = true;
                 //this.shatterBlock();
@@ -160,7 +167,7 @@ export class BuildingBlock {
             this.blockMesh.position.copy(this.blockBody.position);
             this.blockMesh.quaternion.copy(this.blockBody.quaternion);
         } else {
-            this.fragments.forEach(element => {
+            this.shatterArray.forEach(element => {
                 element.updateMesh();
             });
         }

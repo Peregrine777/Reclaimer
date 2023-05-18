@@ -41,8 +41,7 @@ export class Building{
     }
 
     getPosition(){
-        let worldPos = new THREE.Vector3(this.position.x, 0.2, this.position.y);
-        return worldPos;
+        return new THREE.Vector3(this.position.x, 0.2, this.position.y);
     }
 
     getHeight(){
