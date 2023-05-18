@@ -2,12 +2,16 @@ import * as THREE from 'three';
 import { BuildingBlock } from './BuildingBlock.js';
 
 export class Building{
-    constructor(scene, physicsworld, height){
-        this.scene = scene;
+    constructor(parent, physicsworld, height, scene){
+        this.parent = parent;
         this.physicsworld = physicsworld;
         this.height = height;
         this.buildingBlocks = [];
         this.position = new THREE.Vector2();
+        this.scene = scene;
+
+
+        this.parent = parent;
 
         const  buildingTypes = {
             0: "Park",
@@ -34,7 +38,7 @@ export class Building{
 
         for(var i = 0.2; i < this.height; i++){
 
-            var block = new BuildingBlock(this.scene, this.physicsworld, this.height, this.id);
+            var block = new BuildingBlock(this.parent, this.physicsworld, this.height, this.id, this.scene);
             block.createBlock(x -size/2,i,y -size/2);
             this.buildingBlocks.push(block);
         }

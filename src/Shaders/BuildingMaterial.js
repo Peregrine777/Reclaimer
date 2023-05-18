@@ -7,9 +7,8 @@ export const BuildingShader = {
     uniforms: {
         lightDirection: {value: new Vector3(1.0, 1.0, 1.0)},
         lightColor: {value: new Vector3(0.8, 0.76, 0.50)},
-        gradientMap: {value: null},
-        hmax: {value: null},
-        hmin: {value: null},
+        decayTime: {value: 0.0},
+
     },
     vertexShader: /* glsl */`
     uniform vec3 lightDirection;
@@ -87,23 +86,16 @@ export const BuildingShader = {
 
     void main() {
 
+        vec3 grey1 = vec3(0.65, 0.65, 0.65);
+        vec3 grey2 = vec3(0.45, 0.45, 0.45);
+
         vec3 cliffColor = vec3(0.3, 0.3, 0.3);
         vec3 flatColor = vec3(0.7, 0.75, 0.0);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
 
-        //Height based colour
-        float hValue = (vPosition.y - hmin) / (hmax - hmin);   
-        hValue += noise(vPosition.xz, 155.0) * 0.30 - 0.15;
-        vec3 col = texture2D(gradientMap, vec2(0, hValue)).rgb;
-        vec3 baseColor = vec3(col);
-
-        //Gradient Based color 
-        float flats = pow(clamp((1. - (abs(vNorm.x) + abs(vNorm.y) + abs(vNorm.z)) *1. + 1.0),0.,1.),5.0);
-        vec3 flatC = flatColor * flats;
-        float slopes = pow(clamp(( (abs(vNorm.x) + abs(vNorm.y) + abs(vNorm.z)) *1. - 1.0),0.,1.),5.0);
-        vec3 slopeC = cliffColor * slopes;
-
-        vec3 landColor = (baseColor + flatC) * (1.- slopeC);
+        //PositionBasedColor
+        vec3 baseColor = grey1;
+        baseColor = (baseColor *vPosition.y);
 
         //Ambient Lighting
         vec3 ambientColor = vec3(0.25, 0.25, 0.254) * 0.75;
@@ -130,11 +122,11 @@ export const BuildingShader = {
         vec3 fresnelLight = fresnel * skyLightColor;
 
         //final colour
-        vec3 directLight = landColor * directLightColor;
+        vec3 directLight = baseColor * directLightColor;
         vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
 
-        vec3 skyLight = landColor * skyLightColor;
-        vec3 ambient = landColor* baseColor;
+        vec3 skyLight = baseColor * skyLightColor;
+        vec3 ambient = baseColor * baseColor;
 
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
 
