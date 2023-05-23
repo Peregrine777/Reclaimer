@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import { BuildingBlock } from './BuildingBlock.js';
 
-export class Building{
-    constructor(scene, physicsworld, height){
-        this.scene = scene;
-        this.physicsworld = physicsworld;
+export class Building extends THREE.Object3D{
+    constructor(parent, height, reclaimerProperties){
+        super();
+        this.parent = parent;
+        this.reclaimerProperties = reclaimerProperties;
+        this.physicsworld = reclaimerProperties.physicsworld;
         this.height = height;
         this.buildingBlocks = [];
-        this.position = new THREE.Vector2();
 
         const  buildingTypes = {
             0: "Park",
@@ -30,11 +31,11 @@ export class Building{
         this.position.setY(y);
 
         //create unique id for each building based on its location
-        this.id = x * 1000 + y;
+        this.buildingID = x * 1000 + y;
 
         for(var i = 0.2; i < this.height; i++){
 
-            var block = new BuildingBlock(this.scene, this.physicsworld, this.height, this.id);
+            var block = new BuildingBlock(this.parent, this.height, this.buildingID, this.reclaimerProperties)
             block.createBlock(x -size/2,i,y -size/2);
             this.buildingBlocks.push(block);
         }

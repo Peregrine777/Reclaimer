@@ -108,7 +108,7 @@ export const LandShader = {
         vec3 landColor = (baseColor + flatC) * (1.- slopeC);
 
         //Ambient Lighting
-        vec3 ambientColor = vec3(0.25, 0.25, 0.254) * 0.75;
+        vec3 ambientColor = vec3(0.35, 0.35, 0.34) * 0.8;
         vec3 ambientStrength = ambientColor * baseColor;
 
         //Diffuse Lighting

@@ -1,16 +1,20 @@
-import { randFloat, randInt, smoothstep } from '../src/MathUtils.js';
-import { Building } from './building.js';
+import * as THREE from 'three';
+import { randFloat, randInt, smoothstep } from './MathUtils.js';
+import { Building } from './Building.js';
 
-export class TileMap {
+export class City extends THREE.Object3D {
     size = 0;
     cityRadius = 0;
     n = null;
 
 
-    constructor (size) {
+    constructor (size, reclaimerProperties) {
+        super();
         this.cityRadius = size * 0.5;
         this.size = size;
         this.buildings = [];
+        this.reclaimerProperties = reclaimerProperties;
+
 
         // create array of tilemap positions
         this.map = new Array(size);
@@ -29,12 +33,14 @@ export class TileMap {
         this.centerZ = Math.floor(size/2);
     }
 
-    addBuildings(scene, physicsworld){
+    // Adds building objects to the parent object
+    // TODO - make this a proper object3D such that we don't pass parent
+    addBuildings(parent, physicsworld){
         //loop through map and add buildings   
         for (let i = 0; i < this.size; i += 2) {
             for (let j = 0; j < this.size; j += 2) {
                 //console.log(tile);
-                let building = new Building(scene, physicsworld, this.map[i][j].height);
+                let building = new Building(parent, this.map[i][j].height, this.reclaimerProperties);
                 this.map[i][j].building = building;
                 this.buildings.push(building);
                 // offset buildings to the centre of the terrain

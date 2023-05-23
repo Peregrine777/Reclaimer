@@ -4,24 +4,25 @@ import { Fragment } from './Fragment.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 
-export class BuildingBlock {
+export class BuildingBlock extends THREE.Object3D   {
 
     shatterArray;
     materialsArray;
       
-    constructor(scene, physicsworld, height, id){
-        this.scene = scene;
-        this.physicsworld = physicsworld;
+    constructor(parent, height, buildingID, reclaimerProperties){
+        super();
+        this.parent = parent;
         this.height = height;
         this.mass = 0; 
-        this.id = id;
+        this.buildingID = buildingID;
         this.blockBody;
         this.blockMesh;
         this.isShattered = false;
-        this.position = new THREE.Vector3();
         this.materialsArray = [];
         this.material;
         this.shatterArray = [];
+        this.reclaimerProperties = reclaimerProperties;
+        this.physicsworld = reclaimerProperties.physicsworld;
         this.defaults();
     }
 
@@ -79,13 +80,13 @@ export class BuildingBlock {
         this.blockMesh = new THREE.Mesh(box_geo, this.material);
         this.blockMesh.castShadow = true;
         this.blockMesh.recieveShadow = true;
-        this.scene.add(this.blockMesh);
+        this.parent.add(this.blockMesh);
     }
 
     shatterBlock(){
         console.log("shatter block");
         this.physicsworld.removeBody(this.blockBody);
-        this.scene.remove(this.blockMesh);
+        this.parent.remove(this.blockMesh);
         console.log("Shatter");
         // load fractured cube 
         //console.log(this.position);
@@ -131,7 +132,7 @@ export class BuildingBlock {
           } );
           dynamicObjects.add( object );
         } );
-        this.scene.add(dynamicObjects);
+        this.parent.add(dynamicObjects);
         return fragments;
     }
 

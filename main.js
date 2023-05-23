@@ -12,7 +12,7 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
     import { Landscape } from './src/landscape.js';
-    import { TileMap } from './src/tileMap.js';
+    import { City } from './src/City.js';
     import { Environment } from './src/Environment.js';
     import { Vine } from './src/Vine.js';
     import * as CANNON from 'cannon-es';
@@ -23,15 +23,16 @@
     //create the scene
     let scene = new THREE.Scene( );
     let ratio = window.innerWidth/window.innerHeight;
-    let totalTime = 0.00;
     let frame = 0;
+    let reclaimFrame = 0;
     let gui = new GUI();
+
+
 
     //create the webgl renderer
     let renderer = new THREE.WebGLRenderer({ antialias: true } );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-   
     document.body.appendChild(renderer.domElement );
   
     //camera
@@ -63,12 +64,11 @@
       groundBody.position.set(0,0.2,0);
       return groundBody;
     }
-
     physicsworld.addBody(createGroundBody());
 
 
-    //const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
+    //const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
   ////////////
   //   GUI  //
@@ -102,59 +102,27 @@
   folderSky.add( envVals, 'azimuth', - 180, 180, 0.1 ).onChange( updateEnvironment );
   folderSky.open();
 
-
-
-
   /////////////
   // Objects //
   ////////////
 
-
-  let cityGenPoint = new THREE.Object3D();
-  let cityoffset = -sceneVals.size/2;
-  //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
-  scene.add(cityGenPoint);
-
-  let City = new TileMap(sceneVals.size, cityVals, cityoffset);
-  City.addBuildings(cityGenPoint, physicsworld);
-
-  let land = new THREE.Object3D();
   let environment = new Environment(scene, renderer);
   let sunDirection = environment.sun;
 
+  // Scene Properties
+  let reclaimerProperties = {scene, physicsworld, environment, sunDirection, frame, reclaimFrame};
+
+  let cityGenPoint = new THREE.Object3D();
+  //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
+  scene.add(cityGenPoint);
+
+  let city = new City(sceneVals.size, reclaimerProperties);
+  city.addBuildings(cityGenPoint);
+
+  let land = new THREE.Object3D();
+
+
   //City.getBuildingsSurrounding(2,2);
-
-  /////////////////////////////////////////////////////////////////////////////////////
-  //Example import of fractured cube
-  // let dynamicObjects = new THREE.Object3D();
-  // dynamicObjects.position.set(0,5,0);
-
-  // let objLoader = new OBJLoader();
-  // objLoader.load('assets/Objects/fracturedCube-cubes.obj', function ( object )
-  // {
-  // var material = new THREE.MeshLambertMaterial();
-  // material.color= new THREE.Color(1,0,1);
-  // //material.wireframe=true;
-  // material.shininess=100;
-  // object.traverse( function ( child ) {
-  //     if ( child instanceof THREE.Mesh ) {
-  //         child.material = material;
-  //     }
-  // } );
-
-  // dynamicObjects.add( object );
-  // } );
-
-  // // logging to show the object structure (for debugging)
-  // //console.log(dynamicObjects);
-
-  // dynamicObjects.traverse( function ( child ) {
-  //     if ( child instanceof THREE.Mesh ) {
-  //         //console.log(child);
-  //     }
-  // });
-
-  //scene.add(dynamicObjects);
 
   ////////////
   // Vines //
@@ -209,9 +177,12 @@
   // SceneFunctions //
   /////////////////////
 
+
+
     let numberOfBuildingTargets = 3;
 
       function startReclamation(){
+        reclaimFrame = frame;
         let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
         //let blockTargets = [];
         //let vines = [];
@@ -290,8 +261,8 @@
     physicsworld.addBody(createGroundBody());
 
     new Landscape(sceneVals.size, landVals).ChunkManager(land);
-    let City = new TileMap(sceneVals.size, cityVals, cityGenPoint)
-    City.addBuildings(cityGenPoint, physicsworld);
+    let city = new City(sceneVals.size, reclaimerProperties)
+    city.addBuildings(cityGenPoint);
 
     // if (sceneVals.sunHelper == true){
     //   sunHelper.visible = true;
@@ -313,8 +284,10 @@
 
     TWEEN.update(t);
 
+    
+
     if(cityVals.isSimulating){
-      City.updateBuildings();
+      city.updateBuildings();
       physicsworld.fixedStep();
     }
     
