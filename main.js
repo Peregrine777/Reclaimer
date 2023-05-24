@@ -30,10 +30,11 @@
 
 
     //create the webgl renderer
-    let renderer = new THREE.WebGLRenderer({ antialias: true } );
+    let renderCanvas = document.getElementById("render");
+    let renderer = new THREE.WebGLRenderer({ antialias: true, canvas: renderCanvas } );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    document.body.appendChild(renderer.domElement );
+  
   
     //camera
     let camera = new THREE.PerspectiveCamera(55,ratio,0.1,5000);
