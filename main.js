@@ -11,7 +11,7 @@
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-    import { Landscape } from './src/landscape.js';
+    import { Landscape } from './src/Landscape.js';
     import { City } from './src/City.js';
     import { Environment } from './src/Environment.js';
     import { Vine } from './src/Vine.js';
@@ -36,7 +36,25 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     let heightGradient = document.getElementById("heightgrd");
 
+    // let fragCanvas = document.getElementById("fragCanvas");
+    // var renderer2 = new THREE.WebGLRenderer({canvas: fragCanvas});
+    // renderer2.setSize(fragCanvas.width, fragCanvas.height);
+
+    // var renderTarget = new THREE.WebGLRenderTarget(fragCanvas.style.width, fragCanvas.style.height);
+    // renderTarget.texture.format = THREE.RGBFormat;
+
+    // let testShader = new THREE.MeshPhongMaterial();
+
+    // let inset_scene = new THREE.Scene();
+    // let planeGeom = new THREE.PlaneGeometry(2,2, 20, 20);
+
+    // let plane = new THREE.Mesh(planeGeom, testShader);
+    // inset_scene.add(plane);
+    // let orthoCam = new THREE.OrthographicCamera();
+    // inset_scene.add(orthoCam);
     
+    // renderer2.render(inset_scene, orthoCam)
+
   
   
     //camera
@@ -245,7 +263,7 @@
       function CreateScene()
       {   
         scene.add(land);
-        new Landscape(sceneVals.size, landVals, sunDirection).ChunkManager(land);
+        new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
       }
       
       CreateScene();

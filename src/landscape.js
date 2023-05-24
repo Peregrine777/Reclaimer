@@ -22,7 +22,7 @@ export class Landscape {
   falloff = 0.1;
   
 
-  constructor(size, landVals, sunDirection) {
+  constructor(size, landVals, sunDirection, reclaimerProperties) {
     this.cityRadius = size * 0.5;
     this.size = size * 10;
     this.n = new ImprovedNoise;
@@ -39,13 +39,16 @@ export class Landscape {
 
     this.sun = sunDirection;
 
+    this.sceneProperties = reclaimerProperties;
+    this.scene = reclaimerProperties.scene;
+
 
 
       
     var canvasG = document.getElementById("heightgrd");
     canvasG.addEventListener("click", ()=>{
       createGradMap();
-    }, false);
+    }, false); 
     var gradientMap = new THREE.CanvasTexture(canvasG);
     var ctxG = canvasG.getContext("2d");
 
@@ -105,6 +108,8 @@ export class Landscape {
     landMaterial.fragmentShader = LandShader.fragmentShader;
     landMaterial.uniforms.lightDirection.value = this.sun;
     landMaterial.uniforms.gradientMap.value = this.gradientMap;
+    //landMaterial.uniforms.envMap = this.scene.environment; -- Need to figure out pmrem UV Cubemap
+
 
 
 
@@ -122,9 +127,13 @@ export class Landscape {
 
     for (let i = 0; i < landGeom.attributes.position.count; i++) {
       const height = landGeom.attributes.position.getY(i);
-      landGeom.setAttribute('vertexHeight', new THREE.BufferAttribute(new Float32Array([height]), 1));
+      let u = positionAttribute.getX(i);
+      let v = positionAttribute.getY(i);
+      landGeom.setAttribute('vertexHeight', new THREE.BufferAttribute(new Float32Array([height], 1)));
     }
     return Land;
+
+
   }
 
 

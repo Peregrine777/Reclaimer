@@ -10,9 +10,12 @@ export const LandShader = {
         gradientMap: {value: null},
         hmax: {value: null},
         hmin: {value: null},
+        envMap: {value: null},
     },
     vertexShader: /* glsl */`
     uniform vec3 lightDirection;
+
+    uniform samplerCube envMap;
 
     out vec3 vNormal;
     out vec3 vPosition;
@@ -22,6 +25,7 @@ export const LandShader = {
     out vec3 vNorm;
     out vec3 vViewDirection;
     out vec3 vViewNormal;
+    out vec3 vReflect;
 
 
     void main() {
@@ -37,7 +41,10 @@ export const LandShader = {
         vViewDirection = normalize(-(modelViewMatrix * vec4(position, 1.0))).xyz;
 
         vUV = uv;
-        vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vec3 I = worldPosition.xyz - cameraPosition;
+        vReflect = reflect( I, vNormal );
+        vPosition = (worldPosition).xyz;
         
     }
     
@@ -47,6 +54,7 @@ export const LandShader = {
     #define PI 3.14159265358979323846
     uniform vec3 lightColor;
     uniform sampler2D gradientMap;
+    uniform samplerCube envMap;
 
 
     in vec3 vNormal;
@@ -56,6 +64,8 @@ export const LandShader = {
     in vec3 vViewNormal;
     in vec3 vViewDirection;
     in vec3 upVec;
+    in vec2 vUV;
+    in vec3 vReflect;
     
 
     float rand (vec2 st) {
@@ -95,7 +105,7 @@ export const LandShader = {
 
         //Height based colour
         float hValue = (vPosition.y - hmin) / (hmax - hmin);   
-        hValue += noise(vPosition.xz, 155.0) * 0.30 - 0.15;
+        hValue += noise(vPosition.xz, 55.0) * 0.10 - 0.05;
         vec3 col = texture2D(gradientMap, vec2(0, hValue)).rgb;
         vec3 baseColor = vec3(col);
 
@@ -114,13 +124,15 @@ export const LandShader = {
         //Diffuse Lighting
             //direct
             float dProd = dot( vNormal, lightVec );
-            dProd=(step(-0.4,dProd)*0.5 - 0.1 ) + step(0.6, dProd);
+            dProd=(step(-0.4,dProd)*0.3 - 0.1 ) + step(0.6, dProd);
             dProd=clamp(dProd,0.,1.0);
 
             //sky
             float aLight = dot( vNormal, upVec );
             aLight=(step(-0.0,aLight)*0.5 - 0.1 ) + step(0.81, aLight);
             aLight=clamp(aLight,0.,1.0);
+
+        vec3 envColor = textureCube( envMap, vec3( -vReflect.x, vReflect.yz ) ).rgb;
 
         //final lights
         vec3 directLightColor = lightColor * dProd;
@@ -140,7 +152,12 @@ export const LandShader = {
 
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
 
+        //Building Location/Height
+        // float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0))*5.;
+        // float negHeight = clamp(step(-8.,vPosition.y), -1.,10.);
+        // float vertHeight = (1./distance(vPosition.y, 0.0))*02.3;
 
+        // vec3 buildable = vec3(negHeight * distCenter, vertHeight * distCenter * negHeight, 0.0);
         
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
         gl_FragColor = vec4(c, 1.0 );
