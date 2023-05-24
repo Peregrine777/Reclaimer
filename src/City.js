@@ -35,7 +35,7 @@ export class City extends THREE.Object3D {
 
     // Adds building objects to the parent object
     // TODO - make this a proper object3D such that we don't pass parent
-    addBuildings(parent, physicsworld){
+    addBuildings(parent){
         //loop through map and add buildings   
         for (let i = 0; i < this.size; i += 2) {
             for (let j = 0; j < this.size; j += 2) {
@@ -55,11 +55,24 @@ export class City extends THREE.Object3D {
     }
 
     getRandomTallBuilding(radius){
+        let loops = 0;
         let x = randInt(2, radius) * 2 - 2;
         let y = randInt(2, radius) * 2 - 2;
         let b = this.getBuilding(x, y)
+
+        // generate random coordinates until a tall building is found
         while(b.height < 2){
-            b = this.map[x][y].building;
+            x = randInt(2, radius) * 2 - 2;
+            y = randInt(2, radius) * 2 - 2;
+            b = this.getBuilding(x, y);
+
+            // after looping 100 times
+            if(loops > 100){
+                // there is likely no tall buildings to find
+                // exit loop
+                break;
+            }
+            loops++;
         }
 
         return b;
