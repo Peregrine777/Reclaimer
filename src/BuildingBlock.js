@@ -26,19 +26,20 @@ export class BuildingBlock extends THREE.Object3D   {
     }
 
     defaults(){
-        var material_white = new THREE.MeshPhysicalMaterial();
-        var material_red = new THREE.MeshPhysicalMaterial();
-        var material_blue = new THREE.MeshPhysicalMaterial();
+        var material_house = new THREE.MeshPhysicalMaterial();
+        var material_apartment = new THREE.MeshPhysicalMaterial();
+        var material_skyscraper = new THREE.MeshPhysicalMaterial();
         var material_debug = new THREE.MeshPhysicalMaterial();
-        material_white.color =  new THREE.Color(0.9,0.9,0.9);
-        material_red.color =  new THREE.Color(1,0,0);
-        material_blue.color =  new THREE.Color(0,0,1);
+
+        material_house.color =  new THREE.Color( 0xfddb53 );
+        material_apartment.color =  new THREE.Color( 0xd67229 );
+        material_skyscraper.color =  new THREE.Color( 0xc5c6d0 );
         material_debug.color = new THREE.Color(1, 1, 0);
         // use null value in first element to offset indexes by 1
         this.materialsArray.push(null);
-        this.materialsArray.push(material_white);
-        this.materialsArray.push(material_red);
-        this.materialsArray.push(material_blue);
+        this.materialsArray.push(material_house);
+        this.materialsArray.push(material_apartment);
+        this.materialsArray.push(material_skyscraper);
         this.materialsArray.push(material_debug);
 
         this.material = this.materialsArray[this.height];
