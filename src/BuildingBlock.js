@@ -19,7 +19,6 @@ export class BuildingBlock extends THREE.Object3D   {
         this.blockMesh;
         this.isShattered = false;
         this.materialsArray = [];
-        this.material;
         this.shatterArray = [];
         this.reclaimerProperties = reclaimerProperties;
         this.physicsworld = reclaimerProperties.physicsworld;
@@ -41,6 +40,9 @@ export class BuildingBlock extends THREE.Object3D   {
         this.materialsArray.push(material_red);
         this.materialsArray.push(material_blue);
         this.materialsArray.push(material_debug);
+
+        this.material = this.materialsArray[this.height];
+
     }
 
     //debug function
@@ -75,12 +77,26 @@ export class BuildingBlock extends THREE.Object3D   {
             //}
         });
 
+        this.loadModel()
+        this.parent.add(this.blockMesh);
+    }
+
+    loadModel(){
         let model = new THREE.Object3D();
         let objLoader = new OBJLoader();
-        let material = this.materialsArray[this.height];
+        let material = this.material;
+        let file = 'assets/Objects/Buildings/';
+
+        if(this.height == 1){
+            file +='house1obj.obj';
+        } 
+        else{
+            file +='skyScraper1.obj';
+
+        }
 
         // Load in 3D model
-        objLoader.load('assets/Objects/Buildings/house1obj.obj', function ( object ){
+        objLoader.load(file, function ( object ){
             object.traverse( function ( child ) {
                 if ( child instanceof THREE.Mesh ) {
                     child.material = material;
@@ -93,14 +109,6 @@ export class BuildingBlock extends THREE.Object3D   {
             model.add( object );
           } );
           this.blockMesh = model;
-          this.parent.add(this.blockMesh);
-
-        // const box_geo = new THREE.BoxGeometry(1,1,1);
-        // this.blockMesh = new THREE.Mesh(box_geo, this.material);
-        // this.blockMesh.castShadow = true;
-        // this.blockMesh.recieveShadow = true;
-
-        // this.parent.add(this.blockMesh);
     }
 
     shatterBlock(){
