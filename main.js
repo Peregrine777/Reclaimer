@@ -34,6 +34,9 @@
     let renderer = new THREE.WebGLRenderer({ antialias: true, canvas: renderCanvas } );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    let heightGradient = document.getElementById("heightgrd");
+
+    
   
   
     //camera
@@ -84,6 +87,7 @@
       elevation: 2,
       azimuth: 180
     };
+    let uiVals = {HeightTexture: true};
   
   
   gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
@@ -103,6 +107,17 @@
   folderSky.add( envVals, 'azimuth', - 180, 180, 0.1 ).onChange( updateEnvironment );
   folderSky.open();
 
+  const folderUI = gui.addFolder( 'UI' );
+  folderUI.add( uiVals, 'HeightTexture' ).onChange( updateUI );
+  folderUI.open();
+
+  function updateUI(){
+    if(uiVals.HeightTexture == false){
+      heightGradient.style.visibility = "hidden";
+    }
+    else { heightGradient.style.visibility = "visible";}
+  };
+  
   /////////////
   // Objects //
   ////////////
