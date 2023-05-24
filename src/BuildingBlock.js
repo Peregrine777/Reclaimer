@@ -75,12 +75,32 @@ export class BuildingBlock extends THREE.Object3D   {
             //}
         });
 
-        const box_geo = new THREE.BoxGeometry(1,1,1);
-        this.material = this.materialsArray[this.height];
-        this.blockMesh = new THREE.Mesh(box_geo, this.material);
-        this.blockMesh.castShadow = true;
-        this.blockMesh.recieveShadow = true;
-        this.parent.add(this.blockMesh);
+        let model = new THREE.Object3D();
+        let objLoader = new OBJLoader();
+        let material = this.materialsArray[this.height];
+
+        // Load in 3D model
+        objLoader.load('assets/Objects/Buildings/house1obj.obj', function ( object ){
+            object.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.recieveShadow = true;
+                    
+                  
+                }
+            } );
+            model.add( object );
+          } );
+          this.blockMesh = model;
+          this.parent.add(this.blockMesh);
+
+        // const box_geo = new THREE.BoxGeometry(1,1,1);
+        // this.blockMesh = new THREE.Mesh(box_geo, this.material);
+        // this.blockMesh.castShadow = true;
+        // this.blockMesh.recieveShadow = true;
+
+        // this.parent.add(this.blockMesh);
     }
 
     shatterBlock(){
