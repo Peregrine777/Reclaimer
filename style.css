@@ -32,7 +32,7 @@ height: 50px;
 z-index: 1;
 visibility: visible;
 }
-#fragShader{
+#container{
     background-color: #000;
     position: absolute;
     left:55px;
@@ -41,4 +41,5 @@ visibility: visible;
     height: 100px;
     z-index: 1;
     visibility: visible;
+    opacity: 80%;
     }
