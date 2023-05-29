@@ -90,6 +90,7 @@ export class Environment{
         if ( renderTarget !== undefined ) renderTarget.dispose();
 
         renderTarget = pmremGenerator.fromScene( sky );
+        pmremGenerator.dispose();
 
         scene.environment = renderTarget.texture;
     }
