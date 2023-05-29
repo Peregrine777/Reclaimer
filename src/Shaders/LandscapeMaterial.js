@@ -147,7 +147,8 @@ export const LandShader = {
             roadCol = 0.0;
             }
 
-        float roads = roadCol * step(0.1,(buildable.g+buildable.r));
+        //roadColour * area where road can be built
+        float roads = roadCol * step(0.05,(buildable.g+buildable.r));
 
         landColor = landColor * (1. - roads);
 
