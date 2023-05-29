@@ -29,11 +29,14 @@ export class Building extends THREE.Object3D{
     createBuilding(x, y, size){
         this.position.setX(x);
         this.position.setY(y);
+        //Placeholder for height of base of building.
+        let z = 0.2; 
+        this.position.setZ(0.2)
 
         //create unique id for each building based on its location
         this.buildingID = x * 1000 + y;
 
-        for(var i = 0.2; i < this.height; i++){
+        for(var i = z; i < this.height; i++){
 
             var block = new BuildingBlock(this.parent, this.height, this.buildingID, this.reclaimerProperties)
             block.createBlock(x -size/2,i,y -size/2);
@@ -51,6 +54,10 @@ export class Building extends THREE.Object3D{
 
     getType(){
         return this.type;
+    }
+
+    setType(type){
+        this.type = type;
     }
 
     // get a block at height 
