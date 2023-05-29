@@ -10,9 +10,16 @@ export const LandShader = {
         gradientMap: {value: null},
         hmax: {value: null},
         hmin: {value: null},
+        envMap: {value: null},
+        vpw: {value: 0.00005},
+        vph: {value: 0.00005},
+        offset: {value: new THREE.Vector2(-0.5,-0.5)},
+        pitch: {value: new THREE.Vector2(4, 4)},
     },
     vertexShader: /* glsl */`
     uniform vec3 lightDirection;
+
+    uniform samplerCube envMap;
 
     out vec3 vNormal;
     out vec3 vPosition;
@@ -22,6 +29,7 @@ export const LandShader = {
     out vec3 vNorm;
     out vec3 vViewDirection;
     out vec3 vViewNormal;
+    out vec3 vReflect;
 
 
     void main() {
@@ -37,8 +45,10 @@ export const LandShader = {
         vViewDirection = normalize(-(modelViewMatrix * vec4(position, 1.0))).xyz;
 
         vUV = uv;
-        vPosition = (modelMatrix * vec4(position, 1.0)).xyz;
-        
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vec3 I = worldPosition.xyz - cameraPosition;
+        vReflect = reflect( I, vNormal );
+        vPosition = (worldPosition).xyz;     
     }
     
     
@@ -47,6 +57,13 @@ export const LandShader = {
     #define PI 3.14159265358979323846
     uniform vec3 lightColor;
     uniform sampler2D gradientMap;
+    uniform samplerCube envMap;
+
+    uniform float vpw; // Width, in pixels
+    uniform float vph; // Height, in pixels
+
+    uniform vec2 offset; // e.g. [-0.023500000000000434 0.9794000000000017], currently the same as the x/y offset in the mvMatrix
+    uniform vec2 pitch;  // e.g. [50 50]
 
 
     in vec3 vNormal;
@@ -56,6 +73,8 @@ export const LandShader = {
     in vec3 vViewNormal;
     in vec3 vViewDirection;
     in vec3 upVec;
+    in vec2 vUV;
+    in vec3 vReflect;
     
 
     float rand (vec2 st) {
@@ -95,7 +114,7 @@ export const LandShader = {
 
         //Height based colour
         float hValue = (vPosition.y - hmin) / (hmax - hmin);   
-        hValue += noise(vPosition.xz, 155.0) * 0.30 - 0.15;
+        hValue += noise(vPosition.xz, 55.0) * 0.10 - 0.05;
         vec3 col = texture2D(gradientMap, vec2(0, hValue)).rgb;
         vec3 baseColor = vec3(col);
 
@@ -107,6 +126,33 @@ export const LandShader = {
 
         vec3 landColor = (baseColor + flatC) * (1.- slopeC);
 
+        //Road Color
+        //Building Location/Height
+        float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0))*5.;
+        float distCutoff = step(0.05, distCenter);
+        float negHeight = clamp(step(-8.,vPosition.y), -1.,10.);
+        float vertHeight = (1./distance(vPosition.y, 0.0))*02.3;
+
+        vec3 buildable = vec3(negHeight * distCenter, vertHeight * distCenter * negHeight * distCutoff, 0.0);
+        float lX = vPosition.x;
+        float lZ = vPosition.z;
+        float scaleFactor = 00001.0;
+        float offX = (scaleFactor * offset[0]) + lX;
+        float offY = (scaleFactor * offset[1]) + lZ;
+        float roadCol = 0.0;
+        if (int(mod(offX, pitch[0])) == 0 ||
+        int(mod(offY, pitch[1])) == 0) {
+            roadCol = 1.;
+            } else {
+            roadCol = 0.0;
+            }
+
+        //roadColour * area where road can be built
+        float roads = roadCol * step(0.05,(buildable.g+buildable.r));
+
+        landColor = landColor * (1. - roads);
+
+
         //Ambient Lighting
         vec3 ambientColor = vec3(0.35, 0.35, 0.34) * 0.8;
         vec3 ambientStrength = ambientColor * baseColor;
@@ -114,13 +160,15 @@ export const LandShader = {
         //Diffuse Lighting
             //direct
             float dProd = dot( vNormal, lightVec );
-            dProd=(step(-0.4,dProd)*0.5 - 0.1 ) + step(0.6, dProd);
+            dProd=(step(-0.4,dProd)*0.3 - 0.1 ) + step(0.6, dProd);
             dProd=clamp(dProd,0.,1.0);
 
             //sky
             float aLight = dot( vNormal, upVec );
             aLight=(step(-0.0,aLight)*0.5 - 0.1 ) + step(0.81, aLight);
             aLight=clamp(aLight,0.,1.0);
+
+        vec3 envColor = textureCube( envMap, vec3( -vReflect.x, vReflect.yz ) ).rgb;
 
         //final lights
         vec3 directLightColor = lightColor * dProd;
@@ -136,14 +184,14 @@ export const LandShader = {
         vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
 
         vec3 skyLight = landColor * skyLightColor;
-        vec3 ambient = landColor* baseColor;
+        vec3 ambient = landColor* 0.1;
 
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
 
 
         
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
-        gl_FragColor = vec4(c, 1.0 );
+        gl_FragColor = vec4( c, 1.0 );
     }
     `
 }

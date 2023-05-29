@@ -42,7 +42,8 @@ export class BuildingBlock extends THREE.Object3D   {
         this.materialsArray.push(material_skyscraper);
         this.materialsArray.push(material_debug);
 
-        this.material = this.materialsArray[this.height];
+        let materialIndex = Math.min(this.height, 3)
+        this.material = this.materialsArray[materialIndex];
 
     }
 
@@ -85,9 +86,13 @@ export class BuildingBlock extends THREE.Object3D   {
     loadModel(){
         let model = new THREE.Object3D();
         let objLoader = new OBJLoader();
+        let tempMesh = new THREE.Mesh();
         let material = this.material;
         let file = 'assets/Objects/Buildings/';
 
+        if (this.height == 0){
+            file +='park1.obj';
+        }
         if(this.height == 1){
             file +='house1obj.obj';
         } 
@@ -103,13 +108,14 @@ export class BuildingBlock extends THREE.Object3D   {
                     child.material = material;
                     child.castShadow = true;
                     child.recieveShadow = true;
-                    
+                    // tempMesh = child;
                   
                 }
             } );
             model.add( object );
           } );
           this.blockMesh = model;
+
     }
 
     shatterBlock(){
