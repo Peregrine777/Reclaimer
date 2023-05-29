@@ -11,6 +11,10 @@ export const LandShader = {
         hmax: {value: null},
         hmin: {value: null},
         envMap: {value: null},
+        vpw: {value: 0.00005},
+        vph: {value: 0.00005},
+        offset: {value: new THREE.Vector2(-0.5,-0.5)},
+        pitch: {value: new THREE.Vector2(4, 4)},
     },
     vertexShader: /* glsl */`
     uniform vec3 lightDirection;
@@ -44,8 +48,7 @@ export const LandShader = {
         vec4 worldPosition = modelMatrix * vec4(position, 1.0);
         vec3 I = worldPosition.xyz - cameraPosition;
         vReflect = reflect( I, vNormal );
-        vPosition = (worldPosition).xyz;
-        
+        vPosition = (worldPosition).xyz;     
     }
     
     
@@ -55,6 +58,12 @@ export const LandShader = {
     uniform vec3 lightColor;
     uniform sampler2D gradientMap;
     uniform samplerCube envMap;
+
+    uniform float vpw; // Width, in pixels
+    uniform float vph; // Height, in pixels
+
+    uniform vec2 offset; // e.g. [-0.023500000000000434 0.9794000000000017], currently the same as the x/y offset in the mvMatrix
+    uniform vec2 pitch;  // e.g. [50 50]
 
 
     in vec3 vNormal;
@@ -117,6 +126,32 @@ export const LandShader = {
 
         vec3 landColor = (baseColor + flatC) * (1.- slopeC);
 
+        //Road Color
+        //Building Location/Height
+        float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0))*5.;
+        float distCutoff = step(0.05, distCenter);
+        float negHeight = clamp(step(-8.,vPosition.y), -1.,10.);
+        float vertHeight = (1./distance(vPosition.y, 0.0))*02.3;
+
+        vec3 buildable = vec3(negHeight * distCenter, vertHeight * distCenter * negHeight * distCutoff, 0.0);
+        float lX = vPosition.x;
+        float lZ = vPosition.z;
+        float scaleFactor = 00001.0;
+        float offX = (scaleFactor * offset[0]) + lX;
+        float offY = (scaleFactor * offset[1]) + lZ;
+        float roadCol = 0.0;
+        if (int(mod(offX, pitch[0])) == 0 ||
+        int(mod(offY, pitch[1])) == 0) {
+            roadCol = 1.;
+            } else {
+            roadCol = 0.0;
+            }
+
+        float roads = roadCol * step(0.1,(buildable.g+buildable.r));
+
+        landColor = landColor * (1. - roads);
+
+
         //Ambient Lighting
         vec3 ambientColor = vec3(0.35, 0.35, 0.34) * 0.8;
         vec3 ambientStrength = ambientColor * baseColor;
@@ -148,19 +183,14 @@ export const LandShader = {
         vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
 
         vec3 skyLight = landColor * skyLightColor;
-        vec3 ambient = landColor* baseColor;
+        vec3 ambient = landColor* 0.1;
 
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
 
-        //Building Location/Height
-        // float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0))*5.;
-        // float negHeight = clamp(step(-8.,vPosition.y), -1.,10.);
-        // float vertHeight = (1./distance(vPosition.y, 0.0))*02.3;
 
-        // vec3 buildable = vec3(negHeight * distCenter, vertHeight * distCenter * negHeight, 0.0);
         
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
-        gl_FragColor = vec4(c, 1.0 );
+        gl_FragColor = vec4( c, 1.0 );
     }
     `
 }
