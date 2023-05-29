@@ -14,6 +14,11 @@ export class City extends THREE.Object3D {
         this.size = size;
         this.buildings = [];
         this.reclaimerProperties = reclaimerProperties;
+        this.density = 1.0;
+
+        //Center of the map
+        this.centerX = Math.floor(size/2);
+        this.centerZ = Math.floor(size/2);
 
 
         // create array of tilemap positions
@@ -21,9 +26,15 @@ export class City extends THREE.Object3D {
         for (let i = 0; i < size; i++) {
             this.map[i] = new Array(size);
             for (let j = 0; j < size; j++) {
+                const distX = Math.abs(this.centerX - i);
+                const distY = Math.abs(this.centerZ - j);
+                const dist = Math.sqrt(distX * distX + distY * distY);
                 //Randomise building heights
+                const buildingChance = Math.max(0, 1 - dist / Math.max(this.centerX, this.centerZ)) * this.density;
                 let randomHeight = randInt(1,3);
-                this.map[i][j] = {height : randomHeight, building : null};
+                
+                // this.map[i][j] = {type: "park", height : 0, building : null};
+                 this.map[i][j] = {height : randomHeight, building : null};
 
                 
             }
@@ -97,4 +108,11 @@ export class City extends THREE.Object3D {
             element.updateBuilding();
         });
     }
+}
+
+  //////////////
+  // Gaussian //
+  //////////////
+  function gaussian(x, a, c) {
+    return a * Math.exp(-Math.pow((x) / c, 2));
 }
