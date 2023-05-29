@@ -150,8 +150,8 @@
   //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
   scene.add(cityGenPoint);
 
-  let city = new City(sceneVals.size, reclaimerProperties);
-  city.addBuildings(cityGenPoint);
+  let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
+  // city.addBuildings(cityGenPoint);
 
   let land = new THREE.Object3D();
 
@@ -294,9 +294,8 @@
     // replace physics plane
     physicsworld.addBody(createGroundBody());
 
-    new Landscape(sceneVals.size, landVals).ChunkManager(land);
-    let city = new City(sceneVals.size, reclaimerProperties)
-    city.addBuildings(cityGenPoint);
+    new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
+    let city = new City(cityGenPoint, sceneVals.size, reclaimerProperties)
 
     // if (sceneVals.sunHelper == true){
     //   sunHelper.visible = true;

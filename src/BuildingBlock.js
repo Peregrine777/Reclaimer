@@ -42,7 +42,8 @@ export class BuildingBlock extends THREE.Object3D   {
         this.materialsArray.push(material_skyscraper);
         this.materialsArray.push(material_debug);
 
-        this.material = this.materialsArray[this.height];
+        let materialIndex = Math.min(this.height, 3)
+        this.material = this.materialsArray[materialIndex];
 
     }
 
