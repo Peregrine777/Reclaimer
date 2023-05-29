@@ -14,6 +14,11 @@ export class City extends THREE.Object3D {
         this.size = size;
         this.buildings = [];
         this.reclaimerProperties = reclaimerProperties;
+        this.density = 1.0;
+
+        //Center of the map
+        this.centerX = Math.floor(size/2);
+        this.centerZ = Math.floor(size/2);
 
 
         // create array of tilemap positions
@@ -21,9 +26,15 @@ export class City extends THREE.Object3D {
         for (let i = 0; i < size; i++) {
             this.map[i] = new Array(size);
             for (let j = 0; j < size; j++) {
+                const distX = Math.abs(this.centerX - i);
+                const distY = Math.abs(this.centerZ - j);
+                const dist = Math.sqrt(distX * distX + distY * distY);
                 //Randomise building heights
+                const buildingChance = Math.max(0, 1 - dist / Math.max(this.centerX, this.centerZ)) * this.density;
                 let randomHeight = randInt(1,3);
-                this.map[i][j] = {height : randomHeight, building : null};
+                
+                // this.map[i][j] = {type: "park", height : 0, building : null};
+                 this.map[i][j] = {height : randomHeight, building : null};
 
                 
             }
@@ -35,7 +46,7 @@ export class City extends THREE.Object3D {
 
     // Adds building objects to the parent object
     // TODO - make this a proper object3D such that we don't pass parent
-    addBuildings(parent, physicsworld){
+    addBuildings(parent){
         //loop through map and add buildings   
         for (let i = 0; i < this.size; i += 2) {
             for (let j = 0; j < this.size; j += 2) {
@@ -55,11 +66,24 @@ export class City extends THREE.Object3D {
     }
 
     getRandomTallBuilding(radius){
+        let loops = 0;
         let x = randInt(2, radius) * 2 - 2;
         let y = randInt(2, radius) * 2 - 2;
         let b = this.getBuilding(x, y)
+
+        // generate random coordinates until a tall building is found
         while(b.height < 2){
-            b = this.map[x][y].building;
+            x = randInt(2, radius) * 2 - 2;
+            y = randInt(2, radius) * 2 - 2;
+            b = this.getBuilding(x, y);
+
+            // after looping 100 times
+            if(loops > 100){
+                // there is likely no tall buildings to find
+                // exit loop
+                break;
+            }
+            loops++;
         }
 
         return b;
@@ -84,4 +108,11 @@ export class City extends THREE.Object3D {
             element.updateBuilding();
         });
     }
+}
+
+  //////////////
+  // Gaussian //
+  //////////////
+  function gaussian(x, a, c) {
+    return a * Math.exp(-Math.pow((x) / c, 2));
 }

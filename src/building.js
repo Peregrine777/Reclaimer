@@ -53,6 +53,10 @@ export class Building extends THREE.Object3D{
         return this.type;
     }
 
+    setType(type){
+        this.type = type;
+    }
+
     // get a block at height 
     getBlock(height){
         if(height <= this.height){

@@ -245,7 +245,7 @@
         let buildings = [];
         let i = 0;
         while(i < numberOfBuildings){
-          let building = City.getRandomTallBuilding(City.cityRadius);
+          let building = city.getRandomTallBuilding(city.cityRadius);
           // while(buildings.includes(building) && buildings.size != sceneVals.size * sceneVals.size){
           //   building = City.getRandomTallBuilding(City.cityRadius);
           // }
