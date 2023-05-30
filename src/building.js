@@ -28,6 +28,7 @@ export class Building extends THREE.Object3D{
 
     createBuilding(x, y, size){
 
+
         //Placeholder for height of base of building.
         let positions = this.reclaimerProperties.land.children[0].geometry.attributes.position;
         let xs = new Float32Array(positions.count);
