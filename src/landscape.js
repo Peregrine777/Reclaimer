@@ -162,8 +162,8 @@ export class Landscape {
       //Smooth blend with city radius
       let dist = new THREE.Vector2(u, v).distanceTo(new THREE.Vector2(0,0))
       if (dist > this.cityRadius){
-        let distN = (dist - this.cityRadius) / (this.size - this.cityRadius);
-        let ramp = smoothstep(dist, this.cityRadius, this.size); // adjust the second parameter to change the falloff distance
+        let distN = (dist - this.size);
+        let ramp = smoothstep(dist, 0, this.size); // adjust the second parameter to change the falloff distance
         h = h*this.height * (ramp*2*this.scale);
         if (dist > this.size){
           h -= (dist - this.size) * this.falloff;
