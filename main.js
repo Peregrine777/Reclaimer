@@ -149,11 +149,18 @@
   let cityGenPoint = new THREE.Object3D();
   //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
   scene.add(cityGenPoint);
+    
+  let land = new THREE.Object3D();
+  land.name = "land";
+  scene.add(land);
+  new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
+
+  reclaimerProperties.land = land;
 
   let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
   // city.addBuildings(cityGenPoint);
 
-  let land = new THREE.Object3D();
+
 
 
   //City.getBuildingsSurrounding(2,2);
@@ -262,8 +269,7 @@
 
       function CreateScene()
       {   
-        scene.add(land);
-        new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
+
       }
       
       CreateScene();
