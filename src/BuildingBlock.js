@@ -5,9 +5,6 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
 
 export class BuildingBlock extends THREE.Object3D   {
-
-    shatterArray;
-    materialsArray;
       
     constructor(parent, height, buildingID, reclaimerProperties){
         super();
@@ -22,6 +19,7 @@ export class BuildingBlock extends THREE.Object3D   {
         this.shatterArray = [];
         this.reclaimerProperties = reclaimerProperties;
         this.physicsworld = reclaimerProperties.physicsworld;
+        this.models = [];
         this.defaults();
     }
 
@@ -44,6 +42,42 @@ export class BuildingBlock extends THREE.Object3D   {
 
         let materialIndex = Math.min(this.height, 3)
         this.material = this.materialsArray[materialIndex];
+
+        let objLoader = new OBJLoader();
+        let material = this.material;
+        let house = new THREE.Object3D();
+        let apart = new THREE.Object3D();
+        let sky = new THREE.Object3D();
+
+
+        
+        objLoader.load('assets/Objects/Buildings/house1obj.obj', function ( object ){
+
+            object.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.recieveShadow = true;
+                }
+            } );
+            house.add(object);
+          } );
+
+          objLoader.load('assets/Objects/Buildings/skyScraper1.obj', function ( object ){
+
+            object.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    child.material = material;
+                    child.castShadow = true;
+                    child.recieveShadow = true;
+                }
+            } );
+            apart.add(object);
+          } );
+
+
+        this.models.push(house);
+        this.models.push(apart);
 
     }
 
@@ -91,30 +125,21 @@ export class BuildingBlock extends THREE.Object3D   {
         let file = 'assets/Objects/Buildings/';
 
         if (this.height == 0){
-            file +='park1.obj';
+            // file +='park1.obj';
+            
         }
         if(this.height == 1){
-            file +='house1obj.obj';
+            // console.log(this.models[0]);
+            this.blockMesh = this.models[0];
+
+            // file +='house1obj.obj';
+
         } 
         else{
-            file +='skyScraper1.obj';
+            this.blockMesh = this.models[1];
 
+            // file +='skyScraper1.obj';
         }
-
-        // Load in 3D model
-        objLoader.load(file, function ( object ){
-            object.traverse( function ( child ) {
-                if ( child instanceof THREE.Mesh ) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.recieveShadow = true;
-                    // tempMesh = child;
-                  
-                }
-            } );
-            model.add( object );
-          } );
-          this.blockMesh = model;
 
     }
 
