@@ -128,12 +128,18 @@ export const LandShader = {
 
         //Road Color
         //Building Location/Height
-        float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0))*5.;
-        float distCutoff = step(0.05, distCenter);
+        
+
+        float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0))*3.;
+        float angle = (abs(atan(vPosition.x, vPosition.z)))/(2. *PI);
+        //Angle Placeholder
+        float distMod = angle * 0.01;  
+        //
+        float distCutoff = step(0.05, distCenter - distMod);
         float negHeight = clamp(step(-8.,vPosition.y), -1.,10.);
         float vertHeight = (1./distance(vPosition.y, 0.0))*02.3;
 
-        vec3 buildable = vec3(negHeight * distCenter, vertHeight * distCenter * negHeight * distCutoff, 0.0);
+        vec3 buildable = vec3(negHeight * distCenter * distCutoff, vertHeight * distCenter * negHeight * distCutoff, 0.0);
         float lX = vPosition.x;
         float lZ = vPosition.z;
         float scaleFactor = 00001.0;
@@ -148,7 +154,7 @@ export const LandShader = {
             }
 
         //roadColour * area where road can be built
-        float roads = roadCol * step(0.05,(buildable.g+buildable.r));
+        float roads = roadCol * step(0.05,( buildable.r));
 
         landColor = landColor * (1. - roads);
 
