@@ -224,14 +224,19 @@
     let numberOfBuildingTargets = 3;
 
       function startReclamation(){
-        isReclaiming = true;
+        if (isReclaiming == false){
+          isReclaiming = true;
+          console.log(reclaimerProperties.frame);
+          console.log(reclaimerProperties.reclaimFrame);
+          reclaimerProperties.reclaimFrame = reclaimFrame;
+        }
+        
         reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
         let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
         //let blockTargets = [];
         //let vines = [];
-        console.log(reclaimerProperties.frame);
-        console.log(reclaimerProperties.reclaimFrame);
-        reclaimerProperties.reclaimFrame = reclaimFrame;
+
+        
         buildingTargets.forEach(building => {
           //console.log(building);
           building.colourDebug();

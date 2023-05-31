@@ -35,7 +35,9 @@ export class BuildingBlock extends THREE.Object3D   {
         let apartmentNormal = new THREE.TextureLoader().load( 'assets/Textures/Bricks/Brick_Wall_019_normal.jpg' );
         let houseColor = new THREE.Color( 0xfddb53 );
 
-        let skyScraperMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide});
+        let skyScraperMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
+            uniforms: THREE.UniformsUtils.merge( [
+                THREE.UniformsLib[ 'fog' ]] ),});
         skyScraperMaterial.uniforms = {
             lightDirection: {value: this.reclaimerProperties.sunDirection},
             baseColor: {value: skyscraperColor},
@@ -43,6 +45,8 @@ export class BuildingBlock extends THREE.Object3D   {
             normalMap: {value: skyscraperNormal},
             frame: {value: this.reclaimerProperties.scene.frame},
         };
+
+
         skyScraperMaterial.vertexShader = BuildingShader.vertexShader;
         skyScraperMaterial.fragmentShader = BuildingShader.fragmentShader;
 
@@ -128,10 +132,11 @@ export class BuildingBlock extends THREE.Object3D   {
         if(this.height == 1){
             file +='house1obj.obj';
         } 
-        else{
-            file +='skyScraper1.obj';
+        else if(this.height == 2){
+            file +='apartment1.obj';
 
         }
+        else{file +='skyScraper1.obj';}
 
         // Load in 3D model
         objLoader.load(file, function ( object ){

@@ -14,6 +14,10 @@ export const BuildingShader = {
         frame: {value: 0.0},
     },
     vertexShader: /* glsl */`
+
+    #include <fog_pars_vertex>
+    #include <shadowmap_pars_vertex>
+
     uniform vec3 lightDirection;
 
     uniform samplerCube envMap;
@@ -32,11 +36,14 @@ export const BuildingShader = {
 
     void main() {
         vec4 view_position = modelViewMatrix * vec4(position, 1.0);
+
         vEyePosition = view_position.xyz;
         vec4 viewLightPos = viewMatrix * vec4(lightDirection, 1.0);
         lightVec = normalize(viewMatrix * vec4(lightDirection, 0.0)).xyz;
         upVec    = normalize(viewMatrix * vec4(0., 1., 0.0, 0.0)).xyz;
         gl_Position = projectionMatrix * view_position;
+
+        float viewZ = -gl_Position.x;
 
         vNormal = normalize(normalMatrix * normal);
         vNorm = normal;
@@ -96,42 +103,49 @@ export const BuildingShader = {
     }
 
     //Meant to correct normal map given surface normals... doesn't work.
-    vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm, vec3 mapN ) {
+    // vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm, vec3 mapN ) {
 
-		// Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
+	// 	// Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
 
-		vec3 q0 = vec3( dFdx( eye_pos.x ), dFdx( eye_pos.y ), dFdx( eye_pos.z ) );
-		vec3 q1 = vec3( dFdy( eye_pos.x ), dFdy( eye_pos.y ), dFdy( eye_pos.z ) );
-		vec2 st0 = dFdx( vUv.st );
-		vec2 st1 = dFdy( vUv.st );
+	// 	vec3 q0 = vec3( dFdx( eye_pos.x ), dFdx( eye_pos.y ), dFdx( eye_pos.z ) );
+	// 	vec3 q1 = vec3( dFdy( eye_pos.x ), dFdy( eye_pos.y ), dFdy( eye_pos.z ) );
+	// 	vec2 st0 = dFdx( vUv.st );
+	// 	vec2 st1 = dFdy( vUv.st );
 
-		float scale = sign( st1.t * st0.s - st0.t * st1.s ); // we do not care about the magnitude
+	// 	float scale = sign( st1.t * st0.s - st0.t * st1.s ); // we do not care about the magnitude
 
-		vec3 S = normalize( ( q0 * st1.t - q1 * st0.t ) * scale );
-		vec3 T = normalize( ( - q0 * st1.s + q1 * st0.s ) * scale );
-		vec3 N = normalize( surf_norm );
+	// 	vec3 S = normalize( ( q0 * st1.t - q1 * st0.t ) * scale );
+	// 	vec3 T = normalize( ( - q0 * st1.s + q1 * st0.s ) * scale );
+	// 	vec3 N = normalize( surf_norm );
 
-		mat3 tsn = mat3( S, T, N );
+	// 	mat3 tsn = mat3( S, T, N );
 
-		mapN.xy *= ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+	// 	mapN.xy *= ( float( gl_FrontFacing ) * 2.0 - 1.0 );
 
-		return normalize( tsn * mapN );
+	// 	return normalize( tsn * mapN );
 
-	}
+	// }
 
 
     void main() {
-        float hmax = 35.21;
-        float hmin = -27.0;
+        float hmax = 5.;
+        float hmin = -10.0;
 
         vec3 lightColor = vec3(0.8, 0.76, 0.50);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
 
-        //Height based colour
-        // float hValue = (1.-step(0.48, vUv.r)) + step(0.54,vUv.r);
-        // vec3 base = baseColor + texture2D(textureMap, vUv).rgb;
+        hmin = clamp(hmin + frame,-5.,10.);
+        hmax = hmax + frame;
 
-        vec3 base = vec3(frame, frame, frame);
+        //Height based colour
+        float hValue = (vPosition.y - hmin) / (hmax - hmin);   
+        hValue += noise(vPosition.xz, 155.0) * 0.10 - 0.05;
+        hValue = clamp(hValue, 0.0, 1.0);
+        // vec3 base = baseColor + texture2D(textureMap, vUv).rgb;
+        vec3 base = baseColor * hValue;
+        base = mix(base, vec3(0.2,0.2,0.2), (1.-hValue) );
+
+        // vec3 base = vec3(frame, frame, frame);
 
 
         //Ambient Lighting
@@ -167,10 +181,9 @@ export const BuildingShader = {
 
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
 
-
         
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
-        gl_FragColor = vec4( frame, frame, frame, 1.0 );
+        gl_FragColor = vec4( c, 1.0 );
     }
     `
 }
