@@ -3,7 +3,6 @@ import { Vector3 } from "three";
 
 export const BuildingShader = {
 
-
     uniforms: {
         lightDirection: {value: new Vector3(1.0, 1.0, 1.0)},
         lightColor: {value: new Vector3(0.8, 0.76, 0.50)},
@@ -15,7 +14,7 @@ export const BuildingShader = {
     },
     vertexShader: /* glsl */`
 
-    #include <fog_pars_vertex>
+
     #include <shadowmap_pars_vertex>
 
     uniform vec3 lightDirection;
@@ -55,12 +54,17 @@ export const BuildingShader = {
         vec4 worldPosition = modelMatrix * vec4(position, 1.0);
         vec3 I = worldPosition.xyz - cameraPosition;
         vReflect = reflect( I, vNormal );
-        vPosition = (worldPosition).xyz;     
+        vPosition = (worldPosition).xyz; 
+        
+        #include <shadowmap_vertex>
     }
     
     
     `,
     fragmentShader: /* glsl */`
+
+    #include <shadowmap_pars_fragment>
+    #include <shadowmask_pars_fragment>
     
     uniform int type;
     uniform vec3 baseColor;
@@ -137,6 +141,9 @@ export const BuildingShader = {
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
         vec3 fogColor = vec3(0.6, 0.62, 0.85);
 
+        vec3 shadowColor = vec3(0, 0, 0);
+        float shadowPower = 0.5;
+
         hmin = clamp(hmin + frame,-10.,10.);
         hmax = clamp(hmax + frame,0.0,10.02);
         
@@ -187,6 +194,7 @@ export const BuildingShader = {
 
         float fog = viewZ.z/5000.;
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
+        c = mix(c, shadowColor, (1.0 - getShadowMask() ) * shadowPower);
 
         vec3 finalFog = mix(c, fogColor, fog);
         gl_FragColor = vec4( finalFog, 1.0 );
