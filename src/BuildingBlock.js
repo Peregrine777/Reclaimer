@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { Fragment } from './Fragment.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 
 export class BuildingBlock extends THREE.Object3D   {
       
-    constructor(parent, height, buildingID, reclaimerProperties){
+    constructor(parent, height, buildingID, reclaimerProperties, models){
         super();
         this.parent = parent;
         this.height = height;
@@ -19,8 +20,8 @@ export class BuildingBlock extends THREE.Object3D   {
         this.shatterArray = [];
         this.reclaimerProperties = reclaimerProperties;
         this.physicsworld = reclaimerProperties.physicsworld;
-        this.models = [];
-        this.defaults();
+        this.models = models;
+        //this.defaults();
     }
 
     defaults(){
@@ -43,7 +44,9 @@ export class BuildingBlock extends THREE.Object3D   {
         let materialIndex = Math.min(this.height, 3)
         this.material = this.materialsArray[materialIndex];
 
-        let objLoader = new OBJLoader();
+        const objLoader = new OBJLoader();
+
+        
         let material = this.material;
         let house = new THREE.Object3D();
         let apart = new THREE.Object3D();
@@ -51,33 +54,33 @@ export class BuildingBlock extends THREE.Object3D   {
 
 
         
-        objLoader.load('assets/Objects/Buildings/house1obj.obj', function ( object ){
+        // objLoader.load('assets/Objects/Buildings/house1obj.obj', function ( object ){
 
-            object.traverse( function ( child ) {
-                if ( child instanceof THREE.Mesh ) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.recieveShadow = true;
-                }
-            } );
-            house.add(object);
-          } );
+        //     object.traverse( function ( child ) {
+        //         if ( child instanceof THREE.Mesh ) {
+        //             child.material = material;
+        //             child.castShadow = true;
+        //             child.recieveShadow = true;
+        //         }
+        //     } );
+        //     house.add(object);
+        //   } );
 
-          objLoader.load('assets/Objects/Buildings/skyScraper1.obj', function ( object ){
+        //   objLoader.load('assets/Objects/Buildings/skyScraper1.obj', function ( object ){
 
-            object.traverse( function ( child ) {
-                if ( child instanceof THREE.Mesh ) {
-                    child.material = material;
-                    child.castShadow = true;
-                    child.recieveShadow = true;
-                }
-            } );
-            apart.add(object);
-          } );
+        //     object.traverse( function ( child ) {
+        //         if ( child instanceof THREE.Mesh ) {
+        //             child.material = material;
+        //             child.castShadow = true;
+        //             child.recieveShadow = true;
+        //         }
+        //     } );
+        //     apart.add(object);
+        //   } );
 
 
-        this.models.push(house);
-        this.models.push(apart);
+        // this.models.push(house);
+        // this.models.push(apart);
 
     }
 
@@ -113,33 +116,36 @@ export class BuildingBlock extends THREE.Object3D   {
             //}
         });
 
-        this.loadModel()
+        let model = new THREE.Object3D();
+
+        
+        if (this.height == 0){
+            // file +='park1.obj';
+        }
+        if(this.height == 1){
+            model =  this.models[0]; 
+            this.blockMesh = model;
+        } 
+        else if( this.height == 2){
+            this.blockMesh = this.models[1];
+        } 
+        else
+        {
+            this.blockMesh = this.models[2];
+        }
+
+        //this.loadModel();
+        console.log(this.blockMesh);
         this.parent.add(this.blockMesh);
     }
 
     loadModel(){
-        let model = new THREE.Object3D();
         let objLoader = new OBJLoader();
         let tempMesh = new THREE.Mesh();
         let material = this.material;
         let file = 'assets/Objects/Buildings/';
 
-        if (this.height == 0){
-            // file +='park1.obj';
-            
-        }
-        if(this.height == 1){
-            // console.log(this.models[0]);
-            this.blockMesh = this.models[0];
-
-            // file +='house1obj.obj';
-
-        } 
-        else{
-            this.blockMesh = this.models[1];
-
-            // file +='skyScraper1.obj';
-        }
+        
 
     }
 

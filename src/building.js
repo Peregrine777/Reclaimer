@@ -2,13 +2,14 @@ import * as THREE from 'three';
 import { BuildingBlock } from './BuildingBlock.js';
 
 export class Building extends THREE.Object3D{
-    constructor(parent, height, reclaimerProperties){
+    constructor(parent, height, reclaimerProperties, models){
         super();
         this.parent = parent;
         this.reclaimerProperties = reclaimerProperties;
         this.physicsworld = reclaimerProperties.physicsworld;
         this.height = height;
         this.buildingBlocks = [];
+        this.models = models;
 
         const  buildingTypes = {
             0: "Park",
@@ -58,7 +59,7 @@ export class Building extends THREE.Object3D{
         //This for loop should just take height of building (in blocks) not z
         for(var i = 0; i < this.height; i++){
  
-            var block = new BuildingBlock(this.parent, this.height, this.buildingID, this.reclaimerProperties)
+            var block = new BuildingBlock(this.parent, this.height, this.buildingID, this.reclaimerProperties, this.models)
             block.createBlock(x -size/2,z + i,y -size/2);
             this.buildingBlocks.push(block);
         }

@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import { randFloat, randInt, smoothstep } from './MathUtils.js';
 import { Building } from './Building.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+
 
 export class City extends THREE.Object3D {
     size = 0;
@@ -15,7 +19,8 @@ export class City extends THREE.Object3D {
         this.size = size;
         this.buildings = [];
         this.reclaimerProperties = reclaimerProperties;
-        
+        this.models = [];
+        this.defaults();
 
         //Center of the map
         this.centerX = Math.floor(this.citySize/2);
@@ -50,8 +55,10 @@ export class City extends THREE.Object3D {
                     let height = Math.max(1,Math.floor(noise*noiseHeight + gaussHeight*(1-noise)));
                     this.map[i][j] = {type: "building" ,height : height, building : null};
 
+
+                    // console.log(this.models);
                     //Make Building and add to list of buildings
-                    let building = new Building(parent, this.map[i][j].height, this.reclaimerProperties);
+                    let building = new Building(parent, this.map[i][j].height, this.reclaimerProperties, this.models);
                     this.map[i][j].building = building;
                     this.buildings.push(building);
                     // offset buildings to the centre of the terrain
@@ -61,6 +68,82 @@ export class City extends THREE.Object3D {
             }
         }
     }
+
+
+    defaults(){
+        // var materialsArray = [];
+
+        var material_house = new THREE.MeshPhysicalMaterial();
+        var material_apartment = new THREE.MeshPhysicalMaterial();
+        var material_skyscraper = new THREE.MeshPhysicalMaterial();
+        var material_debug = new THREE.MeshPhysicalMaterial();
+
+        material_house.color =  new THREE.Color( 0xfddb53 );
+        material_apartment.color =  new THREE.Color( 0xd67229 );
+        material_skyscraper.color =  new THREE.Color( 0xc5c6d0 );
+        material_debug.color = new THREE.Color(1, 1, 0);
+        // use null value in first element to offset indexes by 1
+        // materialsArray.push(null);
+        // materialsArray.push(material_house);
+        // materialsArray.push(material_apartment);
+        // materialsArray.push(material_skyscraper);
+        // materialsArray.push(material_debug);
+
+        let materialIndex = Math.min(this.height, 3)
+        // this.material = this.materialsArray[materialIndex];
+
+        let objLoader = new OBJLoader();
+        // let material = this.material;
+        let house = new THREE.Object3D();
+        let apart = new THREE.Object3D();
+        let sky = new THREE.Object3D();
+
+        // const loader = new GLTFLoader();
+        // loader.load('assets/Objects/Buildings/Sky/skyScraper1.gltf', ( model ) => {
+        //     // model.scene.material = material_house;
+        //     sky.add(model.scene);
+        // });
+        
+        objLoader.load('assets/Objects/Buildings/house1obj.obj', function ( object ){
+            object.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    child.material = material_house;
+                    child.castShadow = true;
+                    child.recieveShadow = true;
+                }
+            } );
+            house.add(object);
+          } );
+
+          objLoader.load('assets/Objects/Buildings/skyScraper1.obj', function ( object ){
+
+            object.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    child.material = material_apartment;
+                    child.castShadow = true;
+                    child.recieveShadow = true;
+                }
+            } );
+            apart.add(object);
+          } );
+
+          objLoader.load('assets/Objects/Buildings/skyScraper1.obj', function ( object ){
+
+            object.traverse( function ( child ) {
+                if ( child instanceof THREE.Mesh ) {
+                    child.material = material_skyscraper;
+                    child.castShadow = true;
+                    child.recieveShadow = true;
+                }
+            } );
+            sky.add(object);
+          } );
+
+        this.models.push(house);
+        this.models.push(apart);
+        this.models.push(sky);
+    }
+
 
     getBuilding(i, j){ 
         return this.map[i][j].building;

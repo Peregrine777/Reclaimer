@@ -90,7 +90,7 @@
 
 
 
-    //const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
+    const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
   ////////////
   //   GUI  //
@@ -331,7 +331,7 @@
     }
     
     //scene.add(sea);
-    //cannonDebugger.update();
+    cannonDebugger.update();
     environment.update();
 
     composer.render();
