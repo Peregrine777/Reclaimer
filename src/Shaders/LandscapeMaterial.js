@@ -190,24 +190,19 @@ export const LandShader = {
         fresnel = clamp(pow(1.0 - fresnel, 7.), 0.0, 1.0);
         vec3 fresnelLight = fresnel * skyLightColor;
 
-        //Combine lighting passes
+        //final colour
         vec3 directLight = landColor * directLightColor;
         vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
+
         vec3 skyLight = landColor * skyLightColor;
         vec3 ambient = landColor* 0.1;
+
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
-<<<<<<< HEAD
-        vec3 c = mix(finalLighting, ambientColor, ambientStrength);
-        
-        //Fog
-        float fog = viewZ.z/5000.;    
-=======
 
         float fog = viewZ.z/5000.;
         
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
 
->>>>>>> 4676809d460f085eddb2bdfdd996b02f52b2968a
         vec3 finalFog = mix(c, fogColor, fog);
         gl_FragColor = vec4( finalFog, 1.0 );
     }
