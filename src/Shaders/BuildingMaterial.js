@@ -182,10 +182,17 @@ export const BuildingShader = {
         vec3 skyLight = base * skyLightColor;
         vec3 ambient = base * 0.1;
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
+<<<<<<< HEAD
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
 
         //Fog
         float fog = viewZ.z/5000.;
+=======
+
+        float fog = viewZ.z/5000.;
+        vec3 c = mix(finalLighting, ambientColor, ambientStrength);
+
+>>>>>>> 4676809d460f085eddb2bdfdd996b02f52b2968a
         vec3 finalFog = mix(c, fogColor, fog);
         gl_FragColor = vec4( finalFog, 1.0 );
     }
