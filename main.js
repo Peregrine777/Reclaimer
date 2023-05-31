@@ -25,6 +25,7 @@
     let ratio = window.innerWidth/window.innerHeight;
     let frame = 0;
     let reclaimFrame = 0;
+    let isReclaiming = false;
     let gui = new GUI();
 
 
@@ -223,11 +224,14 @@
     let numberOfBuildingTargets = 3;
 
       function startReclamation(){
-        reclaimFrame = frame;
+        isReclaiming = true;
+        reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
         let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
         //let blockTargets = [];
         //let vines = [];
-
+        console.log(reclaimerProperties.frame);
+        console.log(reclaimerProperties.reclaimFrame);
+        reclaimerProperties.reclaimFrame = reclaimFrame;
         buildingTargets.forEach(building => {
           //console.log(building);
           building.colourDebug();
@@ -319,8 +323,12 @@
   let MyUpdateLoop = (t) =>
   {
     //call the render with the scene and the camera
-    frame++;
-
+    reclaimerProperties.frame += 0.01;
+    if (isReclaiming == true){
+      reclaimerProperties.reclaimFrame += 0.01;
+    }
+    frame += 0.01;
+ 
     TWEEN.update(t);
 
     
