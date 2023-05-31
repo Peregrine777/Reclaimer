@@ -5,7 +5,6 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 
-
 export class City extends THREE.Object3D {
     size = 0;
     citySize = 0;
@@ -19,9 +18,20 @@ export class City extends THREE.Object3D {
         this.size = size;
         this.buildings = [];
         this.reclaimerProperties = reclaimerProperties;
+        const loadManager = new THREE.LoadingManager();
         this.models = [];
-        this.defaults();
+        this.house;
+        this.preloadMeshes(loadManager);
 
+        loadManager.onLoad = () => {
+            this.createCity(this.parent);
+        }
+
+
+    }
+
+    createCity(parent){
+        
         //Center of the map
         this.centerX = Math.floor(this.citySize/2);
         this.centerZ = Math.floor(this.citySize/2);
@@ -69,8 +79,7 @@ export class City extends THREE.Object3D {
         }
     }
 
-
-    defaults(){
+    preloadMeshes(loadManager){
         // var materialsArray = [];
 
         var material_house = new THREE.MeshPhysicalMaterial();
@@ -92,7 +101,7 @@ export class City extends THREE.Object3D {
         let materialIndex = Math.min(this.height, 3)
         // this.material = this.materialsArray[materialIndex];
 
-        let objLoader = new OBJLoader();
+        let objLoader = new OBJLoader(loadManager);
         // let material = this.material;
         let house = new THREE.Object3D();
         let apart = new THREE.Object3D();
@@ -104,6 +113,8 @@ export class City extends THREE.Object3D {
         //     sky.add(model.scene);
         // });
         
+        
+
         objLoader.load('assets/Objects/Buildings/house1obj.obj', function ( object ){
             object.traverse( function ( child ) {
                 if ( child instanceof THREE.Mesh ) {
@@ -139,9 +150,11 @@ export class City extends THREE.Object3D {
             sky.add(object);
           } );
 
+        this.house = house;
         this.models.push(house);
         this.models.push(apart);
         this.models.push(sky);
+        
     }
 
 

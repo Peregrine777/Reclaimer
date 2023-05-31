@@ -21,6 +21,7 @@ export class BuildingBlock extends THREE.Object3D   {
         this.reclaimerProperties = reclaimerProperties;
         this.physicsworld = reclaimerProperties.physicsworld;
         this.models = models;
+        parent.add(this.models[1])
         //this.defaults();
     }
 
@@ -123,19 +124,19 @@ export class BuildingBlock extends THREE.Object3D   {
             // file +='park1.obj';
         }
         if(this.height == 1){
-            model =  this.models[0]; 
+            model =  model.copy(this.models[0]); 
             this.blockMesh = model;
         } 
         else if( this.height == 2){
-            this.blockMesh = this.models[1];
+            this.blockMesh = model.copy(this.models[1]);
         } 
         else
         {
-            this.blockMesh = this.models[2];
+            this.blockMesh = model.copy(this.models[2]);
         }
 
         //this.loadModel();
-        console.log(this.blockMesh);
+        //console.log(this.blockMesh);
         this.parent.add(this.blockMesh);
     }
 
