@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { Fragment } from './Fragment.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { BuildingShader } from './Shaders/BuildingMaterial.js';
 
 
 export class BuildingBlock extends THREE.Object3D   {
@@ -26,10 +27,29 @@ export class BuildingBlock extends THREE.Object3D   {
     }
 
     defaults(){
-        var material_house = new THREE.MeshPhysicalMaterial();
-        var material_apartment = new THREE.MeshPhysicalMaterial();
-        var material_skyscraper = new THREE.MeshPhysicalMaterial();
-        var material_debug = new THREE.MeshPhysicalMaterial();
+        let skyscraperColor = new THREE.Color( 0.4, 0.4, 0.65 );
+        let apartmentColor = new THREE.Color( 0xd67229 );
+        let houseColor = new THREE.Color( 0xfddb53 );
+
+        let skyScraperMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide});
+        skyScraperMaterial.uniforms = {
+            lightDirection: {value: this.reclaimerProperties.sunDirection},
+            baseColor: {value: skyscraperColor},
+        };
+        skyScraperMaterial.vertexShader = BuildingShader.vertexShader;
+        skyScraperMaterial.fragmentShader = BuildingShader.fragmentShader;
+
+        let apartmentMaterial = skyScraperMaterial.clone();
+        apartmentMaterial.uniforms.baseColor.value = apartmentColor;
+        let houseMaterial = skyScraperMaterial.clone();
+        houseMaterial.uniforms.baseColor.value = houseColor;
+        let debugMaterial = skyScraperMaterial.clone();
+        debugMaterial.uniforms.baseColor.value = new THREE.Color(1, 1, 0);
+
+        var material_house = houseMaterial;
+        var material_apartment = apartmentMaterial;
+        var material_skyscraper = skyScraperMaterial;
+        var material_debug = debugMaterial;
 
         material_house.color =  new THREE.Color( 0xfddb53 );
         material_apartment.color =  new THREE.Color( 0xd67229 );
