@@ -30,6 +30,7 @@ export const LandShader = {
     out vec3 vViewDirection;
     out vec3 vViewNormal;
     out vec3 vReflect;
+    out vec3 viewZ;
 
 
     void main() {
@@ -38,6 +39,8 @@ export const LandShader = {
         lightVec = normalize(viewMatrix * vec4(lightDirection, 0.0)).xyz;
         upVec    = normalize(viewMatrix * vec4(0., 1., 0.0, 0.0)).xyz;
         gl_Position = projectionMatrix * view_position;
+
+        viewZ = gl_Position.xyz;
 
         vNormal = normalize(normalMatrix * normal);
         vNorm = ((normal) * -1.0);
@@ -75,6 +78,7 @@ export const LandShader = {
     in vec3 upVec;
     in vec2 vUV;
     in vec3 vReflect;
+    in vec3 viewZ;
     
 
     float rand (vec2 st) {
@@ -111,6 +115,7 @@ export const LandShader = {
         vec3 cliffColor = vec3(0.3, 0.3, 0.3);
         vec3 flatColor = vec3(0.7, 0.75, 0.0);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
+        vec3 fogColor = vec3(0.6, 0.62, 0.85);
 
         //Height based colour
         float hValue = (vPosition.y - hmin) / (hmax - hmin);   
@@ -185,19 +190,18 @@ export const LandShader = {
         fresnel = clamp(pow(1.0 - fresnel, 7.), 0.0, 1.0);
         vec3 fresnelLight = fresnel * skyLightColor;
 
-        //final colour
+        //Combine lighting passes
         vec3 directLight = landColor * directLightColor;
         vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
-
         vec3 skyLight = landColor * skyLightColor;
         vec3 ambient = landColor* 0.1;
-
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
-
-
-        
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
-        gl_FragColor = vec4( c, 1.0 );
+        
+        //Fog
+        float fog = viewZ.z/5000.;    
+        vec3 finalFog = mix(c, fogColor, fog);
+        gl_FragColor = vec4( finalFog, 1.0 );
     }
     `
 }

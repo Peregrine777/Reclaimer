@@ -32,6 +32,7 @@ export const BuildingShader = {
     out vec3 vViewDirection;
     out vec3 vViewNormal;
     out vec3 vReflect;
+    out vec3 viewZ;
 
 
     void main() {
@@ -43,7 +44,7 @@ export const BuildingShader = {
         upVec    = normalize(viewMatrix * vec4(0., 1., 0.0, 0.0)).xyz;
         gl_Position = projectionMatrix * view_position;
 
-        float viewZ = -gl_Position.x;
+        viewZ = gl_Position.xyz;
 
         vNormal = normalize(normalMatrix * normal);
         vNorm = normal;
@@ -79,6 +80,7 @@ export const BuildingShader = {
     in vec3 upVec;
     in vec2 vUv;
     in vec3 vReflect;
+    in vec3 viewZ;
     
 
     float rand (vec2 st) {
@@ -128,14 +130,16 @@ export const BuildingShader = {
 
 
     void main() {
-        float hmax = 5.;
+        float hmax = 0.01;
         float hmin = -10.0;
 
         vec3 lightColor = vec3(0.8, 0.76, 0.50);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
+        vec3 fogColor = vec3(0.6, 0.62, 0.85);
 
-        hmin = clamp(hmin + frame,-5.,10.);
-        hmax = hmax + frame;
+        hmin = clamp(hmin + frame,-10.,10.);
+        hmax = clamp(hmax + frame,0.0,10.02);
+        
 
         //Height based colour
         float hValue = (vPosition.y - hmin) / (hmax - hmin);   
@@ -163,7 +167,7 @@ export const BuildingShader = {
             aLight=(step(-0.0,aLight)*0.5 - 0.1 ) + step(0.81, aLight);
             aLight=clamp(aLight,0.,1.0);
 
-        //final lights
+        //final Light Coloring
         vec3 directLightColor = lightColor * dProd;
         vec3 skyLightColor = skyColor * aLight;
 
@@ -172,18 +176,18 @@ export const BuildingShader = {
         fresnel = clamp(pow(1.0 - fresnel, 7.), 0.0, 1.0);
         vec3 fresnelLight = fresnel * skyLightColor;
 
-        //final colour
+        //Combine lighting passes
         vec3 directLight = base * directLightColor;
         vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
-
         vec3 skyLight = base * skyLightColor;
         vec3 ambient = base * 0.1;
-
         vec3 finalLighting = mix(directFresnel, skyLight, 0.1);
-
-        
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
-        gl_FragColor = vec4( c, 1.0 );
+
+        //Fog
+        float fog = viewZ.z/5000.;
+        vec3 finalFog = mix(c, fogColor, fog);
+        gl_FragColor = vec4( finalFog, 1.0 );
     }
     `
 }
