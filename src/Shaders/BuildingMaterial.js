@@ -72,6 +72,7 @@ export const BuildingShader = {
     uniform vec3 roofColor;
 
 
+
     #define PI 3.14159265358979323846
 
     in vec3 vNormal;
@@ -141,7 +142,6 @@ export const BuildingShader = {
         vec3 lightColor = vec3(0.8, 0.76, 0.50);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
         vec3 fogColor = vec3(0.6, 0.62, 0.85);
-        // vec3 roofColor = vec3(0.6, 0.2, 0.2);
 
         hmin = clamp(hmin + frame,-10.,10.);
         hmax = clamp(hmax + frame,0.0,10.02);
@@ -155,7 +155,11 @@ export const BuildingShader = {
         vec3 base = baseColor * hValue;
         float roof = (1. - step(0.5,vModelMatrix.g));
         base = mix(base, vec3(0.2,0.2,0.2), (1.-hValue) );
-        base = mix(base, roofColor, roof); 
+
+        // If the building is a house add colouring to the roof
+        if(type == 1){
+            base = mix(base, roofColor, roof); 
+        }
 
         // vec3 base = vec3(frame, frame, frame);
 
