@@ -32,9 +32,11 @@ export const BuildingShader = {
     out vec3 vViewNormal;
     out vec3 vReflect;
     out vec3 viewZ;
+    out vec3 vModelMatrix;
 
 
     void main() {
+        vModelMatrix = modelMatrix[3].xyz - position;
         vec4 view_position = modelViewMatrix * vec4(position, 1.0);
 
         vEyePosition = view_position.xyz;
@@ -85,6 +87,7 @@ export const BuildingShader = {
     in vec2 vUv;
     in vec3 vReflect;
     in vec3 viewZ;
+    in vec3 vModelMatrix;
     
 
     float rand (vec2 st) {
@@ -140,6 +143,7 @@ export const BuildingShader = {
         vec3 lightColor = vec3(0.8, 0.76, 0.50);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
         vec3 fogColor = vec3(0.6, 0.62, 0.85);
+        vec3 roofColor = vec3(0.6, 0.2, 0.2);
 
         vec3 shadowColor = vec3(0, 0, 0);
         float shadowPower = 0.5;
@@ -154,7 +158,9 @@ export const BuildingShader = {
         hValue = clamp(hValue, 0.0, 1.0);
         // vec3 base = baseColor + texture2D(textureMap, vUv).rgb;
         vec3 base = baseColor * hValue;
+        float roof = (1. - step(0.5,vModelMatrix.g));
         base = mix(base, vec3(0.2,0.2,0.2), (1.-hValue) );
+        base = mix(base, roofColor, roof); 
 
         // vec3 base = vec3(frame, frame, frame);
 
@@ -197,7 +203,7 @@ export const BuildingShader = {
         c = mix(c, shadowColor, (1.0 - getShadowMask() ) * shadowPower);
 
         vec3 finalFog = mix(c, fogColor, fog);
-        gl_FragColor = vec4( finalFog, 1.0 );
+        gl_FragColor = vec4(finalFog ,  1.0 );
     }
     `
 }
