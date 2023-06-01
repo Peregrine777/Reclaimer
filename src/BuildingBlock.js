@@ -39,7 +39,7 @@ export class BuildingBlock extends THREE.Object3D   {
     //debug function
     colourDebug(){
         //console.log("colour block debug");
-        this.material = this.materialsArray[4];
+        this.material = this.reclaimerProperties.materialsArray[4];
         this.blockMesh.material = this.material;
     }
 
