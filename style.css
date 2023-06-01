@@ -1,0 +1,66 @@
+body {
+    font-family: Monospace;
+    background-color: #000;
+    color: #fff;
+    margin: 0px;
+    overflow: hidden;
+}
+#info {
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    text-align: center;
+}
+#button{
+    position: absolute;
+    top: 60px;
+    width: 100%;
+    text-align: center;
+}
+#render{
+    position: inline-block;
+    top: 0px;
+    width: 100%;
+    text-align: center;
+}
+#heightgrd{
+position: absolute;
+left:5px;
+top:90%;
+width: 25px;
+height: 50px;
+z-index: 1;
+visibility: visible;
+}
+#container{
+    background-color: #000;
+    position: absolute;
+    left:55px;
+    bottom: 10px;
+    width: 100px;
+    height: 100px;
+    z-index: 1;
+    visibility: visible;
+    opacity: 80%;
+    transition: width 0.5s, height 0.5s, opacity 0.5s;
+    }
+    #container:hover{
+        opacity: 100%;
+        width:250px;
+        height: 250px;
+
+    }
+    #contTitle{
+        background-color: #00386c;
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        text-align: center;
+    }
+    #fragCanvas{
+
+        position: block;
+        top: 0px;
+        width: 100%;
+        text-align: center;
+    }
