@@ -8,6 +8,7 @@ export const LandShader = {
         lightDirection: {value: new Vector3(1.0, 1.0, 1.0)},
         lightColor: {value: new Vector3(0.8, 0.76, 0.50)},
         gradientMap: {value: null},
+        size: {value: 20.0},
         hmax: {value: null},
         hmin: {value: null},
         envMap: {value: null},
@@ -61,6 +62,7 @@ export const LandShader = {
     uniform vec3 lightColor;
     uniform sampler2D gradientMap;
     uniform samplerCube envMap;
+    uniform float size;
 
     uniform float vpw; // Width, in pixels
     uniform float vph; // Height, in pixels
@@ -134,8 +136,9 @@ export const LandShader = {
         //Road Color
         //Building Location/Height
         
-
-        float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0))*3.;
+        float citySize = size/9.;
+        float distCenter = 1./distance(vPosition.xz, vec2(0.0, 0.0));
+        distCenter = step(0.5,distCenter * citySize);
         float angle = (abs(atan(vPosition.x, vPosition.z)))/(2. *PI);
         //Angle Placeholder
         float distMod = angle * 0.01;  
@@ -145,11 +148,9 @@ export const LandShader = {
         float vertHeight = (1./distance(vPosition.y, 0.0))*02.3;
 
         vec3 buildable = vec3(negHeight * distCenter * distCutoff, vertHeight * distCenter * negHeight * distCutoff, 0.0);
-        float lX = vPosition.x;
-        float lZ = vPosition.z;
         float scaleFactor = 00001.0;
-        float offX = (scaleFactor * offset[0]) + lX;
-        float offY = (scaleFactor * offset[1]) + lZ;
+        float offX = (scaleFactor * offset[0]) + vPosition.x;
+        float offY = (scaleFactor * offset[1]) + vPosition.z;
         float roadCol = 0.0;
         if (int(mod(offX, pitch[0])) == 0 ||
         int(mod(offY, pitch[1])) == 0) {
