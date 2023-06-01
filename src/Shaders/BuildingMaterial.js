@@ -216,8 +216,8 @@ export const BuildingShader = {
         vec3 fogColor = vec3(0.6, 0.62, 0.85);
         vec3 apartmentWindowColor = vec3(0.2, 0.2, 0.5);
         vec3 windowColor = vec3(0.7, 0.7, 0.4);
-        vec3 mud1  = vec3(0.3, 0.3, 0.35);
-        vec3 mud2 = vec3(0.06, 0.06, 0.05);
+        vec3 mud1  = vec3(0.2, 0.5, 0.1);
+        vec3 mud2 = vec3(0.06, 0.12, 0.05);
 
 
 

@@ -112,9 +112,9 @@ export class City extends THREE.Object3D {
 
     gaussianHeight(size,density, dist){
         let gaussR = gaussian(
-                    dist,
-                    Math.min((size*size*density)/25.5,10),
-                    size/40);
+                    dist*2,
+                    Math.min((size*size*density)/125.5,10),
+                    size/6);
           return gaussR;
     }
 
