@@ -28,6 +28,7 @@ export class BuildingBlock extends THREE.Object3D   {
 
     defaults(){
         let skyscraperColor = new THREE.Color( 0.2, 0.25, 0.5 );
+        let roofColor = new THREE.Color( 0.7, 0.05, 0.05 );
         let skyscraperTexture = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_basecolor.jpg' );
         let skyscraperNormal = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_normal.jpg' );
         let apartmentColor = new THREE.Color( 0xd67229 );
@@ -44,6 +45,8 @@ export class BuildingBlock extends THREE.Object3D   {
             textureMap: {value: skyscraperTexture},
             normalMap: {value: skyscraperNormal},
             frame: {value: this.reclaimerProperties.scene.frame},
+            type: {value: 3},
+            roofColor: {value: roofColor},
         };
 
 
@@ -55,9 +58,11 @@ export class BuildingBlock extends THREE.Object3D   {
         let apartmentMaterial = skyScraperMaterial.clone();
         apartmentMaterial.uniforms.baseColor.value = apartmentColor;
         apartmentMaterial.uniforms.textureMap.value = apartmentTexture;
+        apartmentMaterial.uniforms.type.value = 2;
         let houseMaterial = skyScraperMaterial.clone();
         houseMaterial.uniforms.baseColor.value = houseColor;
         houseMaterial.uniforms.textureMap.value = null;
+        houseMaterial.uniforms.type.value = 1;
         let debugMaterial = skyScraperMaterial.clone();
         debugMaterial.uniforms.baseColor.value = new THREE.Color(1, 1, 0);
 
