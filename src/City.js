@@ -90,30 +90,6 @@ export class City extends THREE.Object3D {
         return building;
     }
 
-    // getRandomTallBuilding(radius){
-    //     //TODO: We have a list of buildings, use that instead of x,y 
-    //     // let b= this.buildings[Math.floor(Math.random() * this.buildings.length)];
-    //     let loops = 0;
-
-    //     let b = this.buildings[randInt(0, this.buildings.length)]
-    //     console.log(b);
-
-    //     // generate random coordinates until a tall building is found
-    //     while(b.height < 2){
-            
-    //         // after looping 100 times
-    //         if(loops > 100){
-    //             console.log("No tall buildings found")
-    //             // there is likely no tall buildings to find
-    //             // exit loop
-    //             break;
-    //         }
-    //         loops++;
-    //     }
-
-    //     return b;
-    // }
-
     getBuildingsSurrounding(i, j){
         let surrounds = [
             this.getBuilding(i, j + 2),
@@ -148,9 +124,6 @@ export class City extends THREE.Object3D {
     }
 }
 
-  //////////////
-  // Gaussian //
-  //////////////
   function gaussian(x, a, c) {
     return a * Math.exp(-Math.pow((x) / c, 2));
 }

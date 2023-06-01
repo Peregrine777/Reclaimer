@@ -57,8 +57,6 @@
     // inset_scene.add(orthoCam);
     
     // renderer2.render(inset_scene, orthoCam)
-
-  
   
     //camera
     let camera = new THREE.PerspectiveCamera(55,ratio,0.1,5000);
@@ -90,8 +88,6 @@
       return groundBody;
     }
     physicsworld.addBody(createGroundBody());
-
-    //const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
 
   /////////////
   // Objects //
@@ -173,8 +169,6 @@
   let debugMaterial = skyScraperMaterial.clone();
     debugMaterial.uniforms.baseColor.value = new THREE.Color(1, 1, 0);
 
-  // material_skyscraper.needsUpdate = true;
-
   reclaimerProperties.materialsArray.push(null);
   reclaimerProperties.materialsArray.push(houseMaterial);
   reclaimerProperties.materialsArray.push(apartmentMaterial);
@@ -187,8 +181,6 @@
   ///////////////////
 
   let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
-  // city.addBuildings(cityGenPoint);
-
 
   ////////////
   //   GUI  //
@@ -255,17 +247,7 @@
     }
     else { heightGradient.style.visibility = "visible";}
   };
-  
 
-
-  /////////////
-  // Lights //
-  ///////////
-
-      //ambient Lighting
-      let skyColour = new THREE.Color( 1, 1, 1 )
-      const ambientLight = new THREE.AmbientLight(skyColour, 0.2);
-      //scene.add(ambientLight);
 
   /////////////////////
   // SceneFunctions //
@@ -273,75 +255,53 @@
 
 
 
-    let numberOfBuildingTargets = city.getBuildingsCount();
-    console.log(numberOfBuildingTargets);
+  let numberOfBuildingTargets = city.getBuildingsCount();
+  console.log(numberOfBuildingTargets);
 
-    function startReclamation(){
-      if (isReclaiming == false){
-        isReclaiming = true;
-        //console.log(reclaimerProperties.frame);
-        //console.log(reclaimerProperties.reclaimFrame);
-        reclaimerProperties.reclaimFrame = reclaimFrame;
-      }
-      
-      reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
-
-
-      let buildingTargets = city.getRandomBuildings(numberOfBuildingTargets);
-
-      //let vines = [];
-      let timeout = 0;
-
-      buildingTargets.forEach(building => {
-
-        setTimeout(() => {
-        //building.colourDebug();
-        building.unfreezeBuilding();
-
-        let block = building.getRandomBlock();
-        block.shatterBlock();
-        //blockTargets.push(block);
-
-        let vine = new Vine();
-        scene.add(vine);
-        let position = building.getBlock(0).position;
-        //position.x -= sceneVals.size / 2;
-        //position.z -= sceneVals.size / 2;
-        vine.setPosition(position);
-          vine.growVine(building.height / 2);
-        },
-        timeout);
-
-        timeout += 500;
-        //vines.push(vine);
-      });
-
-      //console.log(vines);
+  function startReclamation(){
+    if (isReclaiming == false){
+      isReclaiming = true;
+      reclaimerProperties.reclaimFrame = reclaimFrame;
     }
-
-      //city.pickRandomBuildings
-      //getBuildingsSurrounding
-      //if !building.overgrown
+    
+    reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
 
 
-      function CreateScene()
-      {   
+    let buildingTargets = city.getRandomBuildings(numberOfBuildingTargets);
 
-      }
-      
-      CreateScene();
-  
+    let timeout = 0;
+
+    buildingTargets.forEach(building => {
+
+      setTimeout(() => {
+      building.unfreezeBuilding();
+
+      let block = building.getRandomBlock();
+      block.shatterBlock();
+
+      let vine = new Vine();
+      scene.add(vine);
+      let position = building.getBlock(0).position;
+      //position.x -= sceneVals.size / 2;
+      //position.z -= sceneVals.size / 2;
+      vine.setPosition(position);
+        vine.growVine(building.height / 2);
+      },
+      timeout);
+
+      timeout += 500;
+      //vines.push(vine);
+    });
+
+    //console.log(vines);
+  }
+
   //////////////
   // CONTROLS //
   //////////////
   
-  // move mouse and: left   click to rotate,
-  //                 middle click to zoom,
-  //                 right  click to pan
   // add the new control and link to the current camera to transform its position
-  
   let controls = new OrbitControls( camera, renderer.domElement );
-  //let controls = new FirstPersonControls(camera, renderer.domElement);
 
   function redrawScene(){
 
@@ -359,12 +319,6 @@
 
     new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
     city = new City(cityGenPoint, sceneVals.size, reclaimerProperties)
-
-    // if (sceneVals.sunHelper == true){
-    //   sunHelper.visible = true;
-    // }
-    // else {sunHelper.visible = false}
-    CreateScene();
   }
  
   function updateEnvironment(){
@@ -375,7 +329,6 @@
   //final update loop
   let MyUpdateLoop = (t) =>
   {
-    //call the render with the scene and the camera
     reclaimerProperties.frame += 0.01;
     if (isReclaiming == true){
       reclaimerProperties.reclaimFrame += 0.01;
@@ -389,7 +342,6 @@
       physicsworld.fixedStep();
     }
     
-    //scene.add(sea);
     //cannonDebugger.update();
     environment.update();
 

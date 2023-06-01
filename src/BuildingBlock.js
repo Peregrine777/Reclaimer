@@ -10,12 +10,10 @@ export class BuildingBlock extends THREE.Object3D   {
     shatterArray;
     materialsArray;
       
-    constructor(parent, height, buildingID, reclaimerProperties){
+    constructor(parent, height, reclaimerProperties){
         super();
         this.parent = parent;
         this.height = height;
-        this.mass = 0; 
-        this.buildingID = buildingID;
         this.blockBody;
         this.blockMesh;
         this.isShattered = false;
@@ -38,7 +36,6 @@ export class BuildingBlock extends THREE.Object3D   {
 
     //debug function
     colourDebug(){
-        //console.log("colour block debug");
         this.material = this.reclaimerProperties.materialsArray[4];
         this.blockMesh.material = this.material;
     }
@@ -57,15 +54,7 @@ export class BuildingBlock extends THREE.Object3D   {
 
         // ON COLLISION
         this.blockBody.addEventListener('collide', function(e){
-            //console.log("COLLIDE");
-            
-            // check if colliding with blocks from a different building
-            // console.log(e.body.buildingID);
-            // console.log(e.target.buildingID);
-
-            //if( e.body.buildingID != e.target.buildingID){
                 e.body.collided = true;
-            //}
         });
 
         this.loadModel()
@@ -97,13 +86,13 @@ export class BuildingBlock extends THREE.Object3D   {
                 if ( child instanceof THREE.Mesh ) {
                     child.material = material;
                     child.castShadow = true;
-                    child.recieveShadow = true;
-                    // tempMesh = child;
-                  
+                    child.recieveShadow = true;            
                 }
             } );
+
             model.add( object );
-          } );
+          });
+          
           this.blockMesh = model;
 
     }
@@ -127,9 +116,7 @@ export class BuildingBlock extends THREE.Object3D   {
         objLoader.load('assets/Objects/fracturedCube-cubes2.obj', function ( object ){
           object.traverse( function ( child ) {
               if ( child instanceof THREE.Mesh ) {
-                //console.log(child);
                 child.material = material;
-                //meshes.push(child);
                 var position = new THREE.Vector3();
 
                 // get coordinates
@@ -163,7 +150,6 @@ export class BuildingBlock extends THREE.Object3D   {
                 element.unfreezeMesh();
             });
         }
-        
     }
 
     freezeBlock(){
@@ -193,8 +179,6 @@ export class BuildingBlock extends THREE.Object3D   {
         }
 
         this.material.uniforms.frame.value = this.reclaimerProperties.reclaimFrame;
-        
+    
     }
-
-
 }

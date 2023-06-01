@@ -34,9 +34,8 @@ export class Building extends THREE.Object3D{
         let positions = this.reclaimerProperties.land.children[0].geometry.attributes.position;
         let xs = new Float32Array(positions.count);
         let ys = new Float32Array(positions.count);
-        let zs = new Float32Array(positions.count);
-
         let zVal = 0.2;
+
          for (let i = 0; i < positions.count; i++) {
             let found = false;
                 xs[i] = Math.floor(positions.getX(i)) == x - size/2;
@@ -51,12 +50,7 @@ export class Building extends THREE.Object3D{
             }
          }
         let z = zVal + 0.2; 
-        // this.position.setZ(15)
 
-        //create unique id for each building based on its location
-        this.buildingID = x * 1000 + y;
-
-        //This for loop should just take height of building (in blocks) not z
         for(var i = 0; i < this.height; i++){
  
             var block = new BuildingBlock(this.parent, this.height, this.buildingID, this.reclaimerProperties)
@@ -74,7 +68,6 @@ export class Building extends THREE.Object3D{
     }
 
     getPosition(){
-        //console.log("building pos" + this.position.x + '' + this.position.z);
         return this.position;
     }
 
@@ -90,7 +83,6 @@ export class Building extends THREE.Object3D{
         this.type = type;
     }
 
-    // get a block at height 
     getBlock(height){
         if(height <= this.height){
             return this.buildingBlocks[height];

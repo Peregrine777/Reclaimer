@@ -32,7 +32,6 @@ export class Vine extends THREE.Object3D{
         this.setScaleUniform(this.initialScale);
         this.add(this.mesh);
         this.setScaleVertical(0.1);
-        //this.setScaleHorizontal()
     }
 
     setScaleUniform(scale){
@@ -41,7 +40,6 @@ export class Vine extends THREE.Object3D{
 
     setScaleVertical(scale){
         scale *= this.initialScale;
-        //console.log(scale);
         let matrix = new THREE.Matrix4().makeScale(1, scale, 1);
         this.applyMatrix4(matrix);
     }
@@ -78,18 +76,8 @@ export class Vine extends THREE.Object3D{
         .easing(TWEEN.Easing.Cubic.InOut);
         //.onComplete(block.shatterBlock());
     
-        const verticalShrink = new TWEEN.Tween({y : targetHeight / 2})
-        .to({y : 0.5}, 3000)
-        .onUpdate((scale) => {
-          this.scale.y = this.initialScale * scale.y;
-        })
-        .delay(500)
-        .easing(TWEEN.Easing.Cubic.InOut);
-    
         verticalGrow.chain(horizontalShrink);
-        //horizontalShrink.chain(verticalShrink);
     
         verticalGrow.start();
-        //console.log("grow vine" + this.position.x);
       }
 }
