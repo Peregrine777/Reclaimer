@@ -69,6 +69,8 @@ export const BuildingShader = {
     uniform sampler2D textureMap;
     uniform sampler2D normalMap;
     uniform float frame;
+    uniform vec3 roofColor;
+
 
     #define PI 3.14159265358979323846
 
@@ -139,7 +141,7 @@ export const BuildingShader = {
         vec3 lightColor = vec3(0.8, 0.76, 0.50);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
         vec3 fogColor = vec3(0.6, 0.62, 0.85);
-        vec3 roofColor = vec3(0.6, 0.2, 0.2);
+        // vec3 roofColor = vec3(0.6, 0.2, 0.2);
 
         hmin = clamp(hmin + frame,-10.,10.);
         hmax = clamp(hmax + frame,0.0,10.02);
