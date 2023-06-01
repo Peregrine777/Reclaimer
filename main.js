@@ -325,10 +325,10 @@
           isReclaiming = true;
           console.log(reclaimerProperties.frame);
           console.log(reclaimerProperties.reclaimFrame);
-          reclaimerProperties.reclaimFrame = reclaimFrame;
+          reclaimerProperties.reclaimFrame = 0.0;
         }
         
-        reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
+
         let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
         //let blockTargets = [];
         //let vines = [];

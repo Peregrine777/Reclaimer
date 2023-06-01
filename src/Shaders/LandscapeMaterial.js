@@ -89,6 +89,12 @@ export const LandShader = {
                     * 4.5453123);
     }
 
+    float random (vec2 st) {
+        return fract(sin(dot(st.xy,
+                             vec2(12.9898,78.233)))*
+            43758.5453123);
+    }
+
     float noise(vec2 p, float freq ){
         float unit = 1080.0/freq;
         vec2 ij = floor(p/unit);
@@ -146,6 +152,13 @@ export const LandShader = {
         float distCutoff = step(0.05, distCenter - distMod);
         float negHeight = clamp(step(-8.,vPosition.y), -1.,10.);
         float vertHeight = (1./distance(vPosition.y, 0.0))*02.3;
+
+        vec2 st = vPosition.xz*0.1 + offset;
+        vec2 ipos = floor(st);  // get the integer coords
+        vec2 fpos = fract(st);
+
+        vec3 mosaicCol = step(0.02,vec3(random( ipos )) * (distCenter));
+        
 
         vec3 buildable = vec3(negHeight * distCenter * distCutoff, vertHeight * distCenter * negHeight * distCutoff, 0.0);
         float scaleFactor = 00001.0;
