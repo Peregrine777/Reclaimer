@@ -261,10 +261,9 @@
   function startReclamation(){
     if (isReclaiming == false){
       isReclaiming = true;
-      reclaimerProperties.reclaimFrame = reclaimFrame;
+      reclaimerProperties.reclaimFrame += 0.01;
     }
     
-    reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
 
 
     let buildingTargets = city.getRandomBuildings(numberOfBuildingTargets);
