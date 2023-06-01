@@ -25,6 +25,7 @@
     let ratio = window.innerWidth/window.innerHeight;
     let frame = 0;
     let reclaimFrame = 0;
+    let isReclaiming = false;
     let gui = new GUI();
 
 
@@ -149,11 +150,18 @@
   let cityGenPoint = new THREE.Object3D();
   //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
   scene.add(cityGenPoint);
+    
+  let land = new THREE.Object3D();
+  land.name = "land";
+  scene.add(land);
+  new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
+
+  reclaimerProperties.land = land;
 
   let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
   // city.addBuildings(cityGenPoint);
 
-  let land = new THREE.Object3D();
+
 
 
   //City.getBuildingsSurrounding(2,2);
@@ -216,11 +224,19 @@
     let numberOfBuildingTargets = 3;
 
       function startReclamation(){
-        reclaimFrame = frame;
+        if (isReclaiming == false){
+          isReclaiming = true;
+          console.log(reclaimerProperties.frame);
+          console.log(reclaimerProperties.reclaimFrame);
+          reclaimerProperties.reclaimFrame = reclaimFrame;
+        }
+        
+        reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
         let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
         //let blockTargets = [];
         //let vines = [];
 
+        
         buildingTargets.forEach(building => {
           //console.log(building);
           building.colourDebug();
@@ -262,8 +278,7 @@
 
       function CreateScene()
       {   
-        scene.add(land);
-        new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
+
       }
       
       CreateScene();
@@ -313,8 +328,12 @@
   let MyUpdateLoop = (t) =>
   {
     //call the render with the scene and the camera
-    frame++;
-
+    reclaimerProperties.frame += 0.01;
+    if (isReclaiming == true){
+      reclaimerProperties.reclaimFrame += 0.01;
+    }
+    frame += 0.01;
+ 
     TWEEN.update(t);
 
     

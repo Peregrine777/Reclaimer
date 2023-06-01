@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { Fragment } from './Fragment.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { BuildingShader } from './Shaders/BuildingMaterial.js';
 
 
 export class BuildingBlock extends THREE.Object3D   {
@@ -26,15 +27,46 @@ export class BuildingBlock extends THREE.Object3D   {
     }
 
     defaults(){
-        var material_house = new THREE.MeshPhysicalMaterial();
-        var material_apartment = new THREE.MeshPhysicalMaterial();
-        var material_skyscraper = new THREE.MeshPhysicalMaterial();
-        var material_debug = new THREE.MeshPhysicalMaterial();
+        let skyscraperColor = new THREE.Color( 0.2, 0.25, 0.5 );
+        let skyscraperTexture = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_basecolor.jpg' );
+        let skyscraperNormal = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_normal.jpg' );
+        let apartmentColor = new THREE.Color( 0xd67229 );
+        let apartmentTexture = new THREE.TextureLoader().load( 'assets/Textures/Bricks/Brick_Wall_019_basecolor.jpg' );
+        let apartmentNormal = new THREE.TextureLoader().load( 'assets/Textures/Bricks/Brick_Wall_019_normal.jpg' );
+        let houseColor = new THREE.Color( 0xfddb53 );
 
-        material_house.color =  new THREE.Color( 0xfddb53 );
-        material_apartment.color =  new THREE.Color( 0xd67229 );
-        material_skyscraper.color =  new THREE.Color( 0xc5c6d0 );
-        material_debug.color = new THREE.Color(1, 1, 0);
+        let skyScraperMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
+            uniforms: THREE.UniformsUtils.merge( [
+                THREE.UniformsLib[ 'fog' ]] ),});
+        skyScraperMaterial.uniforms = {
+            lightDirection: {value: this.reclaimerProperties.sunDirection},
+            baseColor: {value: skyscraperColor},
+            textureMap: {value: skyscraperTexture},
+            normalMap: {value: skyscraperNormal},
+            frame: {value: this.reclaimerProperties.scene.frame},
+        };
+
+
+        skyScraperMaterial.vertexShader = BuildingShader.vertexShader;
+        skyScraperMaterial.fragmentShader = BuildingShader.fragmentShader;
+
+        skyScraperMaterial.needsUpdate = true;
+
+        let apartmentMaterial = skyScraperMaterial.clone();
+        apartmentMaterial.uniforms.baseColor.value = apartmentColor;
+        apartmentMaterial.uniforms.textureMap.value = apartmentTexture;
+        let houseMaterial = skyScraperMaterial.clone();
+        houseMaterial.uniforms.baseColor.value = houseColor;
+        houseMaterial.uniforms.textureMap.value = null;
+        let debugMaterial = skyScraperMaterial.clone();
+        debugMaterial.uniforms.baseColor.value = new THREE.Color(1, 1, 0);
+
+        var material_house = houseMaterial;
+        var material_apartment = apartmentMaterial;
+        var material_skyscraper = skyScraperMaterial;
+        material_skyscraper.needsUpdate = true;
+        var material_debug = debugMaterial;
+
         // use null value in first element to offset indexes by 1
         this.materialsArray.push(null);
         this.materialsArray.push(material_house);
@@ -42,8 +74,12 @@ export class BuildingBlock extends THREE.Object3D   {
         this.materialsArray.push(material_skyscraper);
         this.materialsArray.push(material_debug);
 
+        
+
         let materialIndex = Math.min(this.height, 3)
         this.material = this.materialsArray[materialIndex];
+
+        this.material.needsUpdate = true;
 
     }
 
@@ -96,10 +132,11 @@ export class BuildingBlock extends THREE.Object3D   {
         if(this.height == 1){
             file +='house1obj.obj';
         } 
-        else{
-            file +='skyScraper1.obj';
+        else if(this.height == 2){
+            file +='apartment1.obj';
 
         }
+        else{file +='skyScraper1.obj';}
 
         // Load in 3D model
         objLoader.load(file, function ( object ){
@@ -209,6 +246,10 @@ export class BuildingBlock extends THREE.Object3D   {
                 element.updateMesh();
             });
         }
+
+        this.material.uniforms.frame.value = this.reclaimerProperties.reclaimFrame;
         
     }
+
+
 }

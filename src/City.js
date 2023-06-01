@@ -22,7 +22,7 @@ export class City extends THREE.Object3D {
         this.centerZ = Math.floor(this.citySize/2);
 
         let noise = 0.1;
-        this.density = 1.0;
+        this.density = 0.70;
 
         // create array of tilemap positions
         this.map = new Array(this.citySize);
