@@ -11,7 +11,7 @@ export class City extends THREE.Object3D {
     constructor (parent, size, reclaimerProperties) {
         super();
         this.parent = parent;
-        this.citySize = size * 6;
+        this.citySize = size * 5;
         this.size = size;
         this.buildings = [];
         this.reclaimerProperties = reclaimerProperties;
