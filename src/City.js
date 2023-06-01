@@ -22,10 +22,11 @@ export class City extends THREE.Object3D {
         this.centerZ = Math.floor(this.citySize/2);
 
         let noise = 0.1;
-        this.density = 0.70;
+        this.density = 1.2;
 
         // create array of tilemap positions
         this.map = new Array(this.citySize);
+
         for (let i = 0; i < this.citySize; i++) {
             this.map[i] = new Array(this.citySize);
             for (let j = 0; j < this.citySize; j++) {
@@ -33,6 +34,7 @@ export class City extends THREE.Object3D {
                 const distX = Math.abs(this.centerX - i);
                 const distY = Math.abs(this.centerZ - j);
                 const dist = Math.sqrt(distX * distX + distY * distY);
+
                 //Randomise building chance based on distance from centre
                 const buildingChance = Math.max(0, 1 - dist / Math.max(this.centerX, this.centerZ)) * this.density;
                 
@@ -54,6 +56,7 @@ export class City extends THREE.Object3D {
                     let building = new Building(parent, this.map[i][j].height, this.reclaimerProperties);
                     this.map[i][j].building = building;
                     this.buildings.push(building);
+
                     // offset buildings to the centre of the terrain
                     building.createBuilding(i,j, this.citySize);
                     building.updateBuilding();
@@ -62,9 +65,23 @@ export class City extends THREE.Object3D {
         }
     }
 
-    getBuilding(i, j){ 
+    getTileFromMap(i, j){ 
         return this.map[i][j].building;
     }
+
+    getRandomBuildings(numberOfBuildings){
+        let b = [];
+        let i = 0;
+        while(i < numberOfBuildings){
+          let building = this.getRandomTallBuilding(this.citySize);
+          // while(buildings.includes(building) && buildings.size != sceneVals.size * sceneVals.size){
+          //   building = City.getRandomTallBuilding(City.cityRadius);
+          // }
+          b.push(building);
+          i++;
+        }
+        return b;
+      }
 
     getRandomTallBuilding(radius){
         //TODO: We have a list of buildings, use that instead of x,y 

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { BuildingBlock } from './BuildingBlock.js';
+import { randInt } from './MathUtils.js';
 
 export class Building extends THREE.Object3D{
     constructor(parent, height, reclaimerProperties){
@@ -9,6 +10,7 @@ export class Building extends THREE.Object3D{
         this.physicsworld = reclaimerProperties.physicsworld;
         this.height = height;
         this.buildingBlocks = [];
+        this.overgrown = false;
 
         const  buildingTypes = {
             0: "Park",
@@ -21,8 +23,8 @@ export class Building extends THREE.Object3D{
     }
 
     colourDebug(){
-        this.buildingBlocks.forEach(element => {
-            element.colourDebug();
+        this.buildingBlocks.forEach(block => {
+            block.colourDebug();
         });
     }
 
@@ -62,6 +64,14 @@ export class Building extends THREE.Object3D{
             block.createBlock(x -size/2,z + i,y -size/2);
             this.buildingBlocks.push(block);
         }
+    }
+
+    getRandomBlock(){
+        return this.getBlock(randInt(0, this.getHeight() - 1));
+      }
+
+    getBlock(index){
+        return this.buildingBlocks[index];
     }
 
     getPosition(){

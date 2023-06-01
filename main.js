@@ -258,51 +258,6 @@
   
 
 
-
-
-
-  //City.getBuildingsSurrounding(2,2);
-
-  ////////////
-  // Vines //
-  ///////////
-
-  function growVine(vine, targetHeight, block){
-
-    const verticalGrow = new TWEEN.Tween({ y: 0.1 })
-    .to({y : targetHeight / 2}, 4000)
-    .onUpdate((scale) => {
-      vine.scale.y = vine.initialScale * scale.y;
-    })
-    .easing(TWEEN.Easing.Elastic.InOut);
-  
-    const horizontalShrink = new TWEEN.Tween({ x: 1 })
-    .to({y : 0.5}, 5000)
-    .onUpdate((scale) => {
-      vine.scale.x = vine.initialScale * scale.x;
-      vine.scale.z = vine.initialScale * scale.x;
-    })
-    .delay(500)
-    .easing(TWEEN.Easing.Cubic.InOut)
-    .onComplete(block.shatterBlock());
-
-    const verticalShrink = new TWEEN.Tween({y : targetHeight / 2})
-    .to({y : 0.5}, 3000)
-    .onUpdate((scale) => {
-      vine.scale.y = vine.initialScale * scale.y;
-    })
-    .delay(500)
-    .easing(TWEEN.Easing.Cubic.InOut);
-
-    verticalGrow.chain(horizontalShrink);
-    //horizontalShrink.chain(verticalShrink);
-
-    verticalGrow.start();
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////
-
-
   /////////////
   // Lights //
   ///////////
@@ -320,58 +275,44 @@
 
     let numberOfBuildingTargets = 3;
 
-      function startReclamation(){
-        if (isReclaiming == false){
-          isReclaiming = true;
-          console.log(reclaimerProperties.frame);
-          console.log(reclaimerProperties.reclaimFrame);
-          reclaimerProperties.reclaimFrame = 0.0;
-        }
-        
-
-        let buildingTargets = pickRandomBuildings(numberOfBuildingTargets);
-        //let blockTargets = [];
-        //let vines = [];
-
-        
-        buildingTargets.forEach(building => {
-          //console.log(building);
-          building.colourDebug();
-          building.unfreezeBuilding();
-
-          let block = pickRandomBlock(building);
-          //block.shatterBlock();
-          //blockTargets.push(block);
-
-          let vine = new Vine();
-          scene.add(vine);
-          let position = building.getPosition();
-          position.x -= sceneVals.size / 2;
-          position.z -= sceneVals.size / 2;
-          vine.setPosition(position);
-          growVine(vine, block.height / 2, block);
-          //vines.push(vine);
-        });
+    function startReclamation(){
+      if (isReclaiming == false){
+        isReclaiming = true;
+        console.log(reclaimerProperties.frame);
+        console.log(reclaimerProperties.reclaimFrame);
+        reclaimerProperties.reclaimFrame = reclaimFrame;
       }
+      
+      reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
+      let buildingTargets = city.getRandomBuildings(numberOfBuildingTargets);
+      //let blockTargets = [];
+      //let vines = [];
 
-      function pickRandomBuildings(numberOfBuildings){
-        let buildings = [];
-        let i = 0;
-        while(i < numberOfBuildings){
-          let building = city.getRandomTallBuilding(city.citySize);
-          // while(buildings.includes(building) && buildings.size != sceneVals.size * sceneVals.size){
-          //   building = City.getRandomTallBuilding(City.cityRadius);
-          // }
-          buildings.push(building);
-          i++;
-        }
-        return buildings;
-      }
+      
+      buildingTargets.forEach(building => {
+        //console.log(building);
+        building.colourDebug();
+        building.unfreezeBuilding();
 
-      function pickRandomBlock(building){
-        let block = building.getBlock(randInt(0, building.getHeight() - 1));
-        return block;
-      }
+        let block = building.getRandomBlock(building);
+        //block.shatterBlock();
+        //blockTargets.push(block);
+
+        let vine = new Vine();
+        scene.add(vine);
+        let position = building.getPosition();
+        position.x -= sceneVals.size / 2;
+        position.z -= sceneVals.size / 2;
+        vine.setPosition(position);
+        vine.growVine(vine, block.height / 2, block);
+        //vines.push(vine);
+      });
+    }
+
+      //city.pickRandomBuildings
+      //getBuildingsSurrounding
+      //if !building.overgrown
+
 
       function CreateScene()
       {   
@@ -466,3 +407,5 @@
 
   //link the resize of the window to the update of the camera
   window.addEventListener( 'resize', MyResize);
+
+
