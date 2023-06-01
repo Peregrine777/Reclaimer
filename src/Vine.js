@@ -54,7 +54,7 @@ export class Vine extends THREE.Object3D{
 
     setPosition(position = new THREE.Vector3(0,0,0)){
         this.position.setX(position.x);
-        this.position.setY(0);
+        this.position.setY(position.y);
         this.position.setZ(position.z);
     }
 
@@ -90,5 +90,6 @@ export class Vine extends THREE.Object3D{
         //horizontalShrink.chain(verticalShrink);
     
         verticalGrow.start();
+        //console.log("grow vine" + this.position.x);
       }
 }

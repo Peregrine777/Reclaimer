@@ -10,7 +10,6 @@ export class Building extends THREE.Object3D{
         this.physicsworld = reclaimerProperties.physicsworld;
         this.height = height;
         this.buildingBlocks = [];
-        this.overgrown = false;
 
         const  buildingTypes = {
             0: "Park",
@@ -75,7 +74,8 @@ export class Building extends THREE.Object3D{
     }
 
     getPosition(){
-        return new THREE.Vector3(this.position.x, 0.2, this.position.y);
+        //console.log("building pos" + this.position.x + '' + this.position.z);
+        return this.position;
     }
 
     getHeight(){

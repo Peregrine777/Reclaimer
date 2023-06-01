@@ -22,7 +22,7 @@ export class City extends THREE.Object3D {
         this.centerZ = Math.floor(this.citySize/2);
 
         let noise = 0.1;
-        this.density = 1.2;
+        this.density = 1.0;
 
         // create array of tilemap positions
         this.map = new Array(this.citySize);
@@ -55,7 +55,9 @@ export class City extends THREE.Object3D {
                     //Make Building and add to list of buildings
                     let building = new Building(parent, this.map[i][j].height, this.reclaimerProperties);
                     this.map[i][j].building = building;
-                    this.buildings.push(building);
+                    if(building.height > 0){
+                        this.buildings.push(building);
+                    }
 
                     // offset buildings to the centre of the terrain
                     building.createBuilding(i,j, this.citySize);
@@ -65,47 +67,52 @@ export class City extends THREE.Object3D {
         }
     }
 
+    getBuildingsCount(){
+        return this.buildings.length;
+    }
+
     getTileFromMap(i, j){ 
         return this.map[i][j].building;
     }
 
     getRandomBuildings(numberOfBuildings){
         let b = [];
-        let i = 0;
-        while(i < numberOfBuildings){
-          let building = this.getRandomTallBuilding(this.citySize);
-          // while(buildings.includes(building) && buildings.size != sceneVals.size * sceneVals.size){
-          //   building = City.getRandomTallBuilding(City.cityRadius);
-          // }
+
+        for(let i = 0; i < numberOfBuildings; i++){
+          let building = this.getRandomBuilding();
           b.push(building);
-          i++;
         }
         return b;
       }
 
-    getRandomTallBuilding(radius){
-        //TODO: We have a list of buildings, use that instead of x,y 
-        // let b= this.buildings[Math.floor(Math.random() * this.buildings.length)];
-        let loops = 0;
-
-        let b = this.buildings[randInt(0, this.buildings.length)]
-        console.log(b);
-
-        // generate random coordinates until a tall building is found
-        while(b.height < 2){
-            
-            // after looping 100 times
-            if(loops > 100){
-                console.log("No tall buildings found")
-                // there is likely no tall buildings to find
-                // exit loop
-                break;
-            }
-            loops++;
-        }
-
-        return b;
+    getRandomBuilding(){
+        let building = this.buildings[randInt(0, this.buildings.length)];
+        return building;
     }
+
+    // getRandomTallBuilding(radius){
+    //     //TODO: We have a list of buildings, use that instead of x,y 
+    //     // let b= this.buildings[Math.floor(Math.random() * this.buildings.length)];
+    //     let loops = 0;
+
+    //     let b = this.buildings[randInt(0, this.buildings.length)]
+    //     console.log(b);
+
+    //     // generate random coordinates until a tall building is found
+    //     while(b.height < 2){
+            
+    //         // after looping 100 times
+    //         if(loops > 100){
+    //             console.log("No tall buildings found")
+    //             // there is likely no tall buildings to find
+    //             // exit loop
+    //             break;
+    //         }
+    //         loops++;
+    //     }
+
+    //     return b;
+    // }
 
     getBuildingsSurrounding(i, j){
         let surrounds = [

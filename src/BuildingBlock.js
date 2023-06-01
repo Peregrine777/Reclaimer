@@ -109,19 +109,12 @@ export class BuildingBlock extends THREE.Object3D   {
     }
 
     shatterBlock(){
-        console.log("shatter block");
         this.physicsworld.removeBody(this.blockBody);
         this.parent.remove(this.blockMesh);
-        console.log("Shatter");
-        // load fractured cube 
-        //console.log(this.position);
         this.shatterArray = this.createCube(this.position.x,this.position.y + 0.5,this.position.z);
-        //console.log(this.shatterArray);
     }
 
     createCube(x, y, z){
-        //console.log("Create Cube");
-
         let dynamicObjects = new THREE.Object3D();
         dynamicObjects.position.set(x,y,z);
         let physicsworld = this.physicsworld;
@@ -129,7 +122,6 @@ export class BuildingBlock extends THREE.Object3D   {
 
         let fragments = [];
 
-        //let meshes = [];
         let objLoader = new OBJLoader();
         
         objLoader.load('assets/Objects/fracturedCube-cubes2.obj', function ( object ){

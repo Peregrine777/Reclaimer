@@ -273,40 +273,50 @@
 
 
 
-    let numberOfBuildingTargets = 3;
+    let numberOfBuildingTargets = city.getBuildingsCount();
+    console.log(numberOfBuildingTargets);
 
     function startReclamation(){
       if (isReclaiming == false){
         isReclaiming = true;
-        console.log(reclaimerProperties.frame);
-        console.log(reclaimerProperties.reclaimFrame);
+        //console.log(reclaimerProperties.frame);
+        //console.log(reclaimerProperties.reclaimFrame);
         reclaimerProperties.reclaimFrame = reclaimFrame;
       }
       
       reclaimerProperties.reclaimFrame = reclaimerProperties.frame;
-      let buildingTargets = city.getRandomBuildings(numberOfBuildingTargets);
-      //let blockTargets = [];
-      //let vines = [];
 
-      
+
+      let buildingTargets = city.getRandomBuildings(numberOfBuildingTargets);
+
+      //let vines = [];
+      let timeout = 0;
+
       buildingTargets.forEach(building => {
-        //console.log(building);
-        building.colourDebug();
+
+        setTimeout(() => {
+        //building.colourDebug();
         building.unfreezeBuilding();
 
-        let block = building.getRandomBlock(building);
-        //block.shatterBlock();
+        let block = building.getRandomBlock();
+        block.shatterBlock();
         //blockTargets.push(block);
 
         let vine = new Vine();
         scene.add(vine);
-        let position = building.getPosition();
-        position.x -= sceneVals.size / 2;
-        position.z -= sceneVals.size / 2;
+        let position = building.getBlock(0).position;
+        //position.x -= sceneVals.size / 2;
+        //position.z -= sceneVals.size / 2;
         vine.setPosition(position);
-        vine.growVine(vine, block.height / 2, block);
+          vine.growVine(building.height / 2);
+        },
+        timeout);
+
+        timeout += 500;
         //vines.push(vine);
       });
+
+      //console.log(vines);
     }
 
       //city.pickRandomBuildings
@@ -348,7 +358,7 @@
     physicsworld.addBody(createGroundBody());
 
     new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
-    let city = new City(cityGenPoint, sceneVals.size, reclaimerProperties)
+    city = new City(cityGenPoint, sceneVals.size, reclaimerProperties)
 
     // if (sceneVals.sunHelper == true){
     //   sunHelper.visible = true;
@@ -373,8 +383,6 @@
     frame += 0.01;
  
     TWEEN.update(t);
-
-    
 
     if(cityVals.isSimulating){
       city.updateBuildings();
@@ -404,8 +412,5 @@
     composer.render();
   };
 
-
   //link the resize of the window to the update of the camera
   window.addEventListener( 'resize', MyResize);
-
-
