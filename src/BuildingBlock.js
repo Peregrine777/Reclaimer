@@ -23,67 +23,15 @@ export class BuildingBlock extends THREE.Object3D   {
         this.shatterArray = [];
         this.reclaimerProperties = reclaimerProperties;
         this.physicsworld = reclaimerProperties.physicsworld;
-        this.defaults();
+        
+        let materialIndex = Math.min(this.height, 3)
+        this.material = this.reclaimerProperties.materialsArray[materialIndex];
+        this.material.needsUpdate = true;
     }
 
     defaults(){
-        let skyscraperColor = new THREE.Color( 0.9, 0.25, 0.5 );
-        let roofColor = new THREE.Color( 0.9, 0.05, 0.05 );
-        let skyscraperTexture = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_basecolor.jpg' );
-        let skyscraperNormal = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_normal.jpg' );
-        let apartmentColor = new THREE.Color( 0xd67229 );
-        let apartmentTexture = new THREE.TextureLoader().load( 'assets/Textures/Bricks/Brick_Wall_019_basecolor.jpg' );
-        let apartmentNormal = new THREE.TextureLoader().load( 'assets/Textures/Bricks/Brick_Wall_019_normal.jpg' );
-        let houseColor = new THREE.Color( 0xfddb53 );
-
-        let skyScraperMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
-            uniforms: THREE.UniformsUtils.merge( [
-                THREE.UniformsLib[ 'fog' ]] ),});
-        skyScraperMaterial.uniforms = {
-            lightDirection: {value: this.reclaimerProperties.sunDirection},
-            baseColor: {value: skyscraperColor},
-            textureMap: {value: skyscraperTexture},
-            normalMap: {value: skyscraperNormal},
-            frame: {value: this.reclaimerProperties.scene.frame},
-            type: {value: 3},
-            roofColor: {value: roofColor},
-        };
-
-
-        skyScraperMaterial.vertexShader = BuildingShader.vertexShader;
-        skyScraperMaterial.fragmentShader = BuildingShader.fragmentShader;
-
-        skyScraperMaterial.needsUpdate = true;
-
-        let apartmentMaterial = skyScraperMaterial.clone();
-        apartmentMaterial.uniforms.baseColor.value = apartmentColor;
-        apartmentMaterial.uniforms.textureMap.value = apartmentTexture;
-        apartmentMaterial.uniforms.type.value = 2;
-        let houseMaterial = skyScraperMaterial.clone();
-        houseMaterial.uniforms.baseColor.value = houseColor;
-        houseMaterial.uniforms.textureMap.value = null;
-        houseMaterial.uniforms.type.value = 1;
-        let debugMaterial = skyScraperMaterial.clone();
-        debugMaterial.uniforms.baseColor.value = new THREE.Color(1, 1, 0);
-
-        var material_house = houseMaterial;
-        var material_apartment = apartmentMaterial;
-        var material_skyscraper = skyScraperMaterial;
-        material_skyscraper.needsUpdate = true;
-        var material_debug = debugMaterial;
-
-        // use null value in first element to offset indexes by 1
-        this.materialsArray.push(null);
-        this.materialsArray.push(material_house);
-        this.materialsArray.push(material_apartment);
-        this.materialsArray.push(material_skyscraper);
-        this.materialsArray.push(material_debug);
-
-        
-
         let materialIndex = Math.min(this.height, 3)
-        this.material = this.materialsArray[materialIndex];
-
+        this.material = this.reclaimerProperties.materialsArray[materialIndex];
         this.material.needsUpdate = true;
 
     }

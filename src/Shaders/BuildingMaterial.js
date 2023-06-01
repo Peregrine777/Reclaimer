@@ -153,7 +153,7 @@ export const BuildingShader = {
         hValue = clamp(hValue, 0.0, 1.0);
         // vec3 base = baseColor + texture2D(textureMap, vUv).rgb;
         vec3 base = baseColor * hValue;
-        float roof = (1. - step(0.5,vModelMatrix.g));
+        float roof = (1. - step(0.4,vModelMatrix.g));
         base = mix(base, vec3(0.2,0.2,0.2), (1.-hValue) );
 
         // If the building is a house add colouring to the roof

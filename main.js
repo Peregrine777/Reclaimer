@@ -15,6 +15,8 @@
     import { City } from './src/City.js';
     import { Environment } from './src/Environment.js';
     import { Vine } from './src/Vine.js';
+    import { BuildingShader } from './src/Shaders/BuildingMaterial.js';
+
     import * as CANNON from 'cannon-es';
     import CannonDebugger from 'cannon-es-debugger';
 
@@ -89,26 +91,111 @@
     }
     physicsworld.addBody(createGroundBody());
 
-
-
     //const cannonDebugger = new CannonDebugger(scene, physicsworld, {});
+
+  /////////////
+  // Objects //
+  ////////////
+
+  let sceneVals = {size: 20, sunHelper: false};
+  let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1,
+    height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+  let cityVals = {density: 1, isSimulating: true};
+  let envVals = {
+    elevation: 2,
+    azimuth: 180
+  };
+  let uiVals = {HeightTexture: true};
+
+  let environment = new Environment(scene, renderer);
+  let sunDirection = environment.sun;
+
+  let materialsArray = [];
+
+  // Scene Properties
+  let reclaimerProperties = {scene, physicsworld, environment, sunDirection, frame, reclaimFrame, materialsArray};
+
+  let cityGenPoint = new THREE.Object3D();
+  //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
+  scene.add(cityGenPoint);
+    
+  let land = new THREE.Object3D();
+  land.name = "land";
+  scene.add(land);
+  new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
+
+  reclaimerProperties.land = land;
+
+
+  //////////////////////
+  // SHADER MATERIALS //
+  //////////////////////
+  let skyscraperColor = new THREE.Color( 0.25, 0.25, 0.5 );
+  let skyscraperTexture = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_basecolor.jpg' );
+  let skyscraperNormal = new THREE.TextureLoader().load( 'assets/Textures/GlassWindow/Glass_Window_003_normal.jpg' );
+  
+  let apartmentColor = new THREE.Color( 0xd67229 );
+  let apartmentTexture = new THREE.TextureLoader().load( 'assets/Textures/Bricks/Brick_Wall_019_basecolor.jpg' );
+  // let apartmentNormal = new THREE.TextureLoader().load( 'assets/Textures/Bricks/Brick_Wall_019_normal.jpg' );
+  let houseColor = new THREE.Color( 0xfddb53 );
+  let roofColor = new THREE.Color( 0.9, 0.05, 0.05 );
+
+
+  let skyScraperMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide,
+      uniforms: THREE.UniformsUtils.merge( [
+          THREE.UniformsLib[ 'fog' ]] ),});
+  skyScraperMaterial.uniforms = {
+      lightDirection: {value: reclaimerProperties.sunDirection},
+      baseColor: {value: skyscraperColor},
+      textureMap: {value: skyscraperTexture},
+      normalMap: {value: skyscraperNormal},
+      frame: {value: reclaimerProperties.scene.frame},
+      type: {value: 3},
+      roofColor: {value: roofColor},
+  };
+
+
+  skyScraperMaterial.vertexShader = BuildingShader.vertexShader;
+  skyScraperMaterial.fragmentShader = BuildingShader.fragmentShader;
+
+  skyScraperMaterial.needsUpdate = true;
+
+  let apartmentMaterial = skyScraperMaterial.clone();
+    apartmentMaterial.uniforms.baseColor.value = apartmentColor;
+    apartmentMaterial.uniforms.textureMap.value = apartmentTexture;
+    apartmentMaterial.uniforms.type.value = 2;
+
+  let houseMaterial = skyScraperMaterial.clone();
+    houseMaterial.uniforms.baseColor.value = houseColor;
+    houseMaterial.uniforms.textureMap.value = null;
+    houseMaterial.uniforms.type.value = 1;
+
+  let debugMaterial = skyScraperMaterial.clone();
+    debugMaterial.uniforms.baseColor.value = new THREE.Color(1, 1, 0);
+
+  // material_skyscraper.needsUpdate = true;
+
+  reclaimerProperties.materialsArray.push(null);
+  reclaimerProperties.materialsArray.push(houseMaterial);
+  reclaimerProperties.materialsArray.push(apartmentMaterial);
+  reclaimerProperties.materialsArray.push(skyScraperMaterial);
+  reclaimerProperties.materialsArray.push(debugMaterial);
+
+
+  ///////////////////
+  // CITY CREATION //
+  ///////////////////
+
+  let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
+  // city.addBuildings(cityGenPoint);
+
 
   ////////////
   //   GUI  //
   ////////////
 
    //Values for the GUI
-    let sceneVals = {size: 20, sunHelper: false};
-    let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1,
-      height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
-    let cityVals = {density: 1, isSimulating: true};
-    let envVals = {
-      elevation: 2,
-      azimuth: 180
-    };
-    let uiVals = {HeightTexture: true};
-  
-  
+
   gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
     
   let folderLand = gui.addFolder("Landscape");
@@ -120,6 +207,38 @@
 
   let folderCity = gui.addFolder("City");
   folderCity.add(cityVals, 'isSimulating', true, false);
+
+  let paletteSky = {
+    SkyScraper: skyscraperColor
+  }
+
+  let paletteApart = {
+    Apartment: apartmentColor
+  }
+
+  let paletteHouse = {
+    House: houseColor
+  }
+
+  let paletteRoof = {
+    Roof: roofColor
+  }
+
+  folderCity.addColor(paletteSky, 'SkyScraper').onChange(function(value){
+    skyScraperMaterial.uniforms.baseColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
+  })
+
+  folderCity.addColor(paletteApart, 'Apartment').onChange(function(value){
+    apartmentMaterial.uniforms.baseColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
+  })
+
+  folderCity.addColor(paletteHouse, 'House').onChange(function(value){
+    houseMaterial.uniforms.baseColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
+  })
+
+  folderCity.addColor(paletteRoof, 'Roof').onChange(function(value){
+    houseMaterial.uniforms.roofColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
+  })
 
   const folderSky = gui.addFolder( 'Sky' );
   folderSky.add( envVals, 'elevation', 0, 90, 0.1 ).onChange( updateEnvironment );
@@ -137,29 +256,7 @@
     else { heightGradient.style.visibility = "visible";}
   };
   
-  /////////////
-  // Objects //
-  ////////////
 
-  let environment = new Environment(scene, renderer);
-  let sunDirection = environment.sun;
-
-  // Scene Properties
-  let reclaimerProperties = {scene, physicsworld, environment, sunDirection, frame, reclaimFrame};
-
-  let cityGenPoint = new THREE.Object3D();
-  //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
-  scene.add(cityGenPoint);
-    
-  let land = new THREE.Object3D();
-  land.name = "land";
-  scene.add(land);
-  new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
-
-  reclaimerProperties.land = land;
-
-  let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
-  // city.addBuildings(cityGenPoint);
 
 
 
