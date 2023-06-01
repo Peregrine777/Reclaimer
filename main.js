@@ -38,28 +38,10 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     let heightGradient = document.getElementById("heightgrd");
-
-    // let fragCanvas = document.getElementById("fragCanvas");
-    // var renderer2 = new THREE.WebGLRenderer({canvas: fragCanvas});
-    // renderer2.setSize(fragCanvas.width, fragCanvas.height);
-
-    // var renderTarget = new THREE.WebGLRenderTarget(fragCanvas.style.width, fragCanvas.style.height);
-    // renderTarget.texture.format = THREE.RGBFormat;
-
-    // let testShader = new THREE.MeshPhongMaterial();
-
-    // let inset_scene = new THREE.Scene();
-    // let planeGeom = new THREE.PlaneGeometry(2,2, 20, 20);
-
-    // let plane = new THREE.Mesh(planeGeom, testShader);
-    // inset_scene.add(plane);
-    // let orthoCam = new THREE.OrthographicCamera();
-    // inset_scene.add(orthoCam);
-    
-    // renderer2.render(inset_scene, orthoCam)
   
     //camera
-    let camera = new THREE.PerspectiveCamera(55,ratio,0.1,5000);
+    let cameraVals = {FOV: 55};
+    let camera = new THREE.PerspectiveCamera(cameraVals.FOV,ratio,0.1,5000);
     camera.position.set(-20,2,16);
     camera.lookAt(0,0,1);
     renderer.setSize(window.innerWidth,window.innerHeight);
@@ -188,7 +170,8 @@
 
    //Values for the GUI
 
-  gui.add(sceneVals, "size", 20, 100, 20).onChange(redrawScene);
+  gui.add(sceneVals, "size", 5, 20, 1).onChange(redrawScene);
+  gui.add(cameraVals, "FOV", 20, 90, 1).onChange(function(value){camera.fov = value; camera.updateProjectionMatrix();});
     
   let folderLand = gui.addFolder("Landscape");
     folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
