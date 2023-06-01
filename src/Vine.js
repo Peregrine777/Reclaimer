@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as TWEEN from '/node_modules/@tweenjs/tween.js/dist/tween.esm.js';
 
 export class Vine extends THREE.Object3D{
 
@@ -56,4 +57,38 @@ export class Vine extends THREE.Object3D{
         this.position.setY(0);
         this.position.setZ(position.z);
     }
+
+    
+    growVine(targetHeight){
+
+        const verticalGrow = new TWEEN.Tween({ y: 0.1 })
+        .to({y : targetHeight / 2}, 4000)
+        .onUpdate((scale) => {
+          this.scale.y = this.initialScale * scale.y;
+        })
+        .easing(TWEEN.Easing.Elastic.InOut);
+      
+        const horizontalShrink = new TWEEN.Tween({ x: 1 })
+        .to({y : 0.5}, 5000)
+        .onUpdate((scale) => {
+          this.scale.x = this.initialScale * scale.x;
+          this.scale.z = this.initialScale * scale.x;
+        })
+        .delay(500)
+        .easing(TWEEN.Easing.Cubic.InOut);
+        //.onComplete(block.shatterBlock());
+    
+        const verticalShrink = new TWEEN.Tween({y : targetHeight / 2})
+        .to({y : 0.5}, 3000)
+        .onUpdate((scale) => {
+          this.scale.y = this.initialScale * scale.y;
+        })
+        .delay(500)
+        .easing(TWEEN.Easing.Cubic.InOut);
+    
+        verticalGrow.chain(horizontalShrink);
+        //horizontalShrink.chain(verticalShrink);
+    
+        verticalGrow.start();
+      }
 }
