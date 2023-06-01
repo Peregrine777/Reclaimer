@@ -109,6 +109,7 @@ export class Landscape {
     landMaterial.fragmentShader = LandShader.fragmentShader;
     landMaterial.uniforms.lightDirection.value = this.sun;
     landMaterial.uniforms.gradientMap.value = this.gradientMap;
+    landMaterial.uniforms.size.value = this.size;
     //landMaterial.uniforms.envMap = this.scene.environment; -- Need to figure out pmrem UV Cubemap
 
 
