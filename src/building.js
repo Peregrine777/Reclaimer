@@ -53,7 +53,7 @@ export class Building extends THREE.Object3D{
 
         for(var i = 0; i < this.height; i++){
  
-            var block = new BuildingBlock(this.parent, this.height, this.buildingID, this.reclaimerProperties)
+            var block = new BuildingBlock(this.parent, this.height, this.reclaimerProperties)
             block.createBlock(x -size/2,z + i,y -size/2);
             this.buildingBlocks.push(block);
         }
