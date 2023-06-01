@@ -11,6 +11,7 @@ export const BuildingShader = {
         textureMap: {value: null},
         normalMap: {value: null},
         frame: {value: 0.0},
+        roofColor: {value: new Vector3(0.5, 0.5, 0.5)},
     },
     vertexShader: /* glsl */`
 
@@ -32,11 +33,11 @@ export const BuildingShader = {
     out vec3 vViewNormal;
     out vec3 vReflect;
     out vec3 viewZ;
-    out vec3 vModelMatrix;
+    out vec3 vModel;
 
 
     void main() {
-        vModelMatrix = modelMatrix[3].xyz - position;
+        vModel = position ;
         vec4 view_position = modelViewMatrix * vec4(position, 1.0);
 
         vEyePosition = view_position.xyz;
@@ -73,7 +74,7 @@ export const BuildingShader = {
     uniform sampler2D textureMap;
     uniform sampler2D normalMap;
     uniform float frame;
-
+    uniform vec3 roofColor;
     #define PI 3.14159265358979323846
 
     in vec3 vNormal;
@@ -87,7 +88,7 @@ export const BuildingShader = {
     in vec2 vUv;
     in vec3 vReflect;
     in vec3 viewZ;
-    in vec3 vModelMatrix;
+    in vec3 vModel;
     
 
     float rand (vec2 st) {
@@ -95,6 +96,8 @@ export const BuildingShader = {
                                 vec2(12.9898,78.233)))
                     * 4.5453123);
     }
+
+
 
     float noise(vec2 p, float freq ){
         float unit = 1080.0/freq;
@@ -143,13 +146,14 @@ export const BuildingShader = {
         vec3 lightColor = vec3(0.8, 0.76, 0.50);
         vec3 skyColor = vec3(0.6, 0.62, 0.85);
         vec3 fogColor = vec3(0.6, 0.62, 0.85);
-        vec3 roofColor = vec3(0.6, 0.2, 0.2);
+        vec3 apartmentWindowColor = vec3(0.2, 0.2, 0.5);
+        vec3 windowColor = vec3(0.7, 0.7, 0.4);
 
         vec3 shadowColor = vec3(0, 0, 0);
         float shadowPower = 0.5;
 
         hmin = clamp(hmin + frame,-10.,10.);
-        hmax = clamp(hmax + frame,0.0,10.02);
+        hmax = clamp(hmax + frame,0.0,12.);
         
 
         //Height based colour
@@ -158,10 +162,39 @@ export const BuildingShader = {
         hValue = clamp(hValue, 0.0, 1.0);
         // vec3 base = baseColor + texture2D(textureMap, vUv).rgb;
         vec3 base = baseColor * hValue;
-        float roof = (1. - step(0.5,vModelMatrix.g));
-        base = mix(base, vec3(0.2,0.2,0.2), (1.-hValue) );
-        base = mix(base, roofColor, roof); 
+        float roof = (1. - step(0.3,vModel.g));
+        
+        
+        if (type == 1){
+            base = mix(roofColor, base, roof); 
+        }
+        else if (type == 2){
+            vec2 st = vModel.xz * 4. + 1.5;
+            vec2 ipos = floor(st);  // get the integer coords
+            vec2 fpos = fract(st);
 
+            vec3 mosaicCol = vec3(mod(ipos.x + ipos.y, 2.0));
+
+
+            float window = (step(0.01,vModel.g)- step(0.4,vModel.g)) * mosaicCol.g ;
+            base = mix(base, apartmentWindowColor, window);
+        }
+        else if (type == 3){
+            vec2 st = vModel.xy * 4. + 1.5;
+            vec2 st2 = vModel.xz * 4.;
+            
+            vec2 ipos = floor(st);  // get the integer coords
+            vec2 ipos2 = floor(st2);  // get the integer coords
+            vec2 fpos = fract(st);
+            vec3 winMos = vec3(vec3(rand( ipos2 )));
+
+            vec3 mosaicCol = vec3(mod(ipos.x + ipos.y,2.0));
+            float window = (step(-0.3,vModel.g)- step(0.4,vModel.g)) * mosaicCol.g * winMos.g ;
+            base = mix(base, windowColor, window);
+            // base = winMos;
+        }
+
+        base = mix(base, vec3(0.2,0.2,0.2), (1.-hValue) );
         // vec3 base = vec3(frame, frame, frame);
 
 
