@@ -16,7 +16,7 @@ export class Landscape {
   lacunarity = 2;
   scale = 0.5;
   height = 0.2;
-  maxResolution = 500;
+  maxResolution = 200;
 
   iterations = 3;
   falloff = 0.1;
@@ -26,6 +26,7 @@ export class Landscape {
     this.cityRadius = size * 0.5;
     this.size = size * 10;
     this.n = new ImprovedNoise;
+    this.randZ = randFloat(0, 1000);
 
     this.octaves = landVals.octaves;
     this.persistence = landVals.persistence
@@ -163,7 +164,7 @@ export class Landscape {
       let dist = new THREE.Vector2(u, v).distanceTo(new THREE.Vector2(0,0))
       if (dist > this.cityRadius){
         let distN = (dist - this.size);
-        let ramp = smoothstep(dist, 0, this.size); // adjust the second parameter to change the falloff distance
+        let ramp = smoothstep(dist, (this.cityRadius * 4), this.size/1.2); // adjust the second parameter to change the falloff distance
         h = h*this.height * (ramp*2*this.scale);
         if (dist > this.size){
           h -= (dist - this.size) * this.falloff;
@@ -185,7 +186,7 @@ export class Landscape {
     let amplitude = 1.00;
     let maxValue = 0.00;  // Used for normalizing result to 0.0 - 1.0
     for(let i=0;i<octaves;i++) {
-      total += this.n.noise(x * frequency, y * frequency, 0.1) * amplitude;
+      total += this.n.noise(x * frequency, y * frequency, this.randZ) * amplitude;
       
       maxValue += amplitude;
       
