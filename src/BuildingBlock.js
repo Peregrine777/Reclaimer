@@ -101,6 +101,7 @@ export class BuildingBlock extends THREE.Object3D   {
         this.physicsworld.removeBody(this.blockBody);
         this.parent.remove(this.blockMesh);
         this.shatterArray = this.createCube(this.position.x,this.position.y + 0.5,this.position.z);
+        this.shatterFrame = this.reclaimerProperties.reclaimFrame;
     }
 
     createCube(x, y, z){
@@ -165,7 +166,15 @@ export class BuildingBlock extends THREE.Object3D   {
     }
 
     updateBlock(){
-        if(this.shatterArray.length == 0){
+
+        //Remove bodies that have gone existed for 100 frames.
+        if (this.reclaimerProperties.reclaimFrame - this.shatterFrame >= 3){
+            this.physicsworld.removeBody(this.blockBody);
+            this.shatterArray.forEach(element => {
+                this.physicsworld.removeBody(element.body);
+            });
+
+        } else if(this.shatterArray.length == 0){
             if(this.blockBody.collided && !this.isShattered){
                 this.isShattered = true;
                 //this.shatterBlock();
@@ -177,8 +186,6 @@ export class BuildingBlock extends THREE.Object3D   {
                 element.updateMesh();
             });
         }
-
         this.material.uniforms.frame.value = this.reclaimerProperties.reclaimFrame;
-    
     }
 }

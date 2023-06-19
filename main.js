@@ -58,7 +58,11 @@
     // PHYSICS WORLD //
     const physicsworld = new CANNON.World({
       gravity: new CANNON.Vec3(0,-9.82,0),
+      quatNormalizeFast: true,
+      quatNormalizeSkip: 8,
     });
+    // physicsworld.solver.iterations = 10;
+    // physicsworld.defaultContactMaterial.contactEquationRelaxation = 2;
 
     function createGroundBody(){
       const groundBody = new CANNON.Body({
@@ -245,6 +249,7 @@
     if (isReclaiming == false){
       isReclaiming = true;
       reclaimerProperties.reclaimFrame += 0.01;
+      console.log("reclaiming");
     }
     
 
