@@ -21,10 +21,16 @@ export class City extends THREE.Object3D {
         const loadManager = new THREE.LoadingManager();
         this.models = [];
         this.house;
-        this.preloadMeshes(loadManager);
+        this.numHouseBlocks = 0;
+        this.numApartBlocks = 0;
+        this.numSkyScraperBlocks = 0;
+
+        
+        this.createCity(this.parent);
+        this.preloadMeshes(loadManager, this.blocksNeeded);
 
         loadManager.onLoad = () => {
-            this.createCity(this.parent);
+            this.createBuildings(this.parent);
         }
 
 
@@ -65,8 +71,50 @@ export class City extends THREE.Object3D {
                     let height = Math.max(1,Math.floor(noise*noiseHeight + gaussHeight*(1-noise)));
                     this.map[i][j] = {type: "building" ,height : height, building : null};
 
+                    switch (height){
+                        case 0:
+                            break;
+                        case 1:
+                            this.numHouseBlocks += height;
+                            break;
+                        case 2:
+                            this.numApartBlocks += height;
+                            break;
+                        default :
+                            this.numSkyScraperBlocks += height;
+                            break;
+                    }
+                }            
+            }
+        }
+        this.blocksNeeded = {houses: this.numHouseBlocks,
+            apartments: this.numApartBlocks,
+            skyscrapers: this.numSkyScraperBlocks};
+        console.log(this.blocksNeeded);
+    }
 
-                    // console.log(this.models);
+    createBuildings(){
+        for (let i = 0; i < this.citySize; i++) {
+            for (let j = 0; j < this.citySize; j++){
+                if(this.map[i][j].type == "building" && this.map[i][j].height > 0){
+                    console.log("creating: (" + i + ", " + j + ")");
+                    let height = this.map[i][j].height;
+                    
+                    switch (height){
+                        case 0:
+                            break;
+                        case 1:
+                            this.numHouseBlocks += height;
+                            break;
+                        case 2:
+                            this.numApartBlocks += height;
+                            break;
+                        default :
+                            this.numSkyScraperBlocks += height;
+                            break;
+                    }
+                    console.log(this.blocksNeeded);
+                    
                     //Make Building and add to list of buildings
                     let building = new Building(parent, this.map[i][j].height, this.reclaimerProperties, this.models);
                     this.map[i][j].building = building;
@@ -74,12 +122,12 @@ export class City extends THREE.Object3D {
                     // offset buildings to the centre of the terrain
                     building.createBuilding(i,j, this.citySize);
                     building.updateBuilding();
-                }            
+                }
             }
         }
     }
 
-    preloadMeshes(loadManager){
+    preloadMeshes(loadManager, blocksNeeded){
         // var materialsArray = [];
 
         var material_house = new THREE.MeshPhysicalMaterial();
@@ -107,6 +155,10 @@ export class City extends THREE.Object3D {
         let apart = new THREE.Object3D();
         let sky = new THREE.Object3D();
 
+        let house_mesh;
+        let apart_mesh;
+        let skyScaper_mesh;
+
         // const loader = new GLTFLoader();
         // loader.load('assets/Objects/Buildings/Sky/skyScraper1.gltf', ( model ) => {
         //     // model.scene.material = material_house;
@@ -121,9 +173,14 @@ export class City extends THREE.Object3D {
                     child.material = material_house;
                     child.castShadow = true;
                     child.recieveShadow = true;
+                    //if ( child.isMesh ) console.log( child.geometry );
+                    let geometry = child.geometry;
+                    geometry.computeVertexNormals();
+                    house_mesh = new THREE.InstancedMesh( geometry, material_house, blocksNeeded.houses );
+                    house.add( house_mesh );
                 }
             } );
-            house.add(object);
+            //house.add(object);
           } );
 
           objLoader.load('assets/Objects/Buildings/skyScraper1.obj', function ( object ){
@@ -133,9 +190,13 @@ export class City extends THREE.Object3D {
                     child.material = material_apartment;
                     child.castShadow = true;
                     child.recieveShadow = true;
+                    let geometry = child.geometry;
+                    geometry.computeVertexNormals();
+                    apart_mesh = new THREE.InstancedMesh( geometry, material_apartment, blocksNeeded.apartments );
+                    apart.add(apart_mesh);
                 }
             } );
-            apart.add(object);
+            //apart.add(object);
           } );
 
           objLoader.load('assets/Objects/Buildings/skyScraper1.obj', function ( object ){
@@ -145,6 +206,10 @@ export class City extends THREE.Object3D {
                     child.material = material_skyscraper;
                     child.castShadow = true;
                     child.recieveShadow = true;
+                    let geometry = child.geometry;
+                    geometry.computeVertexNormals();
+                    skyScaper_mesh = new THREE.InstancedMesh( geometry, material_apartment, blocksNeeded.skyscrapers);
+                    apart.add(skyScaper_mesh);
                 }
             } );
             sky.add(object);

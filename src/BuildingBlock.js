@@ -21,7 +21,8 @@ export class BuildingBlock extends THREE.Object3D   {
         this.reclaimerProperties = reclaimerProperties;
         this.physicsworld = reclaimerProperties.physicsworld;
         this.models = models;
-        parent.add(this.models[1])
+        this.placedModels = [];
+        //parent.add(this.models[1])
         //this.defaults();
     }
 
@@ -94,6 +95,7 @@ export class BuildingBlock extends THREE.Object3D   {
 
 
     createBlock(x, y, z){
+       
         this.position.set(x, y, z);
         this.blockBody = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
@@ -102,6 +104,9 @@ export class BuildingBlock extends THREE.Object3D   {
             collided: false,
           });
         this.blockBody.position.set(x, y + 0.5, z);
+
+        this.updateMatrix();
+
         this.physicsworld.addBody(this.blockBody);
 
         // ON COLLISION
@@ -124,20 +129,20 @@ export class BuildingBlock extends THREE.Object3D   {
             // file +='park1.obj';
         }
         if(this.height == 1){
-            model =  model.copy(this.models[0]); 
-            this.blockMesh = model;
+            //model =  model.copy(this.models[0]); 
+            this.blockMesh = this.models[0].setMatrixAt(0, this.matrix);
         } 
         else if( this.height == 2){
-            this.blockMesh = model.copy(this.models[1]);
+            this.blockMesh = this.models[1].setMatrixAt(0, this.matrix);
         } 
         else
         {
-            this.blockMesh = model.copy(this.models[2]);
+            this.blockMesh = this.models[2].setMatrixAt(0, this.matrix);
         }
 
         //this.loadModel();
         //console.log(this.blockMesh);
-        this.parent.add(this.blockMesh);
+        //this.parent.add(this.blockMesh);
     }
 
     loadModel(){
@@ -145,8 +150,6 @@ export class BuildingBlock extends THREE.Object3D   {
         let tempMesh = new THREE.Mesh();
         let material = this.material;
         let file = 'assets/Objects/Buildings/';
-
-        
 
     }
 
