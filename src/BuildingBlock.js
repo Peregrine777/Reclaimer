@@ -45,12 +45,16 @@ export class BuildingBlock extends THREE.Object3D   {
         this.position.set(x, y, z);
         this.blockBody = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
-            mass: 0,
+            mass: 5,
             shape: new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5)),
             collided: false,
           });
         this.blockBody.position.set(x, y + 0.5, z);
+        this.blockBody.allowSleep = true;
+        this.blockBody.sleepSpeedLimit = 0.5;
+        this.blockBody.sleepTimeLimit = 1.0;
         this.physicsworld.addBody(this.blockBody);
+
 
         // ON COLLISION
         this.blockBody.addEventListener('collide', function(e){
@@ -93,6 +97,7 @@ export class BuildingBlock extends THREE.Object3D   {
             model.add( object );
           });
           
+        
           this.blockMesh = model;
 
     }
@@ -155,7 +160,7 @@ export class BuildingBlock extends THREE.Object3D   {
 
     freezeBlock(){
         if(this.shatterArray.length == 0){
-            this.blockBody.mass = 0; 
+            this.blockBody.mass = 5; 
             this.blockBody.updateMassProperties();
         } 
         else {

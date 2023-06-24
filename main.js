@@ -62,6 +62,7 @@
       quatNormalizeSkip: 8,
     });
     // physicsworld.solver.iterations = 10;
+    physicsworld.allowSleep = true;
     // physicsworld.defaultContactMaterial.contactEquationRelaxation = 2;
 
     function createGroundBody(){

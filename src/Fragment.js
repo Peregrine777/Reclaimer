@@ -15,6 +15,9 @@ export class Fragment {
             mass: 5,
             shape: new CANNON.Box(new CANNON.Vec3(0.25,0.25,0.25)),
         });
+        this.body.allowSleep = true;
+        this.body.sleepSpeedLimit = 0.5;
+        this.body.sleepTimeLimit = 1.0;
         this.body.position = new CANNON.Vec3(this.position.x, this.position.y + 1 , this.position.z);
         this.obj.addBody(this.body);
     }
