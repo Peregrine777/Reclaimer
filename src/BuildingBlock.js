@@ -50,8 +50,10 @@ export class BuildingBlock extends THREE.Object3D   {
             collided: false,
           });
         this.blockBody.position.set(x, y + 0.5, z);
+
+        // Ignore small collisions
         this.blockBody.allowSleep = true;
-        this.blockBody.sleepSpeedLimit = 0.5;
+        this.blockBody.sleepSpeedLimit = 1.0;
         this.blockBody.sleepTimeLimit = 1.0;
         this.physicsworld.addBody(this.blockBody);
 
@@ -146,29 +148,29 @@ export class BuildingBlock extends THREE.Object3D   {
         return fragments;
     }
 
-    unfreezeBlock(){
-        if(this.shatterArray.length == 0){
-            this.blockBody.mass = 5; 
-            this.blockBody.updateMassProperties();
-        } 
-        else {
-            this.shatterArray.forEach(element => {
-                element.unfreezeMesh();
-            });
-        }
-    }
+    // unfreezeBlock(){
+    //     if(this.shatterArray.length == 0){
+    //         this.blockBody.mass = 5; 
+    //         this.blockBody.updateMassProperties();
+    //     } 
+    //     else {
+    //         this.shatterArray.forEach(element => {
+    //             element.unfreezeMesh();
+    //         });
+    //     }
+    // }
 
-    freezeBlock(){
-        if(this.shatterArray.length == 0){
-            this.blockBody.mass = 5; 
-            this.blockBody.updateMassProperties();
-        } 
-        else {
-            this.shatterArray.forEach(element => {
-                element.freezeMesh();
-            });
-        }
-    }
+    // freezeBlock(){
+    //     if(this.shatterArray.length == 0){
+    //         this.blockBody.mass = 5; 
+    //         this.blockBody.updateMassProperties();
+    //     } 
+    //     else {
+    //         this.shatterArray.forEach(element => {
+    //             element.freezeMesh();
+    //         });
+    //     }
+    // }
 
     updateBlock(){
 

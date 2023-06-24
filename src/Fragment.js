@@ -28,14 +28,14 @@ export class Fragment {
         //this.mesh.quaternion.copy(this.body.quaternion);
     }
 
-    freezeMesh(){
-        this.body.mass = 0; 
-        this.body.updateMassProperties();
-    }
+    // freezeMesh(){
+    //     this.body.mass = 0; 
+    //     this.body.updateMassProperties();
+    // }
 
-    unfreezeMesh(){
-        this.body.mass = 5; 
-        this.body.updateMassProperties();
-    }
+    // unfreezeMesh(){
+    //     this.body.mass = 5; 
+    //     this.body.updateMassProperties();
+    // }
 
 }

@@ -92,17 +92,17 @@ export class Building extends THREE.Object3D{
         }
     }
 
-    freezeBuilding(){
-        this.buildingBlocks.forEach(element => {
-            element.freezeBlock();
-        });
-    }
+    // freezeBuilding(){
+    //     this.buildingBlocks.forEach(element => {
+    //         element.freezeBlock();
+    //     });
+    // }
 
-    unfreezeBuilding(){
-        this.buildingBlocks.forEach(element => {
-            element.unfreezeBlock();
-        });
-    }
+    // unfreezeBuilding(){
+    //     this.buildingBlocks.forEach(element => {
+    //         element.unfreezeBlock();
+    //     });
+    // }
 
     updateBuilding (){
         this.buildingBlocks.forEach(element => {

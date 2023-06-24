@@ -61,8 +61,11 @@
       quatNormalizeFast: true,
       quatNormalizeSkip: 8,
     });
-    // physicsworld.solver.iterations = 10;
+
+    // Ignore small collisions
     physicsworld.allowSleep = true;
+
+    // physicsworld.solver.iterations = 10;
     // physicsworld.defaultContactMaterial.contactEquationRelaxation = 2;
 
     function createGroundBody(){
@@ -262,7 +265,7 @@
     buildingTargets.forEach(building => {
 
       setTimeout(() => {
-      building.unfreezeBuilding();
+      // building.unfreezeBuilding();
 
       let block = building.getRandomBlock();
       block.shatterBlock();
