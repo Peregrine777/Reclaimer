@@ -96,7 +96,7 @@ export class Environment{
     }
 
     update(){
-        this.water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+        this.water.material.uniforms[ 'time' ].value += 0.10 / 60.0;
     }
 
 }

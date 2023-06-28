@@ -36,19 +36,19 @@ export class Building extends THREE.Object3D{
         let ys = new Float32Array(positions.count);
         let zVal = 0.2;
 
-         for (let i = 0; i < positions.count; i++) {
-            let found = false;
-                xs[i] = Math.floor(positions.getX(i)) == x - size/2;
-                ys[i] = Math.floor(positions.getY(i)) == y - size/2;
-                //get first x = 1
-                if(xs[i] == 1 && ys[i] == 1){
-                    zVal = positions.getZ(i);
-                    found = true;
-                }
-            if (found == true){
-                break;
-            }
-         }
+        //  for (let i = 0; i < positions.count; i++) {
+        //     let found = false;
+        //         xs[i] = Math.floor(positions.getX(i)) == x - size/2;
+        //         ys[i] = Math.floor(positions.getY(i)) == y - size/2;
+        //         //get first x = 1
+        //         if(xs[i] == 1 && ys[i] == 1){
+        //             zVal = positions.getZ(i);
+        //             found = true;
+        //         }
+        //     if (found == true){
+        //         break;
+        //     }
+        //  }
         let z = zVal + 0.2; 
 
         for(var i = 0; i < this.height; i++){
