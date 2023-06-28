@@ -16,7 +16,7 @@ export class Landscape {
   lacunarity = 2;
   scale = 0.5;
   height = 0.2;
-  maxResolution = 200;
+  maxResolution = 400;
 
   iterations = 3;
   falloff = 0.1;

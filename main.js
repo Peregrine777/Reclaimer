@@ -172,6 +172,22 @@
 
   let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
 
+  let redrawCity = { Generate_City:function(){
+    // clear physics world
+    // let bodies = physicsworld.bodies;
+    // bodies.forEach(element => {
+    //   physicsworld.removeBody(element);
+    //   physicsworld.step();
+    // })
+
+    // replace physics plane
+    physicsworld.addBody(createGroundBody());
+
+    
+    city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
+  }};
+  
+
   ////////////
   //   GUI  //
   ////////////
@@ -189,7 +205,10 @@
     folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
 
   let folderCity = gui.addFolder("City");
-  folderCity.add(cityVals, 'isSimulating', true, false);
+  folderCity.add(redrawCity, 'Generate_City');
+  folderCity.open();
+  let folderColorPalette = folderCity.addFolder("Color Palette");
+  //folderCity.add(cityVals, 'isSimulating', true, false);
 
   let paletteSky = {
     SkyScraper: skyscraperColor
@@ -207,30 +226,28 @@
     Roof: roofColor
   }
 
-  folderCity.addColor(paletteSky, 'SkyScraper').onChange(function(value){
+  folderColorPalette.addColor(paletteSky, 'SkyScraper').onChange(function(value){
     skyScraperMaterial.uniforms.baseColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
   })
 
-  folderCity.addColor(paletteApart, 'Apartment').onChange(function(value){
+  folderColorPalette.addColor(paletteApart, 'Apartment').onChange(function(value){
     apartmentMaterial.uniforms.baseColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
   })
 
-  folderCity.addColor(paletteHouse, 'House').onChange(function(value){
+  folderColorPalette.addColor(paletteHouse, 'House').onChange(function(value){
     houseMaterial.uniforms.baseColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
   })
 
-  folderCity.addColor(paletteRoof, 'Roof').onChange(function(value){
+  folderColorPalette.addColor(paletteRoof, 'Roof').onChange(function(value){
     houseMaterial.uniforms.roofColor.value = new THREE.Color( value.r /255, value.g /255, value.b /255 );
   })
 
   const folderSky = gui.addFolder( 'Sky' );
   folderSky.add( envVals, 'elevation', 0, 90, 0.1 ).onChange( updateEnvironment );
   folderSky.add( envVals, 'azimuth', - 180, 180, 0.1 ).onChange( updateEnvironment );
-  folderSky.open();
 
   const folderUI = gui.addFolder( 'UI' );
   folderUI.add( uiVals, 'HeightTexture' ).onChange( updateUI );
-  folderUI.open();
 
   function updateUI(){
     if(uiVals.HeightTexture == false){
@@ -299,18 +316,17 @@
     land.clear();
     cityGenPoint.clear();
 
-    // clear physics world
     let bodies = physicsworld.bodies;
     bodies.forEach(element => {
       physicsworld.removeBody(element);
       physicsworld.step();
     })
-    // replace physics plane
-    physicsworld.addBody(createGroundBody());
 
     new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
-    city = new City(cityGenPoint, sceneVals.size, reclaimerProperties)
+
   }
+
+
  
   function updateEnvironment(){
     environment.updateSun(scene, renderer, envVals);
@@ -339,6 +355,7 @@
     composer.render();
     controls.update();
     requestAnimationFrame(MyUpdateLoop);
+
   };
   
   requestAnimationFrame(MyUpdateLoop);

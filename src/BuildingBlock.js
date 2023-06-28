@@ -174,7 +174,7 @@ export class BuildingBlock extends THREE.Object3D   {
 
     updateBlock(){
 
-        //Remove bodies that have gone existed for 100 frames.
+        //Disable physics on blocks that have existed for 300 frames.
         if (this.reclaimerProperties.reclaimFrame - this.shatterFrame >= 3){
             this.physicsworld.removeBody(this.blockBody);
             this.shatterArray.forEach(element => {
