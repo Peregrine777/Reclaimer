@@ -309,7 +309,7 @@
     physicsworld.addBody(createGroundBody());
 
     new Landscape(sceneVals.size, landVals, sunDirection, reclaimerProperties).ChunkManager(land);
-    city = new City(cityGenPoint, sceneVals.size, reclaimerProperties)
+    city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
   }
  
   function updateEnvironment(){
