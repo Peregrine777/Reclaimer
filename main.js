@@ -42,7 +42,7 @@
     //camera
     let cameraVals = {FOV: 55};
     let camera = new THREE.PerspectiveCamera(cameraVals.FOV,ratio,0.1,5000);
-    camera.position.set(-25 , 24 , 75 );
+    camera.position.set(-20,2,16);
     camera.lookAt(0,0,1);
     renderer.setSize(window.innerWidth,window.innerHeight);
     
