@@ -178,7 +178,7 @@
   let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
 
   let redrawCity = { Generate_City:function(){
-    physicsworld.allowSleep = false;
+    //physicsworld.allowSleep = false;
     // replace physics plane
     physicsworld.addBody(createGroundBody());
     city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
@@ -285,7 +285,7 @@
     buildingTargets.forEach(building => {
 
       setTimeout(() => {
-      // building.unfreezeBuilding();
+      building.unfreezeBuilding();
 
       let block = building.getRandomBlock();
       block.shatterBlock();

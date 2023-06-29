@@ -45,7 +45,7 @@ export class BuildingBlock extends THREE.Object3D   {
         this.position.set(x, y, z);
         this.blockBody = new CANNON.Body({
             type: CANNON.Body.DYNAMIC,
-            mass: 5,
+            mass: 0,
             shape: new CANNON.Box(new CANNON.Vec3(0.5,0.5,0.5)),
             collided: false,
           });
@@ -148,29 +148,29 @@ export class BuildingBlock extends THREE.Object3D   {
         return fragments;
     }
 
-    // unfreezeBlock(){
-    //     if(this.shatterArray.length == 0){
-    //         this.blockBody.mass = 5; 
-    //         this.blockBody.updateMassProperties();
-    //     } 
-    //     else {
-    //         this.shatterArray.forEach(element => {
-    //             element.unfreezeMesh();
-    //         });
-    //     }
-    // }
+    unfreezeBlock(){
+        if(this.shatterArray.length == 0){
+            this.blockBody.mass = 5; 
+            this.blockBody.updateMassProperties();
+        } 
+        else {
+            this.shatterArray.forEach(element => {
+                element.unfreezeMesh();
+            });
+        }
+    }
 
-    // freezeBlock(){
-    //     if(this.shatterArray.length == 0){
-    //         this.blockBody.mass = 5; 
-    //         this.blockBody.updateMassProperties();
-    //     } 
-    //     else {
-    //         this.shatterArray.forEach(element => {
-    //             element.freezeMesh();
-    //         });
-    //     }
-    // }
+    freezeBlock(){
+        if(this.shatterArray.length == 0){
+            this.blockBody.mass = 5; 
+            this.blockBody.updateMassProperties();
+        } 
+        else {
+            this.shatterArray.forEach(element => {
+                element.freezeMesh();
+            });
+        }
+    }
 
     updateBlock(){
 
