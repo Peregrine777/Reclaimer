@@ -34,6 +34,9 @@ export class Landscape {
     this.scale = landVals.scale;
     this.height = landVals.height;
     this.falloff = landVals.falloff; 
+    this.iterations = landVals.iterations;
+    this.maxResolution = landVals.resolution;
+    this.enableFog = landVals.enableFog;
 
     this.hmax = -100;
     this.hmin = 100;
@@ -43,7 +46,7 @@ export class Landscape {
     this.sceneProperties = reclaimerProperties;
     this.scene = reclaimerProperties.scene;
 
-
+    this.material;
 
       
     var canvasG = document.getElementById("heightgrd");
@@ -110,9 +113,10 @@ export class Landscape {
     landMaterial.uniforms.lightDirection.value = this.sun;
     landMaterial.uniforms.gradientMap.value = this.gradientMap;
     landMaterial.uniforms.size.value = this.size;
+    landMaterial.uniforms.enableFog.value = this.enableFog;
     //landMaterial.uniforms.envMap = this.scene.environment; -- Need to figure out pmrem UV Cubemap
 
-
+    this.material = landMaterial;
 
 
     const Land = new THREE.Mesh(landGeom, landMaterial );
@@ -196,6 +200,10 @@ export class Landscape {
     }
     
     return total/maxValue;
+  }
+
+  updateUniforms(landVals){
+    this.material.uniforms.enableFog.value = landVals.enableFog;  
   }
 
 }

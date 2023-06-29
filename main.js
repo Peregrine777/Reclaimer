@@ -42,7 +42,7 @@
     //camera
     let cameraVals = {FOV: 55};
     let camera = new THREE.PerspectiveCamera(cameraVals.FOV,ratio,0.1,5000);
-    camera.position.set(-20,2,16);
+    camera.position.set(26, 12, 37);
     camera.lookAt(0,0,1);
     renderer.setSize(window.innerWidth,window.innerHeight);
     
@@ -63,7 +63,7 @@
     });
 
     // Ignore small collisions
-    physicsworld.allowSleep = true;
+    //physicsworld.allowSleep = true;
 
     // physicsworld.solver.iterations = 10;
     // physicsworld.defaultContactMaterial.contactEquationRelaxation = 2;
@@ -85,10 +85,11 @@
 
   let sceneVals = {size: 20, sunHelper: false};
   let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1,
-    height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm"};
+    height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm",
+    iterations: 3, resolution: 400, enableFog: false};
   let cityVals = {density: 1, isSimulating: true};
   let envVals = {
-    elevation: 2,
+    elevation: 7,
     azimuth: 180
   };
   let uiVals = {HeightTexture: true};
@@ -147,14 +148,18 @@
   skyScraperMaterial.needsUpdate = true;
 
   let apartmentMaterial = skyScraperMaterial.clone();
+    apartmentMaterial.uniforms.lightDirection.value = reclaimerProperties.sunDirection;
     apartmentMaterial.uniforms.baseColor.value = apartmentColor;
     apartmentMaterial.uniforms.textureMap.value = apartmentTexture;
     apartmentMaterial.uniforms.type.value = 2;
+    apartmentMaterial.needsUpdate = true;
 
   let houseMaterial = skyScraperMaterial.clone();
     houseMaterial.uniforms.baseColor.value = houseColor;
     houseMaterial.uniforms.textureMap.value = null;
     houseMaterial.uniforms.type.value = 1;
+    houseMaterial.uniforms.lightDirection.value = reclaimerProperties.sunDirection;
+    houseMaterial.needsUpdate = true;
 
   let debugMaterial = skyScraperMaterial.clone();
     debugMaterial.uniforms.baseColor.value = new THREE.Color(1, 1, 0);
@@ -173,18 +178,11 @@
   let city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
 
   let redrawCity = { Generate_City:function(){
-    // clear physics world
-    // let bodies = physicsworld.bodies;
-    // bodies.forEach(element => {
-    //   physicsworld.removeBody(element);
-    //   physicsworld.step();
-    // })
-
+    physicsworld.allowSleep = false;
     // replace physics plane
     physicsworld.addBody(createGroundBody());
-
-    
     city = new City(cityGenPoint,sceneVals.size, reclaimerProperties);
+    //physicsworld.allowSleep = true; 
   }};
   
 
@@ -194,15 +192,20 @@
 
    //Values for the GUI
 
-  gui.add(sceneVals, "size", 5, 20, 1).onChange(redrawScene);
+  gui.add(sceneVals, "size", 10, 20, 2).onChange(redrawScene);
   gui.add(cameraVals, "FOV", 20, 90, 1).onChange(function(value){camera.fov = value; camera.updateProjectionMatrix();});
     
   let folderLand = gui.addFolder("Landscape");
-    folderLand.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
-    folderLand.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
-    folderLand.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
+    let folderFBM = folderLand.addFolder("FBM");  
+      folderFBM.add(landVals,'octaves', 2, 16, 2).onChange(redrawScene);
+      folderFBM.add(landVals,'persistence', 0.1, 1, 0.1).onChange(redrawScene);
+      folderFBM.add(landVals,'lacunarity', 0.1, 4, 0.1).onChange(redrawScene);
+      folderFBM.add(landVals,'scale', 0.1, 4, 0.1).onChange(redrawScene);
+      folderFBM.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
+    folderLand.add(landVals, 'falloff', -0.1, 0.3, 0.1).onChange(redrawScene);
+    folderLand.add(landVals, 'iterations', 1, 16, 1).onChange(redrawScene);
+    folderLand.add(landVals, 'resolution', 200, 1400, 400).onChange(redrawScene);
+    folderLand.add(landVals, 'enableFog', 'false', 'true').onChange(redrawScene);
 
   let folderCity = gui.addFolder("City");
   folderCity.add(redrawCity, 'Generate_City');
@@ -355,6 +358,8 @@
     composer.render();
     controls.update();
     requestAnimationFrame(MyUpdateLoop);
+
+    // console.log(camera.position);
 
   };
   

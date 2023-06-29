@@ -16,6 +16,7 @@ export const LandShader = {
         vph: {value: 0.00005},
         offset: {value: new THREE.Vector2(-0.5,-0.5)},
         pitch: {value: new THREE.Vector2(4, 4)},
+        enableFog: {value: true},
     },
     vertexShader: /* glsl */`
     uniform vec3 lightDirection;
@@ -63,6 +64,7 @@ export const LandShader = {
     uniform sampler2D gradientMap;
     uniform samplerCube envMap;
     uniform float size;
+    uniform bool enableFog;
 
     uniform float vpw; // Width, in pixels
     uniform float vph; // Height, in pixels
@@ -217,7 +219,10 @@ export const LandShader = {
         
         vec3 c = mix(finalLighting, ambientColor, ambientStrength);
 
-        vec3 finalFog = mix(c, fogColor, fog);
+        vec3 finalFog = c;
+        if (enableFog){
+            finalFog = mix(c, fogColor, fog);
+        }
         gl_FragColor = vec4( finalFog, 1.0 );
     }
     `
