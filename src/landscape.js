@@ -37,6 +37,8 @@ export class Landscape {
     this.iterations = landVals.iterations;
     this.maxResolution = landVals.resolution;
     this.enableFog = landVals.enableFog;
+    this.enableShadows = landVals.enableShadows;
+    this.heightMapTexture = landVals.heightMap;
 
     this.hmax = -100;
     this.hmin = 100;
@@ -45,10 +47,10 @@ export class Landscape {
 
     this.sceneProperties = reclaimerProperties;
     this.scene = reclaimerProperties.scene;
+    this.renderer = reclaimerProperties.renderer;
 
     this.material;
 
-      
     var canvasG = document.getElementById("heightgrd");
     canvasG.addEventListener("click", ()=>{
       createGradMap();
@@ -102,8 +104,81 @@ export class Landscape {
     return result;
   }
 
+  makeChunkTexture(heightMap,minH, maxH ){
+
+    //remap to -> 0-255
+    for (let i = 0; i < heightMap.length; i++){
+      heightMap[i] = (heightMap[i] - minH) / (maxH - minH) * 255;
+    }
+    // Heightmap as texture
+    console.log("minH, maxH: " + minH + ", " + maxH);
+    const width = Math.sqrt(heightMap.length);
+    console.log("width: " + width);
+
+    let data = new Uint8Array(4 * width * width);
+    for (let i = 0; i < heightMap.length; i++){
+      const stride = i * 4;
+
+      let h = heightMap[i];
+      data[stride] = h;
+      data[stride + 1] = h;
+      data[stride + 2] = h;
+      data[stride + 3] = 255; // Alpha
+    }
+
+    let texture = new THREE.DataTexture(data, width, width, THREE.RGBAFormat);
+    texture.flipY = true;
+    texture.flipX = true;
+    texture.needsUpdate = true;
+    console.log(texture.mipmaps);
+
+    console.log(texture);
+    this.heightMapTextureRes = texture.image.width;
+    this.heightMapTexture = texture;
+
+    let height = width;
+    // Create a scene and camera to render the texture
+    let rtScene = new THREE.Scene();
+    let rtCamera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -100, 100);
+    let rtMaterial = new THREE.MeshBasicMaterial({ map: texture });
+    let rtPlane = new THREE.PlaneGeometry(width, height);
+    let rtMesh = new THREE.Mesh(rtPlane, rtMaterial);
+    rtScene.add(rtMesh);
+
+    // Create a WebGL render target
+    let renderTarget = new THREE.WebGLRenderTarget(width, height);
+    this.renderer.setRenderTarget(renderTarget);
+
+    // Render the scene
+    this.renderer.render(rtScene, rtCamera);
+    this.renderer.setRenderTarget(null); // Reset render target
+
+    // Read pixels from the render target
+    let buffer = new Uint8Array(width * height * 4);
+    this.renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, buffer);
+
+    // Create an ImageData object
+    let imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
+
+    // Draw the image data onto a 2D canvas
+    let overlayCanvas = document.getElementById('overlay-canvas');
+    overlayCanvas.width = width;
+    overlayCanvas.height = height;
+    let ctx = overlayCanvas.getContext('2d');
+    ctx.putImageData(imageData, 0, 0);
+  }
+
 
   makeChunk(ring, offsetX, offsetY){
+
+    let minMax;
+    let maxH = -1000;
+    let minH = 1000;
+    minMax = {
+      max: maxH,
+      min: minH
+    }
+    //console.log("Making Chunk: " + offsetX + ", " + offsetY + ", RING: " + ring);
     //Land
     let landGeom = new THREE.PlaneGeometry(this.size, this.size, this.maxResolution/ring, this.maxResolution/ring);
     let landMaterial = new THREE.ShaderMaterial({ side: THREE.DoubleSide});
@@ -114,6 +189,10 @@ export class Landscape {
     landMaterial.uniforms.gradientMap.value = this.gradientMap;
     landMaterial.uniforms.size.value = this.size;
     landMaterial.uniforms.enableFog.value = this.enableFog;
+    landMaterial.uniforms.heightMap.value = this.heightMapTexture;
+    landMaterial.uniforms.heightMapRes.value = this.heightMapTextureRes;
+    
+
     //landMaterial.uniforms.envMap = this.scene.environment; -- Need to figure out pmrem UV Cubemap
 
     this.material = landMaterial;
@@ -127,9 +206,18 @@ export class Landscape {
     Land.position.setX(this.size*offsetX)
     Land.position.setZ(this.size*offsetY)
     let positionAttribute = landGeom.attributes.position;
+    
     Land.name = "Land2";
 
-    this.fbmNoise(Land, offsetX, offsetY);
+
+    let heightMap = this.fbmNoise(Land, offsetX, offsetY, minMax);
+
+    landMaterial.uniforms.hmMax.value = minMax.max;
+    landMaterial.uniforms.hmMin.value = minMax.min;
+
+    if (ring == 2){
+      this.makeChunkTexture(heightMap, minMax.min, minMax.max); 
+    }
 
     for (let i = 0; i < landGeom.attributes.position.count; i++) {
       const height = landGeom.attributes.position.getY(i);
@@ -143,11 +231,17 @@ export class Landscape {
   }
 
 
-  fbmNoise(object, offsetX = 0, offsetY = 0){
+  fbmNoise(object, offsetX = 0, offsetY = 0, minMax){
+    let maxH = minMax.max;
+    let minH = minMax.min;
     let geometry = object.geometry
     let positionAttribute = geometry.attributes.position;
     let octaves = this.octaves;
     let persistence = this.persistence;
+
+    const texels = positionAttribute.count;
+    let heightMap = new Array(texels);
+
 
     for (let i = 0 ; i < positionAttribute.count ; i++) {
       let u = positionAttribute.getX(i);
@@ -177,12 +271,23 @@ export class Landscape {
       }
       else { h = 0};
 
+      //Update Mins and Maxes
+      if (h > maxH) maxH = h;
+      if (h < minH) minH = h;
+
+      heightMap[i] = h;
+
       //Set the new height
       positionAttribute.setZ(i, z + h);
-
     }
+
+    minMax.max = maxH;
+    minMax.min = minH;
+
     geometry.computeVertexNormals();
     positionAttribute.needsUpdate = true;
+
+    return heightMap;
   }
 
   fbm(x, y, octaves, persistence) {

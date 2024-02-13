@@ -11,7 +11,7 @@
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-    import { Landscape } from './src/Landscape.js';
+    import { Landscape } from './src/landscape.js';
     import { City } from './src/City.js';
     import { Environment } from './src/Environment.js';
     import { Vine } from './src/Vine.js';
@@ -86,7 +86,7 @@
   let sceneVals = {size: 20, sunHelper: false};
   let landVals = {octaves: 8, persistence: 0.5, lacunarity: 2, scale: 1,
     height: 100, falloff: 0.1, speed: 0.0005, noiseType: "Perlin", noise: "fbm",
-    iterations: 3, resolution: 400, enableFog: false};
+    iterations: 3, resolution: 511, enableFog: true, enableShadows: true, heightMap: new THREE.Texture()};
   let cityVals = {density: 1, isSimulating: true};
   let envVals = {
     elevation: 7,
@@ -100,7 +100,7 @@
   let materialsArray = [];
 
   // Scene Properties
-  let reclaimerProperties = {scene, physicsworld, environment, sunDirection, frame, reclaimFrame, materialsArray};
+  let reclaimerProperties = {scene, physicsworld, environment, sunDirection, frame, reclaimFrame, materialsArray, renderer};
 
   let cityGenPoint = new THREE.Object3D();
   //cityGenPoint.position.set(-sceneVals.size/2,0.5,-sceneVals.size/2);
@@ -186,6 +186,12 @@
   }};
   
 
+
+  ///////////////////////
+  // DEBUG AND TESTING //
+  //////////////////////
+
+
   ////////////
   //   GUI  //
   ////////////
@@ -204,7 +210,7 @@
       folderFBM.add(landVals,'height', 10, 500, 5).onChange(redrawScene);
     folderLand.add(landVals, 'falloff', -0.1, 0.3, 0.1).onChange(redrawScene);
     folderLand.add(landVals, 'iterations', 1, 16, 1).onChange(redrawScene);
-    folderLand.add(landVals, 'resolution', 200, 1400, 400).onChange(redrawScene);
+    folderLand.add(landVals, 'resolution', 255, 1279, 255).onChange(redrawScene);
     folderLand.add(landVals, 'enableFog', 'false', 'true').onChange(redrawScene);
 
   let folderCity = gui.addFolder("City");
