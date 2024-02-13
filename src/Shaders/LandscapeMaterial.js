@@ -17,6 +17,10 @@ export const LandShader = {
         offset: {value: new THREE.Vector2(-0.5,-0.5)},
         pitch: {value: new THREE.Vector2(4, 4)},
         enableFog: {value: true},
+        heightMap: {value: new THREE.DataTexture(new Uint8Array(1), 1, 1, THREE.RGBAFormat)},
+        hmMin: {value: 0.0},
+        hmMax: {value: 0.0},
+        heightMapRes: {value: 400.0}
     },
     vertexShader: /* glsl */`
     uniform vec3 lightDirection;
@@ -61,10 +65,15 @@ export const LandShader = {
     fragmentShader: /* glsl */`
     #define PI 3.14159265358979323846
     uniform vec3 lightColor;
+    uniform vec3 lightDirection;
     uniform sampler2D gradientMap;
     uniform samplerCube envMap;
     uniform float size;
     uniform bool enableFog;
+    uniform sampler2D heightMap;
+    uniform float hmMin;
+    uniform float hmMax;
+    uniform float heightMapRes;
 
     uniform float vpw; // Width, in pixels
     uniform float vph; // Height, in pixels
@@ -110,6 +119,24 @@ export const LandShader = {
         float x1 = mix(a, b, xy.x);
         float x2 = mix(c, d, xy.x);
         return mix(x1, x2, xy.y);
+    }
+
+    float getHeightInterpolated(vec2 UVPos){
+        float res = heightMapRes;
+        vec2 pixelPos = UVPos * res;
+        vec2 lerpP = fract(pixelPos);
+        pixelPos = floor(pixelPos);
+        vec2 corner = pixelPos / res;
+
+        float tl = texture2D(heightMap, corner).r;
+        float tr = texture2D(heightMap, corner + vec2(1.0, 0.0) / res).r;
+        float bl = texture2D(heightMap, corner + vec2(0.0, 1.0) / res).r;
+        float br = texture2D(heightMap, corner + vec2(1.0, 1.0) / res).r;
+
+        float top = mix(tl, tr, lerpP.x);
+        float bottom = mix(bl, br, lerpP.x);
+
+        return mix(top, bottom, lerpP.y);
     }
 
     // float plot(vec2 st, float pct){
@@ -187,19 +214,57 @@ export const LandShader = {
         //Diffuse Lighting
             //direct
             float dProd = dot( vNormal, lightVec );
-            dProd=(step(-0.4,dProd)*0.3 - 0.1 ) + step(0.6, dProd);
+            dProd=(step(-0.4,dProd)*0.3 - 0.1 ) + step(0.2, dProd);
             dProd=clamp(dProd,0.,1.0);
+  
 
             //sky
             float aLight = dot( vNormal, upVec );
             aLight=(step(-0.0,aLight)*0.5 - 0.1 ) + step(0.81, aLight);
             aLight=clamp(aLight,0.,1.0);
 
-        vec3 envColor = textureCube( envMap, vec3( -vReflect.x, vReflect.yz ) ).rgb;
+        //vec3 envColor = textureCube( envMap, vec3( -vReflect.x, vReflect.yz ) ).rgb;
 
         //final lights
         vec3 directLightColor = lightColor * dProd;
         vec3 skyLightColor = skyColor * aLight;
+        
+        //Shadows
+        int Steps = 10 ;
+        float heightMapH = getHeightInterpolated(vUV);
+        //get width of texture2D heightmap
+        vec3 p = vec3(vUV, heightMapH);
+        vec3 lightDir = normalize(lightDirection);
+        lightDir = vec3(lightDir.x, -lightDir.z, lightDir.y);
+        vec3 stepDir = normalize(lightDir);
+        float stepDist = 0.01;
+        float inShadow = 0.0;
+        float h = p.z + 0.05;
+        if (dProd > 0.0){
+            for (int i = 0; i < Steps; i++) {
+                p += stepDir * max(stepDist, (p.z - h) * 0.05);
+                //if p.x or p.y are outside the texture, break
+                if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0) {
+                    break;
+                }
+                float h = getHeightInterpolated(p.xy);
+                //expand h to real range using the min/max heights of the heightmap
+                //h = h/255.0;
+                //h = mix(hmMin, hmMax, h);
+                if (p.z < h) {
+                    inShadow = 1.0;
+                    break;
+                }
+                if (p.z > 1.0){
+                    break;
+                }
+            }
+        }
+
+
+        vec3 debugShadow = (1.0 - inShadow) * vec3(0.3, 0.3, 0.3);
+
+
 
         //pseudo fresnel
         float fresnel =  dot(vNormal, vViewDirection);
@@ -208,6 +273,7 @@ export const LandShader = {
 
         //final colour
         vec3 directLight = landColor * directLightColor;
+        directLight = mix(directLight , landColor * 0.1, inShadow);
         vec3 directFresnel = mix(directLight, fresnelLight, fresnel);
 
         vec3 skyLight = landColor * skyLightColor;
@@ -223,7 +289,11 @@ export const LandShader = {
         if (enableFog){
             finalFog = mix(c, fogColor, fog);
         }
-        gl_FragColor = vec4( finalFog, 1.0 );
+
+        //Get heightMapColor at corresponding position
+        vec3 heightMapColor = texture2D(heightMap, vUV).rgb;
+
+        gl_FragColor = vec4(finalFog, 1.0 );
     }
     `
 }
