@@ -21,25 +21,12 @@
 	<div id="button">
 	<button type ="button"> RECLAIM</button>
 	</div>
-
-
-	<script type="importmap">
-		{
-			"imports": {
-				"three": "./node_modules/three/build/three.module.js",
-				"three/addons/": "./node_modules/three/examples/jsm/",
-				"cannon-es": "./node_modules/cannon-es/dist/cannon-es.js",
-				"cannon-es-debugger": "./node_modules/cannon-es-debugger/dist/cannon-es-debugger.js",
-				"@tweenjs/tween.js": "/node_modules/@tweenjs/tween.js/dist/tween.es.js"
-			}
-		}
-	</script>
 		
 	<body>
 	  <canvas id="heightgrd" width="1" height="256"></canvas>
 	  <canvas id="overlay-canvas" style="position: absolute; left: 0; top: 0; width:100; height:100"></canvas>
 	  <canvas id="render"></canvas>
-		<script src=main.js type="module">
+		<script src="/src/main.js" type="module">
 		</script>
 	</body>
 </html>
