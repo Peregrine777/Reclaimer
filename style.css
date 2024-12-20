@@ -2,65 +2,72 @@ body {
     font-family: Monospace;
     background-color: #000;
     color: #fff;
-    margin: 0px;
+    margin: 0;
     overflow: hidden;
 }
+
 #info {
     position: absolute;
     top: 10px;
     width: 100%;
     text-align: center;
 }
-#button{
+
+#button {
     position: absolute;
     top: 60px;
     width: 100%;
     text-align: center;
 }
-#render{
-    position: inline-block;
-    top: 0px;
+
+#render {
+    position: absolute; /* Corrected to absolute */
+    top: 0;
     width: 100%;
-    text-align: center;
+    height: 100%;
+    z-index: 10;
 }
-#heightgrd{
-position: absolute;
-left:5px;
-top:90%;
-width: 25px;
-height: 50px;
-z-index: 1;
-visibility: visible;
+
+#heightgrd {
+    position: absolute;
+    left: 5px;
+    top: 90%; /* This could push the element too far on small screens */
+    width: 25px;
+    height: 50px;
+    z-index: 1;
+    visibility: visible;
 }
-#container{
+
+#container {
     background-color: #000;
     position: absolute;
-    left:55px;
+    left: 55px;
     bottom: 10px;
     width: 100px;
     height: 100px;
     z-index: 1;
     visibility: visible;
-    opacity: 80%;
+    opacity: 0.8; /* Corrected opacity to 0.8 */
     transition: width 0.5s, height 0.5s, opacity 0.5s;
-    }
-    #container:hover{
-        opacity: 100%;
-        width:250px;
-        height: 250px;
+}
 
-    }
-    #contTitle{
-        background-color: #00386c;
-        position: absolute;
-        top: 0px;
-        width: 100%;
-        text-align: center;
-    }
-    #fragCanvas{
+#container:hover {
+    opacity: 1; /* Full opacity on hover */
+    width: 250px;
+    height: 250px;
+}
 
-        position: block;
-        top: 0px;
-        width: 100%;
-        text-align: center;
-    }
+#contTitle {
+    background-color: #00386c;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    text-align: center;
+}
+
+#fragCanvas {
+    position: absolute; /* Corrected position to absolute */
+    top: 0;
+    width: 100%;
+    text-align: center;
+}

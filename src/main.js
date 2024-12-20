@@ -315,6 +315,7 @@
   
   // add the new control and link to the current camera to transform its position
   let controls = new OrbitControls( camera, renderer.domElement );
+  controls.target.set(0,0,0);
 
   function redrawScene(){
 
@@ -358,6 +359,7 @@
     environment.update();
 
     composer.render();
+    
     controls.update();
     requestAnimationFrame(MyUpdateLoop);
 
